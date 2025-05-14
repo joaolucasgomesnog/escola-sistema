@@ -51,7 +51,7 @@ const AccountMenu = () => {
                 <MenuItem>
                     <Avatar />
                     <Link to={`/${currentRole}/profile`}>
-                        Profile
+                        Perfil
                     </Link>
                 </MenuItem>
                 <Divider />
@@ -59,14 +59,14 @@ const AccountMenu = () => {
                     <ListItemIcon>
                         <Settings fontSize="small" />
                     </ListItemIcon>
-                    Settings
+                    Configurações
                 </MenuItem>
                 <MenuItem>
                     <ListItemIcon>
                         <Logout fontSize="small" />
                     </ListItemIcon>
                     <Link to="/logout">
-                        Logout
+                        Sair
                     </Link>
                 </MenuItem>
             </Menu>

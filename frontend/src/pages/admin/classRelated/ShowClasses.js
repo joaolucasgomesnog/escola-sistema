@@ -70,7 +70,7 @@ const ShowClasses = () => {
         </IconButton>
         <BlueButton variant="contained"
           onClick={() => navigate("/Admin/classes/class/" + row.id)}>
-          View
+          Vizualizar
         </BlueButton>
         <ActionMenu actions={actions} />
       </ButtonContainer>
@@ -100,7 +100,7 @@ const ShowClasses = () => {
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
             >
-              <h5>Add</h5>
+              <h5>Adicionar</h5>
               <SpeedDialIcon />
             </IconButton>
           </Tooltip>
@@ -145,7 +145,7 @@ const ShowClasses = () => {
   return (
     <>
       {loading ?
-        <div>Loading...</div>
+        <div>Carregando...</div>
         :
         <>
           {getresponse ?

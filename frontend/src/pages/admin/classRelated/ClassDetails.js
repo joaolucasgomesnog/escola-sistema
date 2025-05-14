@@ -110,13 +110,13 @@ const ClassDetails = () => {
                             variant="contained"
                             onClick={() => navigate("/Admin/addsubject/" + classID)}
                         >
-                            Add Subjects
+                            Adicionar matérias
                         </GreenButton>
                     </Box>
                     :
                     <>
                         <Typography variant="h5" gutterBottom>
-                            Subjects List:
+                            Matérias:
                         </Typography>
 
                         <TableTemplate buttonHaver={SubjectsButtonHaver} columns={subjectColumns} rows={subjectRows} />
@@ -185,14 +185,14 @@ const ClassDetails = () => {
                                 variant="contained"
                                 onClick={() => navigate("/Admin/class/addstudents/" + classID)}
                             >
-                                Add Students
+                                Adicionar alunos
                             </GreenButton>
                         </Box>
                     </>
                 ) : (
                     <>
                         <Typography variant="h5" gutterBottom>
-                            Students List:
+                            Alunos:
                         </Typography>
 
                         <TableTemplate buttonHaver={StudentsButtonHaver} columns={studentColumns} rows={studentRows} />
@@ -206,7 +206,7 @@ const ClassDetails = () => {
     const ClassTeachersSection = () => {
         return (
             <>
-                Teachers
+                Professores
             </>
         )
     }
@@ -218,23 +218,23 @@ const ClassDetails = () => {
         return (
             <>
                 <Typography variant="h4" align="center" gutterBottom>
-                    Class Details
+                    Detalhes da turma
                 </Typography>
                 <Typography variant="h5" gutterBottom>
-                    This is Class {sclassDetails && sclassDetails.sclassName}
+                    Turma: {sclassDetails && sclassDetails.sclassName}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                    Number of Subjects: {numberOfSubjects}
+                    Número de matérias: {numberOfSubjects}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                    Number of Students: {numberOfStudents}
+                    Número de estudantes: {numberOfStudents}
                 </Typography>
                 {getresponse &&
                     <GreenButton
                         variant="contained"
                         onClick={() => navigate("/Admin/class/addstudents/" + classID)}
                     >
-                        Add Students
+                        Adicionar Estudante
                     </GreenButton>
                 }
                 {response &&
@@ -242,7 +242,7 @@ const ClassDetails = () => {
                         variant="contained"
                         onClick={() => navigate("/Admin/addsubject/" + classID)}
                     >
-                        Add Subjects
+                        Adicionar matéria
                     </GreenButton>
                 }
             </>
@@ -259,10 +259,10 @@ const ClassDetails = () => {
                         <TabContext value={value}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                 <TabList onChange={handleChange} sx={{ position: 'fixed', width: '100%', bgcolor: 'background.paper', zIndex: 1 }}>
-                                    <Tab label="Details" value="1" />
-                                    <Tab label="Subjects" value="2" />
-                                    <Tab label="Students" value="3" />
-                                    <Tab label="Teachers" value="4" />
+                                    <Tab label="Detalhes" value="1" />
+                                    <Tab label="Matérias" value="2" />
+                                    <Tab label="Alunos" value="3" />
+                                    <Tab label="Professores" value="4" />
                                 </TabList>
                             </Box>
                             <Container sx={{ marginTop: "3rem", marginBottom: "4rem" }}>

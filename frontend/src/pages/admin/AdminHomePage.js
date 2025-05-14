@@ -40,7 +40,7 @@ const AdminHomePage = () => {
                         <StyledPaper>
                             <img src={Students} alt="Students" />
                             <Title>
-                                Total Students
+                                Alunos
                             </Title>
                             <Data start={0} end={numberOfStudents} duration={2.5} />
                         </StyledPaper>
@@ -49,7 +49,7 @@ const AdminHomePage = () => {
                         <StyledPaper>
                             <img src={Classes} alt="Classes" />
                             <Title>
-                                Total Classes
+                                Aulas
                             </Title>
                             <Data start={0} end={numberOfClasses} duration={5} />
                         </StyledPaper>
@@ -58,7 +58,7 @@ const AdminHomePage = () => {
                         <StyledPaper>
                             <img src={Teachers} alt="Teachers" />
                             <Title>
-                                Total Teachers
+                               Professores
                             </Title>
                             <Data start={0} end={numberOfTeachers} duration={2.5} />
                         </StyledPaper>
@@ -67,7 +67,7 @@ const AdminHomePage = () => {
                         <StyledPaper>
                             <img src={Fees} alt="Fees" />
                             <Title>
-                                Fees Collection
+                                Faturamento
                             </Title>
                             <Data start={0} end={23000} duration={2.5} prefix="$" />                        </StyledPaper>
                     </Grid>

@@ -73,7 +73,8 @@ const AdminDashboard = () => {
                             noWrap
                             sx={{ flexGrow: 1 }}
                         >
-                            Admin Dashboard
+                            
+                            Conecta Cursos
                         </Typography>
                         <AccountMenu />
                     </Toolbar>
