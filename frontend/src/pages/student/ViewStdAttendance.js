@@ -65,16 +65,16 @@ const ViewStdAttendance = () => {
         return (
             <>
                 <Typography variant="h4" align="center" gutterBottom>
-                    Attendance
+                    Frequência
                 </Typography>
                 <Table>
                     <TableHead>
                         <StyledTableRow>
-                            <StyledTableCell>Subject</StyledTableCell>
-                            <StyledTableCell>Present</StyledTableCell>
-                            <StyledTableCell>Total Sessions</StyledTableCell>
-                            <StyledTableCell>Attendance Percentage</StyledTableCell>
-                            <StyledTableCell align="center">Actions</StyledTableCell>
+                            <StyledTableCell>Curso</StyledTableCell>
+                            <StyledTableCell>Presenças</StyledTableCell>
+                            <StyledTableCell>Total de Aulas</StyledTableCell>
+                            <StyledTableCell>Percentual de presença</StyledTableCell>
+                            <StyledTableCell align="center">Ações</StyledTableCell>
                         </StyledTableRow>
                     </TableHead>
                     {Object.entries(attendanceBySubject).map(([subName, { present, allData, subId, sessions }], index) => {
@@ -90,7 +90,7 @@ const ViewStdAttendance = () => {
                                     <StyledTableCell align="center">
                                         <Button variant="contained"
                                             onClick={() => handleOpen(subId)}>
-                                            {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Details
+                                            {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Detalhes
                                         </Button>
                                     </StyledTableCell>
                                 </StyledTableRow>
@@ -99,7 +99,7 @@ const ViewStdAttendance = () => {
                                         <Collapse in={openStates[subId]} timeout="auto" unmountOnExit>
                                             <Box sx={{ margin: 1 }}>
                                                 <Typography variant="h6" gutterBottom component="div">
-                                                    Attendance Details
+                                                    Frequência analítica
                                                 </Typography>
                                                 <Table size="small" aria-label="purchases">
                                                     <TableHead>
@@ -133,7 +133,7 @@ const ViewStdAttendance = () => {
                     )}
                 </Table>
                 <div>
-                    Overall Attendance Percentage: {overallAttendancePercentage.toFixed(2)}%
+                    Percentual geral de frenquência: {overallAttendancePercentage.toFixed(2)}%
                 </div>
             </>
         )
@@ -163,12 +163,12 @@ const ViewStdAttendance = () => {
                             <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
                                 <BottomNavigation value={selectedSection} onChange={handleSectionChange} showLabels>
                                     <BottomNavigationAction
-                                        label="Table"
+                                        label="Tabela"
                                         value="table"
                                         icon={selectedSection === 'table' ? <TableChartIcon /> : <TableChartOutlinedIcon />}
                                     />
                                     <BottomNavigationAction
-                                        label="Chart"
+                                        label="Gráfico"
                                         value="chart"
                                         icon={selectedSection === 'chart' ? <InsertChartIcon /> : <InsertChartOutlinedIcon />}
                                     />
