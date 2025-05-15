@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "location" ADD COLUMN     "address" TEXT,
+ALTER COLUMN "accuracy" DROP NOT NULL,
+ALTER COLUMN "altitude" DROP NOT NULL,
+ALTER COLUMN "altitude_accuracy" DROP NOT NULL,
+ALTER COLUMN "heading" DROP NOT NULL,
+ALTER COLUMN "speed" DROP NOT NULL;
