@@ -1,372 +1,124 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // ou "mysql" dependendo do seu banco
   url      = env("DATABASE_URL")
 }
 
-model Message {
+model Address {
+  id           Int     @id @default(autoincrement())
+  street       String
+  number       String
+  neighborhood String
+  city         String
+  state        String
+  postalCode   String
+
+  students     Student[]
+  teachers     Teacher[]
+  admins       Admin[]
+}
+
+model Student {
+  id        Int     @id @default(autoincrement())
+  name      String
+  cpf       String  @unique
+  phone     String
+  picture   String
+  password  String
+  addressId Int
+  address   Address @relation(fields: [addressId], references: [id])
+
+  classLinks Class_Student[]
+  attendances Attendence[]
+  fees        Fee[]
+}
+
+model Teacher {
+  id        Int     @id @default(autoincrement())
+  name      String
+  cpf       String  @unique
+  phone     String
+  picture   String
+  password  String
+  addressId Int
+  address   Address @relation(fields: [addressId], references: [id])
+}
+
+model Admin {
+  id        Int     @id @default(autoincrement())
+  name      String
+  cpf       String  @unique
+  phone     String
+  picture   String
+  password  String
+  addressId Int
+  address   Address @relation(fields: [addressId], references: [id])
+
+  payments  Payment[]
+}
+
+model Course {
+  id      Int     @id @default(autoincrement())
+  name    String
+  picture String
+
+  classes Class[]
+}
+
+model Class {
+  id         Int      @id @default(autoincrement())
+  turno      String
+  horario    DateTime
+  startDate  DateTime
+  endDate    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  courseId   Int
+  course     Course   @relation(fields: [courseId], references: [id])
+
+  students   Class_Student[]
+  attendances Attendence[]
+}
+
+model Class_Student {
+  id       Int     @id @default(autoincrement())
+  student  Student @relation(fields: [studentId], references: [id])
+  studentId Int
+  class    Class   @relation(fields: [classId], references: [id])
+  classId  Int
+}
+
+model Attendence {
+  id        Int     @id @default(autoincrement())
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId Int
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   Int
+  date      DateTime
+}
+
+model Fee {
   id          Int      @id @default(autoincrement())
-  sender_id   String
-  receiver_id String
-  created_at  DateTime @default(now())
-  content     String   @db.VarChar(255)
-  status      Int
-
-  sender   User @relation("SentMessages", fields: [sender_id], references: [id])
-  receiver User @relation("ReceivedMessages", fields: [receiver_id], references: [id])
-
-  // @@unique([sender_id, receiver_id])
-  @@map("message")
-}
-
-model UserCategory {
-  id          Int    @id @default(autoincrement())
-  description String @db.VarChar(255)
-
-  user User[]
-
-  @@map("user_category")
-}
-
-model Post {
-  id             String         @id @default(uuid())
-  userId         String
-  description    String         @db.VarChar()
-  created_at     DateTime       @default(now())
-  media_url      String?        @db.VarChar(255)
-  count_comments Int            @default(0)
-  count_likes    Int            @default(0)
-  count_shares   Int            @default(0)
-  User           User           @relation(fields: [userId], references: [id])
-  comment        Comment[]
-  like           Like[]
-  favorite       Favorite[]
-  Notification   Notification[]
-
-  @@map("post")
-}
-
-model Notification {
-  id         String   @id @default(uuid())
-  type       String   @db.VarChar(50) // Tipo da notificação: "like", "comment", "new_follower", etc.
-  read       Boolean  @default(false) // Indica se a notificação foi lida
-  created_at DateTime @default(now())
-
-  // Relacionamento com post (para notificações de curtida ou comentário)
-  postId String? // Se a notificação está relacionada a um post
-  Post   Post?   @relation(fields: [postId], references: [id])
-
-  // Usuário que recebe a notificação
-  userId String // Usuário que está recebendo a notificação
-  User   User   @relation(fields: [userId], references: [id])
-
-  // Usuário que disparou a notificação (quem curtiu, comentou ou seguiu)
-  triggeredById String // Usuário que gerou a notificação
-  triggeredBy   User   @relation("UserTriggeredNotification", fields: [triggeredById], references: [id])
-
-  @@map("notification")
-}
-
-model User {
-  // id               Int      @id @default(autoincrement())
-  id                 String    @id @unique
-  notificationTokens String[]
-  username           String    @unique
-  name               String
-  user_category_id   Int
-  description        String?
-  profile_pic_url    String?
-  phone              String    @unique
-  email              String    @unique
-  birth_date         DateTime?
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-  location_id        Int
-  count_posts        Int       @default(0)
-  count_following    Int       @default(0)
-  count_followers    Int       @default(0)
-
-  user_category          UserCategory           @relation(fields: [user_category_id], references: [id])
-  current_local_id       Location               @relation(fields: [location_id], references: [id])
-  following              Following[]            @relation("Following")
-  follower               Following[]            @relation("Follower")
-  comment                Comment[]
-  like                   Like[]
-  favorite               Favorite[]
-  event                  Event[]
-  goal                   Goal[]
-  sentMessages           Message[]              @relation("SentMessages")
-  receiveMessages        Message[]              @relation("ReceivedMessages")
-  EventParticipant       EventParticipant[]
-  ChallengeParticipant   ChallengeParticipant[]
-  contact                User[]                 @relation("UserContacts")
-  User                   User[]                 @relation("UserContacts")
-  Post                   Post[]
-  Challenge              Challenge[]
-  CheckIn                CheckIn[]
-  sender                 Solicitation[]         @relation("Sender")
-  receiver               Solicitation[]         @relation("Receiver")
-  Notification           Notification[]
-  triggeredNotifications Notification[]         @relation("UserTriggeredNotification") // Notificações que o usuário gerou
-  BigEvent               BigEvent[]
-  Registration           Registration[]
-
-  @@map("user")
-}
-
-model EventParticipant {
-  event_id Int
-  user_id  String
-
-  event Event @relation(fields: [event_id], references: [id])
-  user  User  @relation(fields: [user_id], references: [id])
-
-  @@id([event_id, user_id])
-  @@map("event_participant")
-}
-
-model ChallengeParticipant {
-  challenge_id Int
-  user_id      String
-
-  challenge Challenge @relation(fields: [challenge_id], references: [id])
-  user      User      @relation(fields: [user_id], references: [id])
-
-  @@id([challenge_id, user_id])
-  @@map("challenge_participant")
-}
-
-model Event {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String?  @db.VarChar(255)
-  event_date  DateTime
-  created_at  DateTime @default(now())
-  user_id     String
-  location_id Int?
-  privacy_id  Int
-  category_id Int?
-
-  user             User               @relation(fields: [user_id], references: [id])
-  location         Location?          @relation(fields: [location_id], references: [id])
-  privacy          Privacy            @relation(fields: [privacy_id], references: [id])
-  eventCategory    EventCategory?     @relation(fields: [category_id], references: [id])
-  EventParticipant EventParticipant[]
-  Solicitation     Solicitation[]
-
-  @@map("event")
-}
-
-model BigEvent {
-  id          Int      @id @default(autoincrement())
-  user_id     String
-  title       String   @db.VarChar(255)
-  description String?  @db.VarChar(800)
-  event_date  DateTime
-  created_at  DateTime @default(now())
-
-  location       Location?      @relation(fields: [location_id], references: [id])
-  event_category EventCategory? @relation(fields: [category_id], references: [id])
-  user           User           @relation(fields: [user_id], references: [id])
-  location_id    Int?
-  category_id    Int?
-
-  //atributos diferentes do evento normal
-  image_url          String         @db.VarChar(255)
-  organizer          String
-  categories         Json?
-  additional_items   Json?
-  payment_methods    Json?
-  registration       Registration[]
-  registration_price Float
-
-  @@map("big_event")
-}
-
-model Registration {
-  //id esta incremental no banco por enquanto
-  id             Int      @id @default(autoincrement())
-  user_id        String
-  cpf            String
-  birth_date     DateTime
-  team           String?
-  name_on_shirt  String?
-  big_event_id   Int?
-  payment_status String
-  additional     Json?
-  selected_category       String
-  subtotal       Float
-
-  user     User      @relation(fields: [user_id], references: [id])
-  BigEvent BigEvent? @relation(fields: [big_event_id], references: [id])
-
-  @@map("registration")
-}
-
-model Challenge {
-  id                   Int                    @id @default(autoincrement())
-  title                String                 @db.VarChar(255)
-  description          String?                @db.VarChar(255)
-  pic_url              String?
-  initial_date         DateTime
-  final_date           DateTime
-  created_at           DateTime               @default(now())
-  user_id              String
-  category_id          Int?
-  user                 User                   @relation(fields: [user_id], references: [id])
-  challengeCategory    EventCategory?         @relation(fields: [category_id], references: [id])
-  ChallengeParticipant ChallengeParticipant[]
-  CheckIn              CheckIn[]
-  Solicitation         Solicitation[]
-
-  @@map("challenge")
-}
-
-model CheckIn {
-  id           Int       @id @default(autoincrement())
-  description  String?   @db.VarChar(255)
-  pic_url      String?
-  created_at   DateTime  @default(now())
-  user_id      String
-  challenge_id Int
-  challenge    Challenge @relation(fields: [challenge_id], references: [id])
-  user         User      @relation(fields: [user_id], references: [id])
-
-  @@map("checkin")
-}
-
-model Following {
-  id           Int    @id @default(autoincrement())
-  follower_id  String
-  following_id String
-
-  follower     User           @relation("Follower", fields: [follower_id], references: [id])
-  following    User           @relation("Following", fields: [following_id], references: [id])
-  Solicitation Solicitation[]
-
-  @@unique([follower_id, following_id])
-  @@map("following")
-}
-
-model Comment {
-  id          Int      @id @default(autoincrement())
-  description String   @db.VarChar(255)
-  user_id     String
-  post_id     String
-  created_at  DateTime @default(now())
-
-  user User @relation(fields: [user_id], references: [id])
-  post Post @relation(fields: [post_id], references: [id])
-
-  @@map("comment")
-}
-
-model Like {
-  user_id String
-  post_id String
-
-  user User @relation(fields: [user_id], references: [id])
-  post Post @relation(fields: [post_id], references: [id])
-
-  @@id([user_id, post_id])
-  @@map("like")
-}
-
-model Favorite {
-  id      Int    @id @default(autoincrement())
-  user_id String
-  post_id String
-
-  user User @relation(fields: [user_id], references: [id])
-  post Post @relation(fields: [post_id], references: [id])
-
-  @@map("favorite")
-}
-
-model EventCategory {
-  id          Int         @id @default(autoincrement())
-  title       String
-  description String?     @db.VarChar(255)
-  Event       Event[]
-  Challenge   Challenge[]
-  BigEvent    BigEvent[]
-
-  @@map("event_category")
-}
-
-model Privacy {
-  id          Int     @id @default(autoincrement())
+  student     Student  @relation(fields: [studentId], references: [id])
+  studentId   Int
+  value       Float
+  dueDate     DateTime
+  createdAt   DateTime @default(now())
   description String
-  event       Event[]
 
-  @@map("privacy")
+  payments    Payment[]
 }
 
-model Location {
-  id                Int     @id @default(autoincrement())
-  address           String?
-  accuracy          Float?
-  altitude          Float?
-  altitude_accuracy Float?
-  heading           Float?
-  latitude          Float
-  longitude         Float
-  speed             Float?
-
-  //adicionei
-  state String?
-  city  String?
-
-  user     User[]
-  event    Event[]
-  BigEvent BigEvent[]
-
-  @@map("location")
-}
-
-model Goal {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String?
-  user_id     String
-  status      Boolean @default(false)
-
-  user User @relation(fields: [user_id], references: [id])
-
-  @@map("goal")
-}
-
-model Solicitation {
+model Payment {
   id           Int      @id @default(autoincrement())
-  sender_id    String // O ID do usuário que está enviando a solicitação
-  receiver_id  String // O ID do usuário que está recebendo a solicitação
-  challenge_id Int? // O ID do Challenge, se a solicitação for para um desafio
-  following_id Int?
-  event_id     Int? // O ID do Event, se a solicitação for para um evento
-  status       Status   @default(PENDING) // Status da solicitação
-  created_at   DateTime @default(now())
-
-  following Following? @relation(fields: [following_id], references: [id])
-  sender    User       @relation("Sender", fields: [sender_id], references: [id])
-  receiver  User       @relation("Receiver", fields: [receiver_id], references: [id])
-  challenge Challenge? @relation(fields: [challenge_id], references: [id])
-  event     Event?     @relation(fields: [event_id], references: [id])
-  userId    String?
-
-  @@map("solicitation")
-}
-
-enum Status {
-  PENDING
-  ACCEPTED
-  REJECTED
+  fee          Fee      @relation(fields: [feeId], references: [id])
+  feeId        Int
+  paymentType  String
+  admin        Admin    @relation(fields: [adminId], references: [id])
+  adminId      Int
+  createdAt    DateTime @default(now())
+  description  String
 }
