@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Address {
-  id           Int     @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   street       String
   number       String
   neighborhood String
@@ -16,9 +16,9 @@ model Address {
   state        String
   postalCode   String
 
-  students     Student[]
-  teachers     Teacher[]
-  admins       Admin[]
+  students Student[]
+  teachers Teacher[]
+  admins   Admin[]
 }
 
 model Student {
@@ -31,7 +31,7 @@ model Student {
   addressId Int
   address   Address @relation(fields: [addressId], references: [id])
 
-  classLinks Class_Student[]
+  classLinks  Class_Student[]
   attendances Attendence[]
   fees        Fee[]
 }
@@ -45,6 +45,7 @@ model Teacher {
   password  String
   addressId Int
   address   Address @relation(fields: [addressId], references: [id])
+  Class     Class[]
 }
 
 model Admin {
@@ -57,11 +58,11 @@ model Admin {
   addressId Int
   address   Address @relation(fields: [addressId], references: [id])
 
-  payments  Payment[]
+  payments Payment[]
 }
 
 model Course {
-  id      Int     @id @default(autoincrement())
+  id      Int    @id @default(autoincrement())
   name    String
   picture String
 
@@ -69,33 +70,36 @@ model Course {
 }
 
 model Class {
-  id         Int      @id @default(autoincrement())
-  turno      String
-  horario    DateTime
-  startDate  DateTime
-  endDate    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  courseId   Int
-  course     Course   @relation(fields: [courseId], references: [id])
+  id        Int      @id @default(autoincrement())
+  turno     String
+  horario   DateTime
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  courseId  Int
+  teacherId Int
 
-  students   Class_Student[]
+  course Course @relation(fields: [courseId], references: [id])
+
+  teacher     Teacher         @relation(fields: [teacherId], references: [id])
+  students    Class_Student[]
   attendances Attendence[]
 }
 
 model Class_Student {
-  id       Int     @id @default(autoincrement())
-  student  Student @relation(fields: [studentId], references: [id])
-  studentId Int
-  class    Class   @relation(fields: [classId], references: [id])
-  classId  Int
-}
-
-model Attendence {
   id        Int     @id @default(autoincrement())
   student   Student @relation(fields: [studentId], references: [id])
   studentId Int
   class     Class   @relation(fields: [classId], references: [id])
+  classId   Int
+}
+
+model Attendence {
+  id        Int      @id @default(autoincrement())
+  student   Student  @relation(fields: [studentId], references: [id])
+  studentId Int
+  class     Class    @relation(fields: [classId], references: [id])
   classId   Int
   date      DateTime
 }
@@ -109,16 +113,16 @@ model Fee {
   createdAt   DateTime @default(now())
   description String
 
-  payments    Payment[]
+  payments Payment[]
 }
 
 model Payment {
-  id           Int      @id @default(autoincrement())
-  fee          Fee      @relation(fields: [feeId], references: [id])
-  feeId        Int
-  paymentType  String
-  admin        Admin    @relation(fields: [adminId], references: [id])
-  adminId      Int
-  createdAt    DateTime @default(now())
-  description  String
+  id          Int      @id @default(autoincrement())
+  fee         Fee      @relation(fields: [feeId], references: [id])
+  feeId       Int
+  paymentType String
+  admin       Admin    @relation(fields: [adminId], references: [id])
+  adminId     Int
+  createdAt   DateTime @default(now())
+  description String
 }
