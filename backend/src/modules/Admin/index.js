@@ -1,4 +1,8 @@
 import { prisma } from "./../../lib/prisma.js";
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+
+const SECRET_KEY = process.env.JWT_SECRET; 
 
 
 // Criar novo Admin
@@ -9,10 +13,26 @@ export default {
 
       //fazer login
 
-      res.status(201).json({ cpf, password });
+      const admin = await prisma.admin.findUnique({where: {cpf}})
+
+      if(!admin){
+        return res.status(404).json({error: "admin nao cadastrado"})
+      }
+
+      const passwordMatch = await bcrypt.compare(password, admin.password)
+
+      if(!passwordMatch){
+        return res.status(401).json({error: "cpf ou senha invalidos"})
+      }
+      
+      const token = jwt.sign({adminId: admin.id}, SECRET_KEY, {expiresIn: '24h'})
+
+      
+
+      return res.status(200).json({ token, message: 'login successfull' });
     } catch (error) {
       console.error("Erro ao criar admin:", error);
-      res.status(500).json({ error: "Erro interno ao criar admin" });
+      res.status(500).json({ error: "Erro interno ao fazer login" });
     }
   },
 
@@ -20,10 +40,19 @@ export default {
     try {
       const { name, cpf, phone, picture, password, address } = req.body;
 
+      const adminExists = await prisma.admin.findUnique({ where: { cpf } })
+
+      if(adminExists){
+        return res.status(409).json({error: 'cpf informado já foi cadastrado'})
+      }
+      
       // Criação do endereço
       const newAddress = await prisma.address.create({
         data: address,
       });
+
+      //criptografar senha
+      const hashedPassword = await hashPassword(password)
 
       // Criação do admin com vínculo ao endereço
       const admin = await prisma.admin.create({
@@ -32,9 +61,14 @@ export default {
           cpf,
           phone,
           picture,
-          password,
+          password: hashedPassword,
           addressId: newAddress.id,
         },
+        select: {
+          id: true,
+          name: true,
+          cpf: true
+        }
       });
 
       res.status(201).json(admin);
@@ -43,13 +77,17 @@ export default {
       res.status(500).json({ error: "Erro interno ao criar admin" });
     }
   },
+
   // Buscar todos os admins
   async getAllAdmins(req, res) {
     try {
       const admins = await prisma.admin.findMany({
         include: { address: true },
       });
-      res.status(200).json(admins);
+
+      const adminsWithoutPassword = admins.map(({password, ...rest}) => rest)
+
+      res.status(200).json(adminsWithoutPassword);
     } catch (error) {
       console.error("Erro ao buscar admins:", error);
       res.status(500).json({ error: "Erro interno ao buscar admins" });
@@ -67,6 +105,8 @@ export default {
       if (!admin) {
         return res.status(404).json({ error: "Admin não encontrado" });
       }
+
+      delete admin.password
 
       res.status(200).json(admin);
     } catch (error) {
@@ -97,11 +137,15 @@ export default {
         });
       }
 
+      const hashedPassword = await hashPassword(password)
+
       const updatedAdmin = await prisma.admin.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, picture, password },
+        data: { name, cpf, phone, picture, password:hashedPassword },
         include: { address: true },
       });
+
+      delete updatedAdmin.password
 
       res.status(200).json(updatedAdmin);
     } catch (error) {
@@ -139,3 +183,8 @@ export default {
     }
   },
 };
+
+async function hashPassword(password){
+  const saltRounds = 10
+  return await bcrypt.hash(password, saltRounds)
+}
