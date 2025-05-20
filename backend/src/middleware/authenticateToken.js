@@ -20,6 +20,7 @@ export default function autenticateToken(req, res, next){
     }
 
     req.userId = decoded.userId
+    req.role = decoded.role
 
     next()
   })

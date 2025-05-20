@@ -11,8 +11,6 @@ export default {
     try {
       const { cpf, password } = req.body;
 
-      //fazer login
-
       const admin = await prisma.admin.findUnique({where: {cpf}})
 
       if(!admin){
@@ -25,9 +23,7 @@ export default {
         return res.status(401).json({error: "cpf ou senha invalidos"})
       }
       
-      const token = jwt.sign({adminId: admin.id}, SECRET_KEY, {expiresIn: '24h'})
-
-      
+      const token = jwt.sign({adminId: admin.id, role: 'admin'}, SECRET_KEY, {expiresIn: '24h'})
 
       return res.status(200).json({ token, message: 'login successfull' });
     } catch (error) {
