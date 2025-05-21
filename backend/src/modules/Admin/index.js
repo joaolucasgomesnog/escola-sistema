@@ -27,8 +27,24 @@ export default {
 
       return res.status(200).json({ token, message: 'login successfull' });
     } catch (error) {
-      console.error("Erro ao criar admin:", error);
+      console.error("Erro ao fazer login:", error);
       res.status(500).json({ error: "Erro interno ao fazer login" });
+    }
+  },
+
+  async logout(req, res){
+    try {
+      const {token} = req.body
+
+      console.log(token)
+
+      await prisma.blackListToken.create({ data: {token}})
+
+      return res.status(200).json({message: "token adicionado a blackList"})
+
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      res.status(500).json({ error: "Erro interno ao fazer logout" });
     }
   },
 
