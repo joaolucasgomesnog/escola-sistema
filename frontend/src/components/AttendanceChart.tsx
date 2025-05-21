@@ -53,10 +53,10 @@ const AttendanceChart = () => {
           <XAxis
             dataKey="name"
             axisLine={false}
-            tick={{ fill: "#d1d5db" }}
+            tick={{ fill: "#6B7280" }}
             tickLine={false}
           />
-          <YAxis axisLine={false} tick={{ fill: "#d1d5db" }} tickLine={false} />
+          <YAxis axisLine={false} tick={{ fill: "#6B7280" }} tickLine={false} />
           <Tooltip
             contentStyle={{ borderRadius: "10px", borderColor: "lightgray" }}
           />
@@ -67,13 +67,13 @@ const AttendanceChart = () => {
           />
           <Bar
             dataKey="Presenças"
-            fill="#FAE27C"
+            fill="#4F46E5"
             legendType="circle"
             radius={[10, 10, 0, 0]}
           />
           <Bar
             dataKey="Faltas"
-            fill="#C3EBFA"
+            fill="#FF5555"
             legendType="circle"
             radius={[10, 10, 0, 0]}
           />

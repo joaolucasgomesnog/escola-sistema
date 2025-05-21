@@ -20,11 +20,35 @@ const LoginPage = () => {
     setCpf(formatCpf(e.target.value));
   };
 
-  const handleLogin = () => {
-    // lógica de login
-    // se login der certo:
+const handleLogin = async () => {
+  try {
+    const rawCpf = cpf.replace(/\D/g, ''); // remove a formatação
+
+    const response = await fetch('http://localhost:3030/admin/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cpf: rawCpf, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Erro ao fazer login');
+      return;
+    }
+
+    // Aqui você pode salvar o token no localStorage ou cookies se desejar
+    localStorage.setItem('token', data.token);
+
+    // Redireciona para o painel admin
     router.push('/admin');
-  };
+  } catch (error) {
+    console.error('Erro na requisição de login:', error);
+    alert('Erro ao conectar com o servidor. Tente novamente mais tarde.');
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full">
