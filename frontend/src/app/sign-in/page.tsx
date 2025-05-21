@@ -1,42 +1,97 @@
-import Announcements from "@/components/Announcements";
-import AttendanceChart from "@/components/AttendanceChart";
-import CountChart from "@/components/CountChart";
-import EventCalendar from "@/components/EventCalendar";
-import FinanceChart from "@/components/FinanceChart";
-import UserCard from "@/components/UserCard";
+'use client';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+
+const formatCpf = (value: string) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+};
 
 const LoginPage = () => {
+  const router = useRouter();
+  const [cpf, setCpf] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCpf(formatCpf(e.target.value));
+  };
+
+  const handleLogin = () => {
+    // lógica de login
+    // se login der certo:
+    router.push('/admin');
+  };
+
   return (
-    <div className="p-4 flex gap-4 flex-col md:flex-row">
-      {/* LEFT */}
-      <div className="w-full lg:w-2/3 flex flex-col gap-8">
-        {/* USER CARDS */}
-        <div className="flex gap-4 justify-between flex-wrap">
-          <UserCard type="Estudante" />
-          <UserCard type="Professore" />
-          <UserCard type="Pai" />
-          <UserCard type="Funcionário" />
+    <div className="flex items-center justify-center min-h-screen w-full">
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm -mt-10">
+          <img
+            alt="Your Company"
+            src="/logo.png"
+            className="mx-auto h-12 w-auto"
+          />
         </div>
-        {/* MIDDLE CHARTS */}
-        <div className="flex gap-4 flex-col lg:flex-row">
-          {/* COUNT CHART */}
-          <div className="w-full lg:w-1/3 h-[450px]">
-            <CountChart />
-          </div>
-          {/* ATTENDANCE CHART */}
-          <div className="w-full lg:w-2/3 h-[450px]">
-            <AttendanceChart />
-          </div>
+
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <form action="#" method="POST" className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+            <div>
+              <label htmlFor="cpf" className="block text-sm/6 font-medium text-gray-900">
+                CPF
+              </label>
+              <div className="mt-2">
+                <input
+                  id="cpf"
+                  name="cpf"
+                  type="text"
+                  value={cpf}
+                  onChange={handleCpfChange}
+                  required
+                  maxLength={14}
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
+                  Senha
+                </label>
+                <div className="text-sm">
+                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                    Esqueceu a senha?
+                  </a>
+                </div>
+              </div>
+              <div className="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Entrar
+              </button>
+            </div>
+          </form>
         </div>
-        {/* BOTTOM CHART */}
-        <div className="w-full h-[500px]">
-          <FinanceChart />
-        </div>
-      </div>
-      {/* RIGHT */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-8">
-        <EventCalendar />
-        <Announcements/>
       </div>
     </div>
   );
