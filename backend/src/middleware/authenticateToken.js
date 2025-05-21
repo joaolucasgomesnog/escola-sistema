@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
+import { prisma } from "../lib/prisma.js";
 
 
-export default function autenticateToken(req, res, next){
+export default async function autenticateToken(req, res, next){
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1]
   
@@ -12,6 +13,12 @@ export default function autenticateToken(req, res, next){
   }
 
   console.log("token", token)
+
+  const tokenInBlackList = await prisma.blackListToken.findUnique({where: {token}})
+
+  if(tokenInBlackList){
+    return res.status(403).json({error: "Token invalido - está na blacklist"})
+  }
 
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if(err){

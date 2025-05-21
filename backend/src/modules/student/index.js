@@ -5,25 +5,25 @@ import jwt from 'jsonwebtoken'
 const SECRET_KEY = process.env.JWT_SECRET; 
 
 
-// Criar novo Admin
+// Criar novo Student
 export default {
   async login(req, res) {
     try {
       const { cpf, password } = req.body;
 
-      const admin = await prisma.admin.findUnique({where: {cpf}})
+      const student = await prisma.student.findUnique({where: {cpf}})
 
-      if(!admin){
-        return res.status(404).json({error: "admin nao cadastrado"})
+      if(!student){
+        return res.status(404).json({error: "student nao cadastrado"})
       }
 
-      const passwordMatch = await bcrypt.compare(password, admin.password)
+      const passwordMatch = await bcrypt.compare(password, student.password)
 
       if(!passwordMatch){
         return res.status(401).json({error: "cpf ou senha invalidos"})
       }
       
-      const token = jwt.sign({adminId: admin.id, role: 'admin'}, SECRET_KEY, {expiresIn: '24h'})
+      const token = jwt.sign({studentId: student.id, role: 'student'}, SECRET_KEY, {expiresIn: '24h'})
 
       return res.status(200).json({ token, message: 'login successfull' });
     } catch (error) {
@@ -48,13 +48,13 @@ export default {
     }
   },
 
-  async createAdmin(req, res) {
+  async createStudent(req, res) {
     try {
       const { name, cpf, phone, picture, password, address } = req.body;
 
-      const adminExists = await prisma.admin.findUnique({ where: { cpf } })
+      const studentExists = await prisma.student.findUnique({ where: { cpf } })
 
-      if(adminExists){
+      if(studentExists){
         return res.status(409).json({error: 'cpf informado já foi cadastrado'})
       }
       
@@ -66,8 +66,8 @@ export default {
       //criptografar senha
       const hashedPassword = await hashPassword(password)
 
-      // Criação do admin com vínculo ao endereço
-      const admin = await prisma.admin.create({
+      // Criação do student com vínculo ao endereço
+      const student = await prisma.student.create({
         data: {
           name,
           cpf,
@@ -83,115 +83,115 @@ export default {
         }
       });
 
-      res.status(201).json(admin);
+      res.status(201).json(student);
     } catch (error) {
-      console.error("Erro ao criar admin:", error);
-      res.status(500).json({ error: "Erro interno ao criar admin" });
+      console.error("Erro ao criar student:", error);
+      res.status(500).json({ error: "Erro interno ao criar student" });
     }
   },
 
-  // Buscar todos os admins
-  async getAllAdmins(req, res) {
+  // Buscar todos os students
+  async getAllStudents(req, res) {
     try {
-      const admins = await prisma.admin.findMany({
+      const students = await prisma.student.findMany({
         include: { address: true },
       });
 
-      const adminsWithoutPassword = admins.map(({password, ...rest}) => rest)
+      const studentsWithoutPassword = students.map(({password, ...rest}) => rest)
 
-      res.status(200).json(adminsWithoutPassword);
+      res.status(200).json(studentsWithoutPassword);
     } catch (error) {
-      console.error("Erro ao buscar admins:", error);
-      res.status(500).json({ error: "Erro interno ao buscar admins" });
+      console.error("Erro ao buscar students:", error);
+      res.status(500).json({ error: "Erro interno ao buscar students" });
     }
   },
-  // Buscar admin por ID
-  async getAdminById(req, res) {
+  // Buscar student por ID
+  async getStudentById(req, res) {
     try {
       const { id } = req.params;
-      const admin = await prisma.admin.findUnique({
+      const student = await prisma.student.findUnique({
         where: { id: Number(id) },
         include: { address: true },
       });
 
-      if (!admin) {
-        return res.status(404).json({ error: "Admin não encontrado" });
+      if (!student) {
+        return res.status(404).json({ error: "Student não encontrado" });
       }
 
-      delete admin.password
+      delete student.password
 
-      res.status(200).json(admin);
+      res.status(200).json(student);
     } catch (error) {
-      console.error("Erro ao buscar admin:", error);
-      res.status(500).json({ error: "Erro interno ao buscar admin" });
+      console.error("Erro ao buscar student:", error);
+      res.status(500).json({ error: "Erro interno ao buscar student" });
     }
   },
 
-  // Atualizar admin
-  async updateAdmin(req, res) {
+  // Atualizar student
+  async updateStudent(req, res) {
     try {
       const { id } = req.params;
       const { name, cpf, phone, picture, password, address } = req.body;
 
-      const adminExists = await prisma.admin.findUnique({
+      const studentExists = await prisma.student.findUnique({
         where: { id: Number(id) },
       });
 
-      if (!adminExists) {
-        return res.status(404).json({ error: "Admin não encontrado" });
+      if (!studentExists) {
+        return res.status(404).json({ error: "Student não encontrado" });
       }
 
       // Atualiza o endereço, se fornecido
       if (address) {
         await prisma.address.update({
-          where: { id: adminExists.addressId },
+          where: { id: studentExists.addressId },
           data: address,
         });
       }
 
       const hashedPassword = await hashPassword(password)
 
-      const updatedAdmin = await prisma.admin.update({
+      const updatedStudent = await prisma.student.update({
         where: { id: Number(id) },
         data: { name, cpf, phone, picture, password:hashedPassword },
         include: { address: true },
       });
 
-      delete updatedAdmin.password
+      delete updatedStudent.password
 
-      res.status(200).json(updatedAdmin);
+      res.status(200).json(updatedStudent);
     } catch (error) {
-      console.error("Erro ao atualizar admin:", error);
-      res.status(500).json({ error: "Erro interno ao atualizar admin" });
+      console.error("Erro ao atualizar student:", error);
+      res.status(500).json({ error: "Erro interno ao atualizar student" });
     }
   },
 
-  // Deletar admin
-  async deleteAdmin(req, res) {
+  // Deletar student
+  async deleteStudent(req, res) {
     try {
       const { id } = req.params;
 
-      const admin = await prisma.admin.findUnique({
+      const student = await prisma.student.findUnique({
         where: { id: Number(id) },
       });
 
-      if (!admin) {
-        return res.status(404).json({ error: "Admin não encontrado" });
+      if (!student) {
+        return res.status(404).json({ error: "Student não encontrado" });
       }
 
-      await prisma.admin.delete({
+      await prisma.student.delete({
         where: { id: Number(id) },
       });
 
       // (Opcional) deletar endereço associado
       // await prisma.address.delete({
-      //   where: { id: admin.addressId },
+      //   where: { id: student.addressId },
       // });
 
       res.status(204).send();
     } catch (error) {
-      console.error("Erro ao deletar admin:", error);
-      res.status(500).json({ error: "Erro interno ao deletar admin" });
+      console.error("Erro ao deletar student:", error);
+      res.status(500).json({ error: "Erro interno ao deletar student" });
     }
   },
 };
