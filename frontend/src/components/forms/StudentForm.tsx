@@ -7,16 +7,15 @@ import InputField from "../InputField";
 import Image from "next/image";
 
 const schema = z.object({
-  username: z
+  cpf: z
     .string()
-    .min(3, { message: "Username must be at least 3 characters long!" })
-    .max(20, { message: "Username must be at most 20 characters long!" }),
+    .min(3, { message: "Cpf must be at least 3 characters long!" })
+    .max(20, { message: "Cpf must be at most 20 characters long!" }),
   email: z.string().email({ message: "Invalid email address!" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters long!" }),
-  firstName: z.string().min(1, { message: "First name is required!" }),
-  lastName: z.string().min(1, { message: "Last name is required!" }),
+  name: z.string().min(1, { message: "First name is required!" }),
   phone: z.string().min(1, { message: "Phone is required!" }),
   address: z.string().min(1, { message: "Address is required!" }),
   bloodType: z.string().min(1, { message: "Blood Type is required!" }),
@@ -48,24 +47,17 @@ const StudentForm = ({
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold">Create a new student</h1>
+      <h1 className="text-xl font-semibold">Cadastrar estudante</h1>
       <span className="text-xs text-gray-400 font-medium">
-        Authentication Information
+        Informações de login
       </span>
-      <div className="flex justify-between flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4">
         <InputField
-          label="Username"
-          name="username"
-          defaultValue={data?.username}
+          label="CPF"
+          name="cpf"
+          defaultValue={data?.cpf}
           register={register}
-          error={errors?.username}
-        />
-        <InputField
-          label="Email"
-          name="email"
-          defaultValue={data?.email}
-          register={register}
-          error={errors?.email}
+          error={errors?.cpf}
         />
         <InputField
           label="Password"
@@ -77,22 +69,15 @@ const StudentForm = ({
         />
       </div>
       <span className="text-xs text-gray-400 font-medium">
-        Personal Information
+        Informações pessoais
       </span>
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="First Name"
-          name="firstName"
-          defaultValue={data?.firstName}
+          label="Nome"
+          name="name"
+          defaultValue={data?.name}
           register={register}
-          error={errors.firstName}
-        />
-        <InputField
-          label="Last Name"
-          name="lastName"
-          defaultValue={data?.lastName}
-          register={register}
-          error={errors.lastName}
+          error={errors.name}
         />
         <InputField
           label="Phone"
@@ -102,8 +87,36 @@ const StudentForm = ({
           error={errors.phone}
         />
         <InputField
-          label="Address"
-          name="address"
+          label="CEP"
+          name="cep"
+          defaultValue={data?.lastName}
+          register={register}
+          error={errors.lastName}
+        />
+        <InputField
+          label="Rua"
+          name="rua"
+          defaultValue={data?.address}
+          register={register}
+          error={errors.address}
+        />
+                <InputField
+          label="Número"
+          name="numero"
+          defaultValue={data?.address}
+          register={register}
+          error={errors.address}
+        />
+                <InputField
+          label="Bairro"
+          name="neighboor"
+          defaultValue={data?.address}
+          register={register}
+          error={errors.address}
+        />
+                <InputField
+          label="Cidade"
+          name="city"
           defaultValue={data?.address}
           register={register}
           error={errors.address}
