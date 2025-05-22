@@ -4,33 +4,7 @@ import jwt from 'jsonwebtoken'
 
 const SECRET_KEY = process.env.JWT_SECRET; 
 
-
-// Criar novo Student
 export default {
-  async login(req, res) {
-    try {
-      const { cpf, password } = req.body;
-
-      const student = await prisma.student.findUnique({where: {cpf}})
-
-      if(!student){
-        return res.status(404).json({error: "student nao cadastrado"})
-      }
-
-      const passwordMatch = await bcrypt.compare(password, student.password)
-
-      if(!passwordMatch){
-        return res.status(401).json({error: "cpf ou senha invalidos"})
-      }
-      
-      const token = jwt.sign({studentId: student.id, role: 'student'}, SECRET_KEY, {expiresIn: '24h'})
-
-      return res.status(200).json({ token, message: 'login successfull' });
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      res.status(500).json({ error: "Erro interno ao fazer login" });
-    }
-  },
 
   async logout(req, res){
     try {

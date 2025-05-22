@@ -6,7 +6,6 @@ import { Router } from "express";
 
 const teacherRoutes = Router();
 
-teacherRoutes.post('/login', teacher.login)
 teacherRoutes.post('/logout/', autenticateToken, authorizeRoles('teacher'), teacher.logout);
 teacherRoutes.post('/create', autenticateToken, authorizeRoles('admin'), teacher.createTeacher)
 teacherRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin'), teacher.getTeacherById);

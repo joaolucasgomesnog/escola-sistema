@@ -6,7 +6,6 @@ import { Router } from "express";
 
 const adminRoutes = Router();
 
-adminRoutes.post('/login', admin.login)
 adminRoutes.post('/logout/', autenticateToken, authorizeRoles('admin'), admin.logout);
 adminRoutes.post('/create', autenticateToken, authorizeRoles('admin'), admin.createAdmin)
 adminRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin'), admin.getAdminById);

@@ -4,33 +4,7 @@ import jwt from 'jsonwebtoken'
 
 const SECRET_KEY = process.env.JWT_SECRET; 
 
-
-// Criar novo Admin
 export default {
-  async login(req, res) {
-    try {
-      const { cpf, password } = req.body;
-
-      const admin = await prisma.admin.findUnique({where: {cpf}})
-
-      if(!admin){
-        return res.status(404).json({error: "admin nao cadastrado"})
-      }
-
-      const passwordMatch = await bcrypt.compare(password, admin.password)
-
-      if(!passwordMatch){
-        return res.status(401).json({error: "cpf ou senha invalidos"})
-      }
-      
-      const token = jwt.sign({adminId: admin.id, role: 'admin'}, SECRET_KEY, {expiresIn: '24h'})
-
-      return res.status(200).json({ token, message: 'login successfull' });
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      res.status(500).json({ error: "Erro interno ao fazer login" });
-    }
-  },
 
   async logout(req, res){
     try {
