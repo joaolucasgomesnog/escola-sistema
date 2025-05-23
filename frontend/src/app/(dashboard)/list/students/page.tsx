@@ -25,17 +25,20 @@ const columns = [
   {
     header: "Nome",
     accessor: "name",
+    className: "w-1/3", // ocupa 1/3 da largura
   },
   {
     header: "Telefone",
     accessor: "phone",
-    className: "hidden lg:table-cell",
+    className: "w-1/3 hidden lg:table-cell", // visível apenas em telas grandes
   },
   {
-    header: "Actions",
+    header: "Ação",
     accessor: "action",
+    className: "w-1/3 text-center",
   },
 ];
+
 
 const StudentListPage = () => {
   const [students, setStudents] = useState<Student[]>([]);

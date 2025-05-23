@@ -46,7 +46,7 @@ const FormModal = ({
   data?: any;
   id?: number;
 }) => {
-  const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
+  const size = type === "create" ? "w-12 h-8" : "w-7 h-7";
   const bgColor =
     type === "create"
       ? "bg-lamaYellow"
@@ -83,7 +83,7 @@ const FormModal = ({
       </button>
       {open && (
         <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
+<div className="bg-white p-4 rounded-md relative w-[95%] md:w-[80%] lg:w-[75%] xl:w-[60%] 2xl:w-[50%] max-h-[90vh] overflow-y-auto">
             <Form />
             <div
               className="absolute top-4 right-4 cursor-pointer"
