@@ -101,11 +101,14 @@ model Class_Student {
 
 model Attendence {
   id        Int      @id @default(autoincrement())
-  student   Student  @relation(fields: [studentId], references: [id])
   studentId Int
-  class     Class    @relation(fields: [classId], references: [id])
   classId   Int
-  date      DateTime
+  date      DateTime @default(now())
+
+  class     Class    @relation(fields: [classId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, classId, date])
 }
 
 model Fee {
