@@ -75,6 +75,8 @@ model Course {
 
 model Class {
   id        Int      @id @default(autoincrement())
+  code      String
+  name      String
   turno     String
   horario   DateTime
   startDate DateTime
@@ -105,8 +107,8 @@ model Attendence {
   classId   Int
   date      DateTime @default(now())
 
-  class     Class    @relation(fields: [classId], references: [id])
-  student   Student  @relation(fields: [studentId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, classId, date])
 }
