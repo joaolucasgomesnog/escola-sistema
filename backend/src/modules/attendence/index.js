@@ -1,6 +1,8 @@
 import { prisma } from "../../lib/prisma.js";
 
 export default {
+
+  //MUDAR PARA RECEBER UMA LISTA DE STUDENT_ID NO BODY E CLASS_ID NO PARAMS
   async createAttendence(req, res) {
     const { student_id, class_id } = req.body;
 

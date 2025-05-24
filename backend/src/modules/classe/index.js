@@ -1,7 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 
 //NAO PODE USAR CLASS COMO VARIAVEL, É PALAVRA RESERVADA
-//PRECISA SUBSTITUIR
 
 export default {
 
