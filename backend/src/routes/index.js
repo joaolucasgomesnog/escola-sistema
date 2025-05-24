@@ -12,7 +12,7 @@ routes.use('/admin', adminRoutes)
 routes.use('/student', studentRoutes)
 routes.use('/teacher', teacherRoutes)
 routes.use('/attendence', attendenceRoutes)
-routes.use('/classe', classeRoutes)
+routes.use('/class', classeRoutes)
 routes.use('/login', loginRoutes)
 
 

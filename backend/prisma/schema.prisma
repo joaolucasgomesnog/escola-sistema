@@ -75,7 +75,7 @@ model Course {
 
 model Class {
   id        Int      @id @default(autoincrement())
-  code      String
+  code      String   @unique
   name      String
   turno     String
   horario   DateTime

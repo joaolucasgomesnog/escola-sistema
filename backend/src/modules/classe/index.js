@@ -1,8 +1,8 @@
 import { prisma } from "../../lib/prisma.js";
 
-
 //NAO PODE USAR CLASS COMO VARIAVEL, É PALAVRA RESERVADA
 //PRECISA SUBSTITUIR
+
 export default {
 
   async createClass(req, res) {
@@ -15,9 +15,9 @@ export default {
         return res.status(409).json({ error: 'code informado já foi cadastrado' })
       }
 
-      const class = await prisma.class.create({
+      const classe = await prisma.class.create({
         data: {
-          code, 
+          code: code.toLowerCase(), 
           name, 
           turno, 
           horario, 
@@ -28,7 +28,7 @@ export default {
         }
       });
 
-      return res.status(201).json(class);
+      return res.status(201).json(classe);
     } catch (error) {
       console.error("Erro ao criar class:", error);
       res.status(500).json({ error: "Erro interno ao criar class" });
@@ -51,14 +51,15 @@ export default {
   // Buscar class por ID
   async getClassByCode(req, res) {
     try {
-      const { code } = req.params;
-      const class = await prisma.class.findUnique({where: { code }});
+      const { code } = req.params
 
-      if (!class) {
+      const classe = await prisma.class.findUnique({where: { code: code.toLowerCase() }});
+
+      if (!classe) {
         return res.status(404).json({ error: "Class não encontrado" });
       }
 
-      return res.status(200).json(class);
+      return res.status(200).json(classe);
     } catch (error) {
       console.error("Erro ao buscar class:", error);
       return res.status(500).json({ error: "Erro interno ao buscar class" });
@@ -107,11 +108,11 @@ export default {
     try {
       const { id } = req.params;
 
-      const class = await prisma.class.findUnique({
+      const classe = await prisma.class.findUnique({
         where: { id: Number(id) },
       });
 
-      if (!class) {
+      if (!classe) {
         return res.status(404).json({ error: "Class não encontrado" });
       }
 
