@@ -1,36 +1,29 @@
 import { prisma } from "../../lib/prisma.js";
+import { parseISO, isValid, startOfDay, endOfDay } from 'date-fns'
 
 export default {
 
-  //MUDAR PARA RECEBER UMA LISTA DE STUDENT_ID NO BODY E CLASS_ID NO PARAMS
-  async createAttendence(req, res) {
-    const { student_id, class_id } = req.body;
+  async createAttendences(req, res) {
+
+    //formato esperado: [ {studentId, classId}, {studentId, classId} ]
+    const attendences = req.body;
+
+    if(!Array.isArray(attendences) || attendences.length === 0){
+      return res.status(400).json({error: 'A lista de attendences está vazia ou malformada'})
+    }
 
     try {
-      const class_exists = await prisma.class.findUnique({
-        where: { id: class_id },
-      });
-      const student_exists = await prisma.student.findUnique({
-        where: { id: student_id },
-      });
+      
+      const result = await prisma.attendence.createMany({
+        data: attendences,
+        skipDuplicates: true
+      })
 
-      if (!class_exists || !student_exists) {
-        return res
-          .status(404)
-          .json({ error: "class ou student nao encontrado" });
-      }
+      return res.status(201).json({count: result.count});
 
-      const attendence = await prisma.attendence.create({
-        data: {
-          studentId: student_id,
-          classId: class_id,
-        },
-      });
-
-      return res.status(201).json(attendence);
     } catch (error) {
-      console.error("Error while creating attendence", error);
-      res.status(500).json({ error: "Error while creating a new attendence" });
+      console.error("Error while creating attendences", error);
+      res.status(500).json({ error: "Error while creating a new attendences" });
     }
   },
 
@@ -50,6 +43,68 @@ export default {
         where: {
           studentId: Number(student_id),
         },
+        include: {
+          class: {
+            select: {
+              code: true,
+              name: true,
+              course: true
+              
+            }
+            
+          },
+          student: {
+            select: {
+              name: true,
+              cpf: true
+            }
+          }
+          
+        }
+      });
+
+      if (attendences) {
+        return res.status(200).json(attendences);
+      }
+    } catch (error) {
+      console.error("Error while getting attendences", error);
+      res.status(500).json({ error: "Error while getting attendences" });
+    }
+  },
+
+  async getAttendencesByClassDate(req, res) {
+    try {
+      const { classId, date } = req.body;
+
+      const isValidDate = isValidUTC(date)
+
+      if(!isValidDate){
+        return res.status(400).json({error: "invalid date"})
+      }
+
+      const parsedDate = new Date(date)
+
+      const start = startOfDay(parsedDate)
+      const end = endOfDay(parsedDate)
+
+      const attendences = await prisma.attendence.findMany({
+        where: {
+          AND: [
+              {
+                date: {
+                  gte: start,
+                  lte: end,
+                },
+              },
+              {
+                classId: classId,
+              },
+            ]
+          },
+          include: {
+            student: true
+          }
+
       });
 
       if (attendences) {
@@ -77,3 +132,8 @@ export default {
     }
   },
 };
+
+function isValidUTC(dateString){
+  const date = parseISO(dateString)
+  return isValid(date) && dateString.endsWith('Z')
+}

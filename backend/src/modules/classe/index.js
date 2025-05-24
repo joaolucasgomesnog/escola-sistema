@@ -47,6 +47,21 @@ export default {
     }
   },
 
+  async getAllClassesByTeacherId(req, res) {
+    
+    try {
+      const { teacher_id } = req.params
+
+      const classes = await prisma.class.findMany({where: {teacherId: Number(teacher_id)}});
+      
+      return res.status(200).json(classes);
+
+    } catch (error) {
+      console.error("Erro ao buscar classes por teacher:", error);
+      return res.status(500).json({ error: "Erro interno ao buscar classes por teacher" });
+    }
+  },
+
   // Buscar class por ID
   async getClassByCode(req, res) {
     try {
