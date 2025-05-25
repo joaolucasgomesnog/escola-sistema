@@ -1,9 +1,12 @@
-import FormModal from "@/components/FormModal";
-import Pagination from "@/components/Pagination";
-import Table from "@/components/Table";
-import TableSearch from "@/components/TableSearch";
-import { classesData, role } from "@/lib/data";
+"use client";
+
+import { useEffect, useState } from "react";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Box, Button, Typography } from "@mui/material";
 import Image from "next/image";
+import FormModal from "@/components/FormModal";
+import Table from "@/components/Table";
+import { role } from "@/lib/data";
 
 type Class = {
   id: number;
@@ -13,78 +16,88 @@ type Class = {
   supervisor: string;
 };
 
-const columns = [
-  {
-    header: "Class Name",
-    accessor: "name",
-  },
-  {
-    header: "Capacity",
-    accessor: "capacity",
-    className: "hidden md:table-cell",
-  },
-  {
-    header: "Grade",
-    accessor: "grade",
-    className: "hidden md:table-cell",
-  },
-  {
-    header: "Supervisor",
-    accessor: "supervisor",
-    className: "hidden md:table-cell",
-  },
-  {
-    header: "Actions",
-    accessor: "action",
-  },
-];
-
 const ClassListPage = () => {
-  const renderRow = (item: Class) => (
-    <tr
-      key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
-    >
-      <td className="flex items-center gap-4 p-4">{item.name}</td>
-      <td className="hidden md:table-cell">{item.capacity}</td>
-      <td className="hidden md:table-cell">{item.grade}</td>
-      <td className="hidden md:table-cell">{item.supervisor}</td>
-      <td>
-        <div className="flex items-center gap-2">
+  const [classes, setClasses] = useState<Class[]>([]);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:3030/class/getall", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("Erro ao buscar turmas:", error.message);
+          return;
+        }
+
+        const data = await response.json();
+        setClasses(data);
+      } catch (error) {
+        console.error("Erro ao buscar turmas:", error);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+
+  const columns: GridColDef[] = [
+    {
+      field: "name",
+      headerName: "Nome da Turma",
+      flex: 1,
+    },
+    {
+      field: "capacity",
+      headerName: "Capacidade",
+      flex: 1,
+    },
+    {
+      field: "grade",
+      headerName: "Série",
+      flex: 1,
+    },
+    {
+      field: "supervisor",
+      headerName: "Supervisor",
+      flex: 1,
+    },
+    {
+      field: "actions",
+      headerName: "Ações",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box display="flex" gap={1}>
           {role === "admin" && (
             <>
-              <FormModal table="class" type="update" data={item} />
-              <FormModal table="class" type="delete" id={item.id} />
+              <FormModal table="class" type="update" data={params.row} />
+              <FormModal table="class" type="delete" id={params.row.id} />
             </>
           )}
-        </div>
-      </td>
-    </tr>
-  );
+        </Box>
+      ),
+    },
+  ];
 
   return (
-    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      {/* TOP */}
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">Turmas</h1>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
-          <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/filter.png" alt="" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/sort.png" alt="" width={14} height={14} />
-            </button>
-            {role === "admin" && <FormModal table="class" type="create" />}
-          </div>
-        </div>
-      </div>
-      {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={classesData} />
-      {/* PAGINATION */}
-      <Pagination />
-    </div>
+    <Box p={3} bgcolor="white" borderRadius={2} m={2} mt={0}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h6" fontWeight="bold">
+          Turmas
+        </Typography>
+        {role === "admin" && (
+          <FormModal table="class" type="create" />
+        )}
+      </Box>
+
+      <Table rows={classes} columns={columns} />
+    </Box>
   );
 };
 

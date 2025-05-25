@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import FormModal from "@/components/FormModal";
-import Pagination from "@/components/Pagination";
-import Table from "@/components/Table";
-import TableSearch from "@/components/TableSearch";
-import { role } from "@/lib/data";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
+import FormModal from "@/components/FormModal";
+import { role } from "@/lib/data";
+import { Box, Button, Typography } from "@mui/material";
+import { useTheme } from "@mui/material";
+import { tokens } from "../../../../../theme"; // ou ajuste o caminho
+import Table from "@/components/Table";
 
 type Student = {
   id: number;
@@ -21,27 +23,10 @@ type Student = {
   address: string;
 };
 
-const columns = [
-  {
-    header: "Nome",
-    accessor: "name",
-    className: "w-1/3", // ocupa 1/3 da largura
-  },
-  {
-    header: "Telefone",
-    accessor: "phone",
-    className: "w-1/3 hidden lg:table-cell", // visível apenas em telas grandes
-  },
-  {
-    header: "Ação",
-    accessor: "action",
-    className: "w-1/3 text-center",
-  },
-];
-
-
 const StudentListPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
+  const theme = useTheme();
+const colors = tokens(theme.palette.mode);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -62,16 +47,15 @@ const StudentListPage = () => {
 
         const data = await response.json();
 
-        // Mapeia os dados da API para o formato esperado pela tabela
         const formattedStudents: Student[] = data.map((s: any) => ({
           id: s.id,
-          studentId: String(s.id), // ou outro identificador se tiver
+          studentId: String(s.id),
           name: s.name,
           email: "",
-          photo: s.picture || "/default-avatar.png", // fallback se não tiver foto
+          photo: s.picture || "/default-avatar.png",
           phone: s.phone,
-          grade: 0, // coloque o valor correto se existir
-          class: "", // coloque o valor correto se existir
+          grade: 0,
+          class: "",
           address: `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`,
         }));
 
@@ -84,67 +68,75 @@ const StudentListPage = () => {
     fetchStudents();
   }, []);
 
-  const renderRow = (item: Student) => (
-    <tr
-      key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
-    >
-      <td className="flex items-center gap-4 p-4">
-        <img src={item.photo} alt="imagem" className="md:hidden xl:block w-10 h-10 rounded-full object-cover"/>
-        {/* <Image
-          src={item.photo}
-          alt=""
-          width={40}
-          height={40}
-          className="md:hidden xl:block w-10 h-10 rounded-full object-cover"
-        /> */}
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.class}</p>
-        </div>
-      </td>
-      <td className="hidden md:table-cell">{item.studentId}</td>
-      <td className="hidden md:table-cell">{item.grade}</td>
-      <td className="hidden md:table-cell">{item.phone}</td>
-      <td className="hidden md:table-cell">{item.address}</td>
-      <td>
-        <div className="flex items-center gap-2">
-          <Link href={`/list/teachers/${item.id}`}>
-            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
-              <Image src="/view.png" alt="" width={16} height={16} />
-            </button>
+  const columns: GridColDef[] = [
+    {
+      field: "name",
+      headerName: "Nome",
+      flex: 1,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box display="flex" alignItems="center" gap={1}>
+          <img
+            src={params.row.photo}
+            alt="avatar"
+            width={32}  
+            height={32}
+            style={{ borderRadius: "50%", objectFit: "cover" }}
+          />
+          <Box>
+            <Typography variant="body2" fontWeight="bold">
+              {params.value}
+            </Typography>
+            <Typography variant="caption" color="gray">
+              {params.row.class}
+            </Typography>
+          </Box>
+        </Box>
+      ),
+    },
+    {
+      field: "phone",
+      headerName: "Telefone",
+      flex: 1,
+    },
+    {
+      field: "address",
+      headerName: "Endereço",
+      flex: 2,
+    },
+    {
+      field: "actions",
+      headerName: "Ações",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box display="flex" gap={1}>
+          <Link href={`/list/teachers/${params.row.id}`}>
+            <Button size="small" variant="contained" color="primary">
+              <Image src="/view.png" alt="Ver" width={16} height={16} />
+            </Button>
           </Link>
           {role === "admin" && (
-            <FormModal table="student" type="delete" id={item.id} />
+            <FormModal table="student" type="delete" id={params.row.id} />
           )}
-        </div>
-      </td>
-    </tr>
-  );
+        </Box>
+      ),
+    },
+  ];
 
   return (
-    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">Estudantes</h1>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
-          <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/filter.png" alt="" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/sort.png" alt="" width={14} height={14} />
-            </button>
-            {role === "admin" && (
-              <FormModal table="student" type="create" />
-            )}
-          </div>
-        </div>
-      </div>
+    <Box p={3} bgcolor="white" borderRadius={2} m={2} mt={0}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h6" fontWeight="bold">
+          Estudantes
+        </Typography>
+        {role === "admin" && (
+          <FormModal table="student" type="create" />
+        )}
+      </Box>
 
-      <Table columns={columns} renderRow={renderRow} data={students} />
-      <Pagination />
-    </div>
+      <Table rows={students} columns={columns} />
+    </Box>
   );
 };
 

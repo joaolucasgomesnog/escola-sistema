@@ -5,6 +5,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import InputField from "../InputField";
 import Image from "next/image";
+import { useState } from "react";
+
+const formatCpf = (value: string) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+};
 
 const schema = z.object({
   cpf: z.string().min(3, { message: "Cpf must be at least 3 characters long!" }),
@@ -37,11 +46,12 @@ const StudentForm = ({
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
+const [cpf, setCpf] = useState(data?.cpf ? formatCpf(data.cpf) : "");
 
   const onSubmit = handleSubmit((formData) => {
     const body = {
       name: formData.name,
-      cpf: formData.cpf,
+      cpf: cpf.replace(/\D/g, ''),
       phone: formData.phone,
       password: formData.password,
       picture: formData.picture,
@@ -55,7 +65,26 @@ const StudentForm = ({
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Cadastrar estudante</h1>
       <div className="flex flex-wrap gap-4">
-        <InputField label="CPF" name="cpf" defaultValue={data?.cpf} register={register} error={errors?.cpf} />
+        
+<div className="flex flex-col gap-2 w-full ">
+  <label className="text-xs text-gray-500">CPF</label>
+  <input
+  type="text"
+  {...register("cpf")}
+  value={cpf}
+  onChange={(e) => {
+    const formatted = formatCpf(e.target.value);
+    setCpf(formatted);
+  }}
+  maxLength={14}
+  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+/>
+
+  {errors?.cpf && (
+    <p className="text-xs text-red-400">{errors.cpf.message?.toString()}</p>
+  )}
+</div>
+
         <InputField label="Password" name="password" type="password" defaultValue={data?.password} register={register} error={errors?.password} />
       </div>
       <div className="flex flex-wrap gap-4">
@@ -90,7 +119,7 @@ const StudentForm = ({
       </div>
 
       <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+        {type === "create" ? "Cadastrar" : "Atualizar"}
       </button>
     </form>
   );

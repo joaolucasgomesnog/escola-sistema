@@ -1,23 +1,48 @@
-const Table = ({
-  columns,
-  renderRow,
-  data,
-}: {
-  columns: { header: string; accessor: string; className?: string }[];
-  renderRow: (item: any) => React.ReactNode;
-  data: any[];
-}) => {
+// components/Table.tsx
+
+"use client";
+
+import { Box } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
+interface TableProps {
+  columns: GridColDef[];
+  rows: any[];
+  height?: string | number;
+}
+
+const Table = ({ columns, rows, height = "75vh" }: TableProps) => {
   return (
-    <table className="w-full mt-4">
-      <thead>
-        <tr className="text-left text-gray-500 text-sm">
-          {columns.map((col) => (
-            <th key={col.accessor} className={col.className}>{col.header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>{data.map((item) => renderRow(item))}</tbody>
-    </table>
+    <Box
+      height={height}
+      sx={{
+        "& .MuiDataGrid-root": {
+          border: "none",
+        },
+        "& .MuiDataGrid-cell": {
+          borderBottom: "none",
+        },
+        "& .MuiDataGrid-columnHeaders": {
+          backgroundColor: "#1F2A40", // ou use o tema
+          borderBottom: "none",
+        },
+        "& .MuiDataGrid-virtualScroller": {
+          backgroundColor: "transparent",
+        },
+        "& .MuiDataGrid-footerContainer": {
+          borderTop: "none",
+        },
+        "& .MuiCheckbox-root": {
+          color: "#94e2cd !important",
+        },
+      }}
+    >
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        disableRowSelectionOnClick
+      />
+    </Box>
   );
 };
 
