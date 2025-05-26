@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import FormModal from "@/components/FormModal";
 import { role } from "@/lib/data";
-import { Box, Button, Typography } from "@mui/material";
+import { Avatar, Box, Button, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
@@ -74,14 +74,8 @@ const colors = tokens(theme.palette.mode);
       headerName: "Nome",
       flex: 1,
       renderCell: (params: GridRenderCellParams) => (
-        <Box display="flex" alignItems="center" gap={1}>
-          <img
-            src={params.row.photo}
-            alt="avatar"
-            width={32}  
-            height={32}
-            style={{ borderRadius: "50%", objectFit: "cover" }}
-          />
+        <Box display="flex" alignItems="center" height="100%" gap={1}>
+          <Avatar src={params.row.photo} sx={{ width: 32, height: 32 }} />
           <Box>
             <Typography variant="body2" fontWeight="bold">
               {params.value}
@@ -110,16 +104,16 @@ const colors = tokens(theme.palette.mode);
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
-        <Box display="flex" gap={1}>
-          <Link href={`/list/teachers/${params.row.id}`}>
-            <Button size="small" variant="contained" color="primary">
-              <Image src="/view.png" alt="Ver" width={16} height={16} />
-            </Button>
+         <div className="flex items-center gap-2 h-12">
+          <Link href={`/list/students/${params.row.id}`}>
+            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
+              <Image src="/view.png" alt="" width={16} height={16} />
+            </button>
           </Link>
           {role === "admin" && (
             <FormModal table="student" type="delete" id={params.row.id} />
           )}
-        </Box>
+        </div>
       ),
     },
   ];

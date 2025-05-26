@@ -24,7 +24,7 @@ const handleLogin = async () => {
   try {
     const rawCpf = cpf.replace(/\D/g, ''); // remove a formatação
 
-    const response = await fetch('http://localhost:3030/admin/login', {
+    const response = await fetch('http://localhost:3030/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

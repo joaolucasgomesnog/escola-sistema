@@ -113,7 +113,20 @@ const menuItems = [
 
 const Menu = () => {
   return (
-    <div className="mt-4 text-sm">
+    <div
+  className="mt-4 text-sm max-h-[85vh] overflow-y-scroll"
+  style={{
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+  }}
+>
+  <style>
+    {`
+      div::-webkit-scrollbar {
+        display: none;
+      }
+    `}
+  </style>
       {menuItems.map((i) => (
         <div className="flex flex-col gap-2" key={i.title}>
           <span className="hidden lg:block text-gray-800 font-light my-4">

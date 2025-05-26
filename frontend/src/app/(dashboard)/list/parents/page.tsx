@@ -8,7 +8,7 @@ import { parentsData, role } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 import { GridColDef } from "@mui/x-data-grid";
-import { Box, Typography } from "@mui/material";
+import { Avatar, Box, Typography } from "@mui/material";
 
 const ParentListPage = () => {
   const columns: GridColDef[] = [
@@ -17,19 +17,14 @@ const ParentListPage = () => {
       headerName: "Info",
       flex: 1.5,
       renderCell: (params) => (
-        <div className="flex items-center gap-4">
-          <Image
-            src={params.row.photo}
-            alt={params.row.name}
-            width={40}
-            height={40}
-            className="rounded-full w-10 h-10 object-cover"
-          />
-          <div>
-            <p className="font-semibold">{params.row.name}</p>
-            <p className="text-xs text-gray-500">{params.row.email}</p>
-          </div>
-        </div>
+        <Box display="flex" alignItems="center" height="100%" gap={1}>
+          <Avatar src={params.row.photo} sx={{ width: 32, height: 32 }} />
+          <Box>
+            <Typography variant="body2" fontWeight="bold">
+              {params.value}
+            </Typography>
+          </Box>
+        </Box>
       ),
     },
     {
