@@ -18,11 +18,11 @@ export default {
         let user = admin || teacher || student
 
         if(admin){
-          payload = {adminId: admin.id, role: 'admin'}
+          payload = {adminId: admin.id, role: 'admin', user:{name:admin.name, phone: admin.phone, picture:admin.picture}}
         }else if(teacher){
-          payload = {teacherId: teacher.id, role: 'teacher'}
+          payload = {teacherId: teacher.id, role: 'teacher', user:{name:teacher.name, phone: teacher.phone, picture:teacher.picture}}
         }else if(student){
-          payload = {studentId: student.id, role: 'student'}
+          payload = {studentId: student.id, role: 'student', user:{name:student.name, phone: student.phone, picture:student.picture}}
         }else{
           return res.status(404).json({error: "usuario nao cadastrado"})
         }

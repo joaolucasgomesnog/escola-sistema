@@ -26,7 +26,10 @@ export default {
     try {
       const { name, cpf, phone, picture, password, address } = req.body;
 
-      const studentExists = await prisma.student.findUnique({ where: { cpf } })
+      if (!name || !cpf || !phone || !password || !address) {
+  return res.status(400).json({ error: "Campos obrigatórios não foram preenchidos" });
+}
+      const studentExists = await prisma.student.findUnique({ where: { cpf:cpf } })
 
       if(studentExists){
         return res.status(409).json({error: 'cpf informado já foi cadastrado'})
