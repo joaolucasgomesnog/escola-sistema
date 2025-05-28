@@ -66,9 +66,10 @@ model Admin {
 }
 
 model Course {
-  id      Int    @id @default(autoincrement())
+  id      Int     @id @default(autoincrement())
   name    String
-  picture String
+  code    String  @unique
+  picture String?
 
   classes Class[]
 }
@@ -115,13 +116,13 @@ model Attendence {
 
 model Fee {
   id          Int      @id @default(autoincrement())
-  student     Student  @relation(fields: [studentId], references: [id])
   studentId   Int
   value       Float
   dueDate     DateTime
-  createdAt   DateTime @default(now())
   description String
 
+  createdAt   DateTime @default(now())
+  student     Student  @relation(fields: [studentId], references: [id])
   payments Payment[]
 }
 
