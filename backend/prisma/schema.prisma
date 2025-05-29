@@ -29,11 +29,11 @@ model Student {
   picture   String?
   password  String
   addressId Int
-  address   Address @relation(fields: [addressId], references: [id])
 
   classLinks  Class_Student[]
   attendances Attendence[]
   fees        Fee[]
+  address   Address @relation(fields: [addressId], references: [id])
 }
 
 model Teacher {
@@ -44,8 +44,9 @@ model Teacher {
   picture   String?
   password  String
   addressId Int
-  address   Address @relation(fields: [addressId], references: [id])
+
   Class     Class[]
+  address   Address @relation(fields: [addressId], references: [id])
 }
 
 model BlackListToken {
@@ -60,8 +61,8 @@ model Admin {
   picture   String?
   password  String
   addressId Int
-  address   Address @relation(fields: [addressId], references: [id])
 
+  address   Address @relation(fields: [addressId], references: [id])
   payments Payment[]
 }
 
@@ -96,10 +97,11 @@ model Class {
 
 model Class_Student {
   id        Int     @id @default(autoincrement())
-  student   Student @relation(fields: [studentId], references: [id])
   studentId Int
-  class     Class   @relation(fields: [classId], references: [id])
   classId   Int
+
+  student   Student @relation(fields: [studentId], references: [id])
+  class     Class   @relation(fields: [classId], references: [id])
 }
 
 model Attendence {
@@ -122,17 +124,20 @@ model Fee {
   description String
 
   createdAt   DateTime @default(now())
+
   student     Student  @relation(fields: [studentId], references: [id])
   payments Payment[]
 }
 
 model Payment {
   id          Int      @id @default(autoincrement())
-  fee         Fee      @relation(fields: [feeId], references: [id])
   feeId       Int
   paymentType String
-  admin       Admin    @relation(fields: [adminId], references: [id])
-  adminId     Int
-  createdAt   DateTime @default(now())
   description String
+  adminId     Int
+
+  createdAt   DateTime @default(now())
+
+  admin       Admin    @relation(fields: [adminId], references: [id])
+  fee         Fee      @relation(fields: [feeId], references: [id])
 }
