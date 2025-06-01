@@ -1,4 +1,7 @@
-import { role } from "@/lib/data";
+"use client";
+
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -104,48 +107,71 @@ const menuItems = [
       {
         icon: "/logout.png",
         label: "Sair",
-        href: "/logout",
+        href: "/sign-in",
         visible: ["admin", "teacher", "student", "parent"],
       },
     ],
   },
 ];
 
+type JWTPayload = {
+  role: string;
+  // outros campos se quiser (sub, exp, etc.)
+};
+
 const Menu = () => {
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("auth_token="))
+      ?.split("=")[1];
+
+    if (!token) {
+      console.warn("Token não encontrado");
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<JWTPayload>(token);
+      setRole(decoded.role);
+    } catch (err) {
+      console.error("Erro ao decodificar o token:", err);
+    }
+  }, []);
+
+  if (role === null) return null; // ou "loading..."
+
   return (
     <div
-  className="mt-4 text-sm max-h-[85vh] overflow-y-scroll"
-  style={{
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-  }}
->
-  <style>
-    {`
-      div::-webkit-scrollbar {
-        display: none;
-      }
-    `}
-  </style>
-      {menuItems.map((i) => (
-        <div className="flex flex-col gap-2" key={i.title}>
+      className="mt-4 text-sm max-h-[85vh] overflow-y-scroll"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+    >
+      <style>
+        {`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
+      {menuItems.map((section) => (
+        <div className="flex flex-col gap-2" key={section.title}>
           <span className="hidden lg:block text-gray-800 font-light my-4">
-            {i.title}
+            {section.title}
           </span>
-          {i.items.map((item) => {
-            if (item.visible.includes(role)) {
-              return (
-                <Link
-                  href={item.href}
-                  key={item.label}
-                  className="flex items-center justify-center lg:justify-start gap-4 text-gray-800 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
-                >
-                  <Image src={item.icon} alt="" width={20} height={20} />
-                  <span className="hidden lg:block">{item.label}</span>
-                </Link>
-              );
-            }
-          })}
+          {section.items
+            .filter((item) => item.visible.includes(role))
+            .map((item) => (
+              <Link
+                href={item.href}
+                key={item.label}
+                className="flex items-center justify-center lg:justify-start gap-4 text-gray-800 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
+              >
+                <Image src={item.icon} alt="" width={20} height={20} />
+                <span className="hidden lg:block">{item.label}</span>
+              </Link>
+            ))}
         </div>
       ))}
     </div>
@@ -153,3 +179,5 @@ const Menu = () => {
 };
 
 export default Menu;
+
+
