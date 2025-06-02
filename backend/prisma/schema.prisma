@@ -29,7 +29,7 @@ model Student {
   picture   String?
   password  String
   addressId Int
-
+  email     String?
   classLinks  Class_Student[]
   attendances Attendence[]
   fees        Fee[]
@@ -44,7 +44,7 @@ model Teacher {
   picture   String?
   password  String
   addressId Int
-
+  email     String?
   Class     Class[]
   address   Address @relation(fields: [addressId], references: [id])
 }
@@ -61,7 +61,7 @@ model Admin {
   picture   String?
   password  String
   addressId Int
-
+  email     String?
   address   Address @relation(fields: [addressId], references: [id])
   payments Payment[]
 }
