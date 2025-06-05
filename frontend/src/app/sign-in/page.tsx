@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 const formatCpf = (value: string) => {
   return value
@@ -15,10 +16,17 @@ const LoginPage = () => {
   const router = useRouter();
   const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedValue, setSelectedValue] = useState('');
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCpf(formatCpf(e.target.value));
   };
+
+  const handleChangeUser = (event) => {
+    setSelectedValue(event.target.value);
+    console.log('Selecionado:', event.target.value); // opcional: exibe no console
+  };
+
 
   const handleLogin = async () => {
     try {
@@ -27,7 +35,7 @@ const LoginPage = () => {
       const response = await fetch('http://localhost:3030/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cpf: rawCpf, password }),
+        body: JSON.stringify({ cpf: rawCpf, password, role: selectedValue }),
       });
 
       const data = await response.json();
@@ -94,6 +102,12 @@ const LoginPage = () => {
                 className="mt-2 block w-full rounded-md px-3 py-1.5 text-base outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
               />
             </div>
+
+            <RadioGroup row onChange={handleChangeUser} value={selectedValue}>
+              <FormControlLabel sx={{ '& .MuiFormControlLabel-label': { fontSize: '14px' } }}  value='student' control={<Radio/>} label='Estudante' />
+              <FormControlLabel sx={{ '& .MuiFormControlLabel-label': { fontSize: '14px' } }} value='teacher' control={<Radio/>} label='Professor' />
+              <FormControlLabel sx={{ '& .MuiFormControlLabel-label': { fontSize: '14px' } }} value='admin' control={<Radio/>} label='Administrador' />
+            </RadioGroup>
 
             <div>
               <button
