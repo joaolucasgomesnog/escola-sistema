@@ -28,46 +28,54 @@ const LoginPage = () => {
   };
 
 
-  const handleLogin = async () => {
-    try {
-      const rawCpf = cpf.replace(/\D/g, '');
+const handleLogin = async () => {
+  try {
+    const rawCpf = cpf.replace(/\D/g, '');
 
-      const response = await fetch('http://localhost:3030/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cpf: rawCpf, password, role: selectedValue }),
-      });
+    const response = await fetch('http://localhost:3030/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf: rawCpf, password, role: selectedValue }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        alert(data.error || 'Erro ao fazer login');
-        return;
-      }
-
-      // Armazenar o token em cookie com expiração de 24h
-      Cookies.set('auth_token', data.token, { expires: 1 });
-
-      // Redireciona baseado na role
-      switch (data.currentRole) {
-        case 'admin':
-          router.push('/admin');
-          break;
-        case 'teacher':
-          router.push('/teacher');
-          break;
-        case 'student':
-          router.push('/student');
-          break;
-        default:
-          alert('Perfil não reconhecido.');
-      }
-
-    } catch (error) {
-      console.error('Erro na requisição de login:', error);
-      alert('Erro ao conectar com o servidor. Tente novamente mais tarde.');
+    if (!response.ok) {
+      alert(data.error || 'Erro ao fazer login');
+      return;
     }
-  };
+
+    // Log para depuração
+    console.log('Token recebido:', data.token);
+    
+    // Configura o cookie com opções mais robustas
+    Cookies.set('auth_token', data.token, { 
+      expires: 1, 
+      path: '/', 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+
+    // Redireciona baseado na role
+    switch (data.currentRole) {
+      case 'admin':
+        router.push('/admin');
+        break;
+      case 'teacher':
+        router.push('/teacher');
+        break;
+      case 'student':
+        router.push('/student');
+        break;
+      default:
+        alert('Perfil não reconhecido.');
+    }
+
+  } catch (error) {
+    console.error('Erro na requisição de login:', error);
+    alert('Erro ao conectar com o servidor. Tente novamente mais tarde.');
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full">

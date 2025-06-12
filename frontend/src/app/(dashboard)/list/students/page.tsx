@@ -10,6 +10,8 @@ import { Avatar, Box, Button, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 type Student = {
   id: number;
@@ -26,23 +28,38 @@ type Student = {
 const StudentListPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const theme = useTheme();
-const colors = tokens(theme.palette.mode);
+  const colors = tokens(theme.palette.mode);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("auth_token");
+
+        if (!token) {
+          router.push("/login");
+          return;
+        }
+
         const response = await fetch("http://localhost:3030/student/getall", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            Cookies.remove("auth_token");
+            router.push("/login");
+            return;
+          }
+
           const errorData = await response.json();
-          console.error("Erro ao buscar estudantes:", errorData.error);
-          return;
+          throw new Error(errorData.error || "Erro ao buscar estudantes");
         }
 
         const data = await response.json();
@@ -51,28 +68,33 @@ const colors = tokens(theme.palette.mode);
           id: s.id,
           studentId: String(s.id),
           name: s.name,
-          email: "",
+          email: s.email || "",
           photo: s.picture || "/default-avatar.png",
-          phone: s.phone,
-          grade: 0,
-          class: "",
-          address: `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`,
+          phone: s.phone || "",
+          grade: s.grade || 0,
+          class: s.class || "",
+          address: s.address
+            ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
+            : "Endereço não informado",
         }));
 
         setStudents(formattedStudents);
       } catch (error) {
         console.error("Erro ao buscar dados dos estudantes:", error);
+        setError(error instanceof Error ? error.message : "Erro desconhecido");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchStudents();
-  }, []);
+  }, [router]);
 
   const columns: GridColDef[] = [
     {
       field: "name",
       headerName: "Nome",
-      flex: 1,
+      flex: 2,
       renderCell: (params: GridRenderCellParams) => (
         <Box display="flex" alignItems="center" height="100%" gap={1}>
           <Avatar src={params.row.photo} sx={{ width: 32, height: 32 }} />
@@ -100,11 +122,11 @@ const colors = tokens(theme.palette.mode);
     {
       field: "actions",
       headerName: "Ações",
-      flex: 1,
+      flex: 0.5,
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
-         <div className="flex items-center gap-2 h-12">
+        <div className="flex items-center gap-2 h-12">
           <Link href={`/list/students/${params.row.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
