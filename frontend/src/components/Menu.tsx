@@ -28,12 +28,6 @@ const menuItems = [
         visible: ["admin", "teacher"],
       },
       {
-        icon: "/parent.png",
-        label: "Pais",
-        href: "/list/parents",
-        visible: ["admin", "teacher"],
-      },
-      {
         icon: "/subject.png",
         label: "Cursos",
         href: "/list/subjects",
@@ -77,8 +71,8 @@ const menuItems = [
       },
       {
         icon: "/calendar.png",
-        label: "Eventos",
-        href: "/list/events",
+        label: "Pagamentos",
+        href: "/list/payments",
         visible: ["admin", "teacher", "student", "parent"],
       },
       {

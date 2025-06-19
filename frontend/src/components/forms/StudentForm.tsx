@@ -6,6 +6,8 @@ import { z } from "zod";
 import InputField from "../InputField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+
 
 const formatCpf = (value: string) => {
   return value
@@ -98,7 +100,7 @@ const StudentForm = ({
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("auth_token");
       const response = await fetch("http://localhost:3030/student/create", {
         method: "POST",
         headers: {

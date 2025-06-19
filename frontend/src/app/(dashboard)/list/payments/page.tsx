@@ -13,7 +13,7 @@ import Table from "@/components/Table";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-type Course = {
+type Payment = {
   id: number;
   courseId: string;
   name: string;
@@ -22,8 +22,8 @@ type Course = {
   code: string;
 };
 
-const CourseListPage = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
+const PaymentListPage = () => {
+  const [payment, setPayments] = useState<Payment[]>([]);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const router = useRouter();
@@ -31,7 +31,7 @@ const CourseListPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchPayments = async () => {
       try {
         const token = Cookies.get("auth_token");
 
@@ -62,7 +62,7 @@ const CourseListPage = () => {
         const data = await response.json();
         console.log(data)
 
-        const formattedCourses: Course[] = data.map((s: any) => ({
+        const formattedPayments: Payment[] = data.map((s: any) => ({
           id: s.id,
           courseId: String(s.id),
           name: s.name,
@@ -70,7 +70,7 @@ const CourseListPage = () => {
           photo: s.picture || "/default-avatar.png",
         }));
 
-        setCourses(formattedCourses);
+        setPayments(formattedPayments);
       } catch (error) {
         console.error("Erro ao buscar dados dos estudantes:", error);
         setError(error instanceof Error ? error.message : "Erro desconhecido");
@@ -79,7 +79,7 @@ const CourseListPage = () => {
       }
     };
 
-    fetchCourses();
+    fetchPayments();
   }, [router]);
 
   const columns: GridColDef[] = [
@@ -115,7 +115,7 @@ const CourseListPage = () => {
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         <div className="flex items-center gap-2 h-12">
-          <Link href={`/list/courses/${params.row.id}`}>
+          <Link href={`/list/payment/${params.row.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
@@ -132,16 +132,16 @@ const CourseListPage = () => {
     <Box p={3} bgcolor="white" borderRadius={2} m={2} mt={0}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
-          Cursos
+          Pagamentos
         </Typography>
         {role === "admin" && (
           <FormModal table="course" type="create" />
         )}
       </Box>
 
-      <Table rows={courses} columns={columns} />
+      <Table rows={payment} columns={columns} />
     </Box>
   );
 };
 
-export default CourseListPage;
+export default PaymentListPage;

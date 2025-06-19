@@ -1,86 +1,129 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Box, Button, Typography } from "@mui/material";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
+import Link from "next/link";
 import FormModal from "@/components/FormModal";
-import Table from "@/components/Table";
 import { role } from "@/lib/data";
+import { Avatar, Box, Button, Typography } from "@mui/material";
+import { useTheme } from "@mui/material";
+import { tokens } from "../../../../../theme"; // ou ajuste o caminho
+import Table from "@/components/Table";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 type Class = {
   id: number;
+  classId: string;
   name: string;
-  capacity: number;
-  grade: number;
-  supervisor: string;
+  photo: string;
+  phone?: string;
+  code: string;
 };
 
-const ClassListPage = () => {
+const CourseListPage = () => {
   const [classes, setClasses] = useState<Class[]>([]);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("auth_token");
+
+        if (!token) {
+          router.push("/login");
+          return;
+        }
+
         const response = await fetch("http://localhost:3030/class/getall", {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
         if (!response.ok) {
-          const error = await response.json();
-          console.error("Erro ao buscar turmas:", error.message);
-          return;
+          if (response.status === 401) {
+            Cookies.remove("auth_token");
+            router.push("/login");
+            return;
+          }
+
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Erro ao buscar estudantes");
         }
 
         const data = await response.json();
-        setClasses(data);
+        console.log(data)
+
+        const formattedClasses: Class[] = data.map((s: any) => ({
+          id: s.id,
+          classId: String(s.id),
+          name: s.name,
+          code: s.code,
+          photo: s.picture || "/default-avatar.png",
+        }));
+
+        setClasses(formattedClasses);
       } catch (error) {
-        console.error("Erro ao buscar turmas:", error);
+        console.error("Erro ao buscar dados dos estudantes:", error);
+        setError(error instanceof Error ? error.message : "Erro desconhecido");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchClasses();
-  }, []);
+  }, [router]);
 
   const columns: GridColDef[] = [
     {
       field: "name",
-      headerName: "Nome da Turma",
-      flex: 1,
+      headerName: "Nome",
+      flex: 2,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box display="flex" alignItems="center" height="100%" gap={1}>
+          <Avatar src={params.row.photo} sx={{ width: 32, height: 32 }} />
+          <Box>
+            <Typography variant="body2" fontWeight="bold">
+              {params.value}
+            </Typography>
+            <Typography variant="caption" color="gray">
+              {params.row.class}
+            </Typography>
+          </Box>
+        </Box>
+      ),
     },
     {
-      field: "capacity",
-      headerName: "Capacidade",
+      field: "code",
+      headerName: "Código",
       flex: 1,
     },
-    {
-      field: "grade",
-      headerName: "Série",
-      flex: 1,
-    },
-    {
-      field: "supervisor",
-      headerName: "Supervisor",
-      flex: 1,
-    },
+
     {
       field: "actions",
       headerName: "Ações",
-      flex: 1,
+      flex: 0.5,
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
-        <Box display="flex" gap={1}>
+        <div className="flex items-center gap-2 h-12">
+          <Link href={`/list/classes/${params.row.id}`}>
+            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
+              <Image src="/view.png" alt="" width={16} height={16} />
+            </button>
+          </Link>
           {role === "admin" && (
-            <>
-              <FormModal table="class" type="update" data={params.row} />
-              <FormModal table="class" type="delete" id={params.row.id} />
-            </>
+            <FormModal table="class" type="delete" id={params.row.id} />
           )}
-        </Box>
+        </div>
       ),
     },
   ];
@@ -101,4 +144,4 @@ const ClassListPage = () => {
   );
 };
 
-export default ClassListPage;
+export default CourseListPage;
