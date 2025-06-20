@@ -41,9 +41,9 @@ const menuItems = [
       },
       {
         icon: "/lesson.png",
-        label: "Atividades",
-        href: "/list/lessons",
-        visible: ["admin", "teacher"],
+        label: "Caixa",
+        href: "/admin/cashier",
+        visible: ["admin"],
       },
       {
         icon: "/exam.png",

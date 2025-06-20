@@ -33,14 +33,14 @@ const FormModal = ({
     | "teacher"
     | "student"
     | "parent"
-    | "subject"
+    | "course"
     | "class"
     | "lesson"
     | "exam"
     | "assignment"
     | "result"
     | "attendance"
-    | "event"
+    | "payment"
     | "announcement";
   type: "create" | "update" | "delete";
   data?: any;
