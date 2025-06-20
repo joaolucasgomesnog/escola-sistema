@@ -129,7 +129,7 @@ const CourseListPage = () => {
   ];
 
   return (
-    <Box p={3} bgcolor="white" borderRadius={2} m={2} mt={0}>
+    <Box p={3} bgcolor="white" borderRadius={2} m={2} >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
           Turmas

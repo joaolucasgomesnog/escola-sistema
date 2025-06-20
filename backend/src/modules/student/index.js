@@ -171,6 +171,67 @@ export default {
       res.status(500).json({ error: "Erro interno ao deletar student" });
     }
   },
+
+
+async searchStudents(req, res) {
+  try {
+    const {
+      nome,
+      endereco,
+      bairro,
+      cidade,
+      turma,
+      curso,
+      cpf,
+    } = req.query;
+
+    const students = await prisma.student.findMany({
+      where: {
+        name: nome ? { contains: nome, mode: 'insensitive' } : undefined,
+        cpf: cpf ? { contains: cpf } : undefined,
+        address: {
+          AND: [
+            endereco ? { street: { contains: endereco, mode: 'insensitive' } } : {},
+            bairro ? { neighborhood: { contains: bairro, mode: 'insensitive' } } : {},
+            cidade ? { city: { contains: cidade, mode: 'insensitive' } } : {},
+          ],
+        },
+        classLinks: turma || curso ? {
+          some: {
+            class: {
+              name: turma ? { contains: turma, mode: 'insensitive' } : undefined,
+              course: curso ? {
+                name: { contains: curso, mode: 'insensitive' },
+              } : undefined,
+            },
+          },
+        } : undefined,
+      },
+      include: {
+        address: true,
+        classLinks: {
+          include: {
+            class: {
+              include: {
+                course: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const studentsWithoutPassword = students.map(({ password, ...rest }) => rest);
+
+    res.status(200).json(studentsWithoutPassword);
+  } catch (error) {
+    console.error("Erro ao buscar estudantes com filtros:", error);
+    res.status(500).json({ error: "Erro interno ao buscar estudantes" });
+  }
+}
+
+
+
 };
 
 async function hashPassword(password){

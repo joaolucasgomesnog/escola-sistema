@@ -10,6 +10,7 @@ studentRoutes.post('/logout/', autenticateToken, authorizeRoles('student'), stud
 studentRoutes.post('/create', autenticateToken, authorizeRoles('admin'), student.createStudent)
 studentRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin', 'teacher'), student.getStudentById);
 studentRoutes.get('/getall', autenticateToken, authorizeRoles('admin', 'teacher'), student.getAllStudents);
+studentRoutes.get('/search', autenticateToken, authorizeRoles('admin', 'teacher'), student.searchStudents);
 studentRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), student.updateStudent);
 studentRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), student.deleteStudent);
 

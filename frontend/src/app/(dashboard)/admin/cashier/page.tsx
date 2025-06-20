@@ -54,67 +54,77 @@ const CashierPage = () => {
     setSearchFields((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSearch = () => {
-    // Aqui você pode usar os dados de `searchFields` para fazer uma busca na API, filtrar os dados, etc.
-    console.log('Buscando com os campos:', searchFields);
-  };
+const handleSearch = async () => {
+  try {
+    const token = Cookies.get("auth_token");
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
 
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        const response = await fetch("http://localhost:3030/student/getall", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            Cookies.remove("auth_token");
-            router.push("/login");
-            return;
-          }
-
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao buscar estudantes");
-        }
-
-        const data = await response.json();
-
-        const formattedStudents: Student[] = data.map((s: any) => ({
-          id: s.id,
-          studentId: String(s.id),
-          name: s.name,
-          email: s.email || "",
-          photo: s.picture || "/default-avatar.png",
-          phone: s.phone || "",
-          grade: s.grade || 0,
-          class: s.class || "",
-          address: s.address
-            ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
-            : "Endereço não informado",
-        }));
-
-        setStudents(formattedStudents);
-      } catch (error) {
-        console.error("Erro ao buscar dados dos estudantes:", error);
-        setError(error instanceof Error ? error.message : "Erro desconhecido");
-      } finally {
-        setLoading(false);
+    // Montar query string com os campos preenchidos
+    const queryParams = new URLSearchParams();
+    Object.entries(searchFields).forEach(([key, value]) => {
+      if (value.trim() !== "") {
+        queryParams.append(key, value.trim());
       }
-    };
+    });
 
-    fetchStudents();
-  }, [router]);
+        // ✅ Impede busca se todos os campos estiverem vazios
+    if ([...queryParams].length === 0) {
+      console.warn("Nenhum campo de busca preenchido.");
+      setStudents([]); // limpa resultados anteriores se quiser
+      return;
+    }
+
+    const response = await fetch(`http://localhost:3030/student/search?${queryParams.toString()}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        Cookies.remove("auth_token");
+        router.push("/login");
+        return;
+      }
+
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Erro ao buscar estudantes");
+    }
+
+    const data = await response.json();
+
+    const formattedStudents: Student[] = data.map((s: any) => ({
+      id: s.id,
+      studentId: String(s.id),
+      name: s.name,
+      email: s.email || "",
+      photo: s.picture || "/default-avatar.png",
+      phone: s.phone || "",
+      grade: s.grade || 0,
+      class: s.class || "",
+      address: s.address
+        ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
+        : "Endereço não informado",
+    }));
+
+    setStudents(formattedStudents);
+  } catch (error) {
+    console.error("Erro na busca de estudantes:", error);
+    setError(error instanceof Error ? error.message : "Erro desconhecido");
+  }
+};
+
+
+// useEffect(() => {
+//   handleSearch();
+// }, [router]);
+
 
   const columns: GridColDef[] = [
     {
@@ -164,7 +174,7 @@ const CashierPage = () => {
     },
   ];
   return (
-    <Box p={3} bgcolor="white" borderRadius={2} m={2} mt={0}>
+    <Box p={3} bgcolor="white" borderRadius={2} m={2}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
           Caixa
