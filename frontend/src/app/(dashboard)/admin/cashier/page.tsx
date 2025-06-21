@@ -374,6 +374,7 @@ const submitPayment = async () => {
           onChange={(e) => setSelectedFeeId(Number(e.target.value))}
           size="small"
           disabled
+          sx={{flex:0.5}}
         />
 
         <TextField
@@ -381,7 +382,7 @@ const submitPayment = async () => {
           value={paymentDescription}
           onChange={(e) => setPaymentDescription(e.target.value)}
           size="small"
-          fullWidth
+          sx={{flex:2}}
           disabled
         />
 
@@ -392,6 +393,7 @@ const submitPayment = async () => {
           onChange={(e) => setPaymentType(e.target.value as typeof paymentType)}
           size="small"
           SelectProps={{ native: true }}
+          sx={{flex:1}}
         >
           {["DINHEIRO", "PIX", "BOLETO", "CREDITO", "DEBITO", "DEPOSITO"].map((type) => (
             <option key={type} value={type}>{type}</option>
@@ -400,7 +402,7 @@ const submitPayment = async () => {
       </Box>
 
       <Box display="flex" justifyContent="flex-end">
-        <Button variant="contained" color="success" onClick={submitPayment} disabled={submitting}>
+        <Button variant="contained" color="success" onClick={submitPayment} disabled={submitting || !selectedFeeId}>
           {submitting ? "Enviando..." : "Confirmar Pagamento"}
         </Button>
       </Box>
