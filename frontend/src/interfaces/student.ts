@@ -9,7 +9,7 @@ interface Student {
   phone: string
   picture: string
   addressId: number
-  emai: string
+  email: string
   address: Address
   attendances: any[]
   classLinks: any[]

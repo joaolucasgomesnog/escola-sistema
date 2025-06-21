@@ -351,8 +351,6 @@ const submitPayment = async () => {
       autoHeight
       rows={studentFees}
       columns={feeColumns}
-      pageSize={5}
-      rowsPerPageOptions={[5]}
       checkboxSelection
       disableMultipleRowSelection
        onRowClick={(params) => {

@@ -1,55 +1,51 @@
-'use client'
+'use client';
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import Announcements from "@/components/Announcements";
-import BigCalendar from "@/components/BigCalender";
-import Performance from "@/components/Performance";
-import { Avatar, Button, Icon, TextField, Typography } from "@mui/material";
-// import {EditIcon} from '@mui/icons-material'
-import Image from "next/image";
-import Link from "next/link";
-
-import {Student} from '@/interfaces/student'
-
+import {
+  Avatar,
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  TextField,
+  Typography
+} from "@mui/material";
+import { Student } from '@/interfaces/student';
+import PrintIcon from '@mui/icons-material/Print';
 
 type Props = {
   params: { id: string };
 };
 
-
 const SingleStudentPage = ({ params }: Props) => {
   const { id } = params;
   const router = useRouter();
-  const [student, setStudent] = useState<Student>(null);
+const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStudent = async () => {
       const token = Cookies.get("auth_token");
-
       if (!token) {
         router.push("/login");
         return;
       }
 
-      if (!id) return;
-
       try {
-        const response = await fetch(`http://localhost:3030/student/get/${id}`, {
+        const res = await fetch(`http://localhost:3030/student/get/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!response.ok) {
-          throw new Error("Erro ao buscar aluno");
-        }
+        if (!res.ok) throw new Error("Erro ao buscar aluno");
 
-        const data = await response.json();
+        const data = await res.json();
         setStudent(data);
-      } catch (error) {
-        console.error("Erro:", error);
+      } catch (err) {
+        console.error("Erro:", err);
       } finally {
         setLoading(false);
       }
@@ -58,107 +54,107 @@ const SingleStudentPage = ({ params }: Props) => {
     fetchStudent();
   }, [id]);
 
-  if (loading) return <div>Carregando...</div>;
-  if (!student) return <div>Aluno não encontrado.</div>;
+  if (loading) return <Typography>Carregando...</Typography>;
+  if (!student) return <Typography>Aluno não encontrado.</Typography>;
 
   return (
-    <div className="flex flex-row justify-around py-10 w-[70%] ">
+    <Box p={3} bgcolor="white" borderRadius={2} m={2}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h6" fontWeight="bold">Perfil do aluno</Typography>
+        <Box display="flex" gap={2}>
+          <Button variant="outlined">Editar</Button>
+          <Button variant="outlined">
+            <PrintIcon />
+          </Button>
+        </Box>
+      </Box>
 
-      <div className="flex flex-col items-center space-y-3">
-        <Avatar src={student.picture} sx={{ width: 120, height: 120 }} />
-        <Typography variant="subtitle1" >{student.name}</Typography>
-        <Button variant="outlined">Editar </Button>      
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" gap={2} m={6}>
+        <Box display="flex" alignItems="center" gap={2} flexDirection="column">
+          <Avatar src={student.picture} sx={{ width: 150, height: 150 }} />
+          <Typography variant="h6" fontWeight="bold" color="primary">{student.name.toUpperCase()}</Typography>
+        </Box>
+      </Box>
 
-      <div className="space-y-3 max-w-2xl w-full">
-        <div className="flex justify-between gap-8">
-          <div className="w-full">
-            <TextField id='name' disabled label='Nome' variant="outlined" size="small" value={student.name} sx={{ width: '100%' }} />
-          </div>
-          <div className="w-[30%]">
-            <TextField id='cpf' disabled label='CPF' variant="outlined" size="small" value={student.cpf} sx={{ width: '100%' }} />
-          </div>
+      {/* Dados Pessoais */}
+      <Typography variant="body1" mb={3}>Dados Pessoais</Typography>
 
-        </div>
+      <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
+        <TextField label="Nome" value={student.name} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="CPF" value={student.cpf} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Email" value={student.email} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Telefone" value={student.phone} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+      </Box>
 
-        <div className="flex justify-between gap-8">
-          <div className="w-full">
-            <TextField id='email' disabled label='Email' variant="outlined" size="small" value={student.emai} sx={{ width: '100%' }} />
-          </div>
-          <div className="w-[30%]">
-            <TextField id='phone' disabled label='Telefone' variant="outlined" size="small" value={student.phone} sx={{ width: '100%' }} />
-          </div>
+      <Divider sx={{ mb: 3 }} />
+      <Typography variant="body1" mb={3}>Endereço</Typography>
 
-        </div>
+      {/* Endereço */}
+      <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
+        <TextField label="Rua" value={student.address.street} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Bairro" value={student.address.neighborhood} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Número" value={student.address.number} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Cidade" value={student.address.city} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Estado" value={student.address.state} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="CEP" value={student.address.postalCode} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+      </Box>
 
-        <hr />
+      <Divider sx={{ mb: 3 }} />
 
-        <Typography variant="h6">Endereço</Typography>
+      {/* Curso
+      <Box display="flex" flexWrap="wrap" gap={2} mb={3}>
+        <TextField label="Curso" value={student.course.name} size="small" fullWidth
+          InputProps={{ readOnly: true }}
+          sx={{ flex:1 }}
+        />
+      </Box> */}
 
-        <div className="flex justify-between gap-6">
-          <div className="w-full">
-            <TextField id='street' disabled label='Rua' variant="outlined" size="small" value={student.address.street} sx={{ width: '100%' }} />
-          </div>
-          <div className="">
-            <TextField id='neighborhood' disabled label='Bairro' variant="outlined" size="small" value={student.address.neighborhood} sx={{ width: '100%' }} />
-          </div>
-          <div className="w-[15%]">
-            <TextField id='number' disabled label='Número' variant="outlined" size="small" value={student.address.number} sx={{ width: '100%' }} />
-          </div>
-
-        </div>
-
-        <div className="flex justify-between gap-6">
-          <div className="w-full">
-            <TextField id='city' disabled label='Cidade' variant="outlined" size="small" value={student.address.city} sx={{ width: '100%' }} />
-          </div>
-          <div className="w-[45%]">
-            <TextField id='state' disabled label='Estado' variant="outlined" size="small" value={student.address.state} sx={{ width: '100%' }} />
-          </div>
-          <div className="w-[35%]">
-            <TextField id='postalCode' disabled label='CEP' variant="outlined" size="small" value={student.address.postalCode} sx={{ width: '100%' }} />
-          </div>
-
-        </div>
-
-        <hr />
-
-        <Typography variant="h6">Matrícula</Typography>
-
-        <div className="flex justify-between gap-6">
-          <div className="w-[30%]">
-            <TextField id='course-name' disabled label='Curso' variant="outlined" size="small" value={student.course.name} sx={{ width: '100%' }} />
-          </div>
-
-
-        </div>
-
-        <Typography variant="body1">Turmas</Typography>
-
-        {
-          student?.classLinks.map(({ class: turma }: any) => (
-            <div key={turma.code} className="flex gap-6">
-
-              <div className="">
-                <TextField id='class-name' disabled label='Turma' variant="outlined" size="small" value={turma.name} sx={{ width: '100%' }} />
-              </div>
-              <div className="">
-                <TextField id='teacher-name' disabled label='Professor da turma' variant="outlined" size="small" value={turma.teacher.name} sx={{ width: '100%' }} />
-              </div>
-
-            </div>
-
-          ))
-        }
-
-
-      </div>
-
-
-    </div>
+      {/* Turmas */}
+      <Typography variant="body1" mb={3}>Matriculas</Typography>
+      {student?.classLinks.map(({ class: turma }) => (
+        <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+          <TextField label="Turma" value={turma.name} size="small" fullWidth
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Professor da turma" value={turma.teacher.name} size="small" fullWidth
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+        </Box>
+      ))}
+    </Box>
   );
 };
-
-
 
 export default SingleStudentPage;

@@ -22,7 +22,7 @@ const LoginPage = () => {
     setCpf(formatCpf(e.target.value));
   };
 
-  const handleChangeUser = (event) => {
+  const handleChangeUser = (event: any) => {
     setSelectedValue(event.target.value);
     console.log('Selecionado:', event.target.value); // opcional: exibe no console
   };
