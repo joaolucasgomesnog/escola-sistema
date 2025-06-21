@@ -4,7 +4,7 @@ export default {
 
   async createFee(req, res) {
     try {
-      const { studentId, value, dueDate, description  } = req.body;
+      const { studentId, price, dueDate, description  } = req.body;
 
       const feeExists = await prisma.fee.findFirst({ where: { studentId } })
 
@@ -15,7 +15,7 @@ export default {
       const fee = await prisma.fee.create({
         data: {
           studentId,
-          value,
+          price,
           dueDate,
           description,
         }
@@ -66,7 +66,7 @@ export default {
 
       const { id } = req.params;      
 
-      const { studentId, value, dueDate, description } = req.body;
+      const { studentId, price, dueDate, description } = req.body;
 
       const feeExists = await prisma.fee.findUnique({ where: { id: Number(id) } })
 
@@ -80,7 +80,7 @@ export default {
         },
         data: {
           studentId,
-          value,
+          price,
           dueDate,
           description,
         }
@@ -114,6 +114,29 @@ export default {
     } catch (error) {
       console.error("Erro ao deletar fee:", error);
       return res.status(500).json({ error: "Erro interno ao deletar fee" });
+    }
+  },
+
+    async getFeesByStudent(req, res) {
+    try {
+      const { studentId } = req.params;
+
+      const fees = await prisma.fee.findMany({
+        where: {
+          studentId: Number(studentId),
+        },
+        include: {
+          payments: true, // opcional: incluir pagamentos relacionados
+        },
+        orderBy: {
+          dueDate: 'asc', // opcional: ordena por data de vencimento
+        }
+      });
+
+      return res.status(200).json(fees);
+    } catch (error) {
+      console.error("Erro ao buscar fees do aluno:", error);
+      return res.status(500).json({ error: "Erro interno ao buscar fees do aluno" });
     }
   },
 };

@@ -10,5 +10,6 @@ feeRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin'), fee.getFeeB
 feeRoutes.get('/getall', autenticateToken, authorizeRoles('admin'), fee.getAllFees);
 feeRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), fee.updateFee);
 feeRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), fee.deleteFee);
+feeRoutes.get("/student/:studentId", autenticateToken, authorizeRoles('admin'), fee.getFeesByStudent);
 
 export {feeRoutes}

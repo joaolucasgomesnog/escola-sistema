@@ -119,7 +119,7 @@ model Attendence {
 model Fee {
   id          Int      @id @default(autoincrement())
   studentId   Int
-  value       Float
+  price       Float
   dueDate     DateTime
   description String
 
@@ -132,7 +132,7 @@ model Fee {
 model Payment {
   id          Int      @id @default(autoincrement())
   feeId       Int
-  paymentType String
+  paymentType PaymentType
   description String
   adminId     Int
 
@@ -140,4 +140,13 @@ model Payment {
 
   admin       Admin    @relation(fields: [adminId], references: [id])
   fee         Fee      @relation(fields: [feeId], references: [id])
+}
+
+enum PaymentType {
+  DINHEIRO
+  BOLETO
+  CREDITO
+  DEBITO
+  DEPOSITO
+  PIX
 }
