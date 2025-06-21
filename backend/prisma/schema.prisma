@@ -22,18 +22,20 @@ model Address {
 }
 
 model Student {
-  id        Int     @id @default(autoincrement())
-  name      String
-  cpf       String  @unique
-  phone     String?
-  picture   String?
-  password  String
-  addressId Int
-  email     String?
+  id          Int             @id @default(autoincrement())
+  name        String
+  cpf         String          @unique
+  phone       String?
+  picture     String?
+  password    String
+  addressId   Int
+  email       String?
+  courseId    Int?
   classLinks  Class_Student[]
   attendances Attendence[]
   fees        Fee[]
-  address   Address @relation(fields: [addressId], references: [id])
+  address     Address         @relation(fields: [addressId], references: [id])
+  course      Course?          @relation(fields: [courseId], references: [id])
 }
 
 model Teacher {
@@ -54,16 +56,16 @@ model BlackListToken {
 }
 
 model Admin {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  cpf       String  @unique
+  cpf       String    @unique
   phone     String?
   picture   String?
   password  String
   addressId Int
   email     String?
-  address   Address @relation(fields: [addressId], references: [id])
-  payments Payment[]
+  address   Address   @relation(fields: [addressId], references: [id])
+  payments  Payment[]
 }
 
 model Course {
@@ -73,6 +75,7 @@ model Course {
   picture String?
 
   classes Class[]
+  Student Student[]
 }
 
 model Class {
@@ -96,12 +99,12 @@ model Class {
 }
 
 model Class_Student {
-  id        Int     @id @default(autoincrement())
+  id        Int @id @default(autoincrement())
   studentId Int
   classId   Int
 
-  student   Student @relation(fields: [studentId], references: [id])
-  class     Class   @relation(fields: [classId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
 }
 
 model Attendence {
@@ -123,23 +126,23 @@ model Fee {
   dueDate     DateTime
   description String
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  student     Student  @relation(fields: [studentId], references: [id])
+  student  Student   @relation(fields: [studentId], references: [id])
   payments Payment[]
 }
 
 model Payment {
-  id          Int      @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   feeId       Int
   paymentType PaymentType
   description String
   adminId     Int
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  admin       Admin    @relation(fields: [adminId], references: [id])
-  fee         Fee      @relation(fields: [feeId], references: [id])
+  admin Admin @relation(fields: [adminId], references: [id])
+  fee   Fee   @relation(fields: [feeId], references: [id])
 }
 
 enum PaymentType {

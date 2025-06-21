@@ -1,21 +1,19 @@
 import { prisma } from "./../../lib/prisma.js";
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-const SECRET_KEY = process.env.JWT_SECRET; 
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export default {
-
-  async logout(req, res){
+  async logout(req, res) {
     try {
-      const {token} = req.body
+      const { token } = req.body;
 
-      console.log(token)
+      console.log(token);
 
-      await prisma.blackListToken.create({ data: {token}})
+      await prisma.blackListToken.create({ data: { token } });
 
-      return res.status(200).json({message: "token adicionado a blackList"})
-
+      return res.status(200).json({ message: "token adicionado a blackList" });
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       res.status(500).json({ error: "Erro interno ao fazer logout" });
@@ -27,21 +25,27 @@ export default {
       const { name, cpf, phone, picture, password, address } = req.body;
 
       if (!name || !cpf || !phone || !password || !address) {
-  return res.status(400).json({ error: "Campos obrigatórios não foram preenchidos" });
-}
-      const studentExists = await prisma.student.findUnique({ where: { cpf:cpf } })
-
-      if(studentExists){
-        return res.status(409).json({error: 'cpf informado já foi cadastrado'})
+        return res
+          .status(400)
+          .json({ error: "Campos obrigatórios não foram preenchidos" });
       }
-      
+      const studentExists = await prisma.student.findUnique({
+        where: { cpf: cpf },
+      });
+
+      if (studentExists) {
+        return res
+          .status(409)
+          .json({ error: "cpf informado já foi cadastrado" });
+      }
+
       // Criação do endereço
       const newAddress = await prisma.address.create({
         data: address,
       });
 
       //criptografar senha
-      const hashedPassword = await hashPassword(password)
+      const hashedPassword = await hashPassword(password);
 
       // Criação do student com vínculo ao endereço
       const student = await prisma.student.create({
@@ -56,8 +60,8 @@ export default {
         select: {
           id: true,
           name: true,
-          cpf: true
-        }
+          cpf: true,
+        },
       });
 
       res.status(201).json(student);
@@ -74,7 +78,9 @@ export default {
         include: { address: true },
       });
 
-      const studentsWithoutPassword = students.map(({password, ...rest}) => rest)
+      const studentsWithoutPassword = students.map(
+        ({ password, ...rest }) => rest
+      );
 
       res.status(200).json(studentsWithoutPassword);
     } catch (error) {
@@ -88,14 +94,41 @@ export default {
       const { id } = req.params;
       const student = await prisma.student.findUnique({
         where: { id: Number(id) },
-        include: { address: true },
+        include: {
+
+          address: true,
+          attendances: true,
+          course: true,
+          classLinks: { 
+            select: { 
+              class: {
+                select: {
+                  code: true,
+                  name: true,
+                  course: {
+                    select: {
+                      name: true,
+                      code: true,
+                    }
+                  },
+                  teacher: {
+                    select: {
+                      name: true
+                    }
+                  }
+                }
+              },
+
+            } 
+          },
+        },
       });
 
       if (!student) {
         return res.status(404).json({ error: "Student não encontrado" });
       }
 
-      delete student.password
+      delete student.password;
 
       res.status(200).json(student);
     } catch (error) {
@@ -126,15 +159,15 @@ export default {
         });
       }
 
-      const hashedPassword = await hashPassword(password)
+      const hashedPassword = await hashPassword(password);
 
       const updatedStudent = await prisma.student.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, picture, password:hashedPassword },
+        data: { name, cpf, phone, picture, password: hashedPassword },
         include: { address: true },
       });
 
-      delete updatedStudent.password
+      delete updatedStudent.password;
 
       res.status(200).json(updatedStudent);
     } catch (error) {
@@ -172,69 +205,70 @@ export default {
     }
   },
 
+  async searchStudents(req, res) {
+    try {
+      const { nome, endereco, bairro, cidade, turma, curso, cpf } = req.query;
 
-async searchStudents(req, res) {
-  try {
-    const {
-      nome,
-      endereco,
-      bairro,
-      cidade,
-      turma,
-      curso,
-      cpf,
-    } = req.query;
-
-    const students = await prisma.student.findMany({
-      where: {
-        name: nome ? { contains: nome, mode: 'insensitive' } : undefined,
-        cpf: cpf ? { contains: cpf } : undefined,
-        address: {
-          AND: [
-            endereco ? { street: { contains: endereco, mode: 'insensitive' } } : {},
-            bairro ? { neighborhood: { contains: bairro, mode: 'insensitive' } } : {},
-            cidade ? { city: { contains: cidade, mode: 'insensitive' } } : {},
-          ],
-        },
-        classLinks: turma || curso ? {
-          some: {
-            class: {
-              name: turma ? { contains: turma, mode: 'insensitive' } : undefined,
-              course: curso ? {
-                name: { contains: curso, mode: 'insensitive' },
-              } : undefined,
-            },
+      const students = await prisma.student.findMany({
+        where: {
+          name: nome ? { contains: nome, mode: "insensitive" } : undefined,
+          cpf: cpf ? { contains: cpf } : undefined,
+          address: {
+            AND: [
+              endereco
+                ? { street: { contains: endereco, mode: "insensitive" } }
+                : {},
+              bairro
+                ? { neighborhood: { contains: bairro, mode: "insensitive" } }
+                : {},
+              cidade ? { city: { contains: cidade, mode: "insensitive" } } : {},
+            ],
           },
-        } : undefined,
-      },
-      include: {
-        address: true,
-        classLinks: {
-          include: {
-            class: {
-              include: {
-                course: true,
+          classLinks:
+            turma || curso
+              ? {
+                  some: {
+                    class: {
+                      name: turma
+                        ? { contains: turma, mode: "insensitive" }
+                        : undefined,
+                      course: curso
+                        ? {
+                            name: { contains: curso, mode: "insensitive" },
+                          }
+                        : undefined,
+                    },
+                  },
+                }
+              : undefined,
+        },
+        include: {
+          address: true,
+          classLinks: {
+            include: {
+              class: {
+                include: {
+                  course: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    const studentsWithoutPassword = students.map(({ password, ...rest }) => rest);
+      const studentsWithoutPassword = students.map(
+        ({ password, ...rest }) => rest
+      );
 
-    res.status(200).json(studentsWithoutPassword);
-  } catch (error) {
-    console.error("Erro ao buscar estudantes com filtros:", error);
-    res.status(500).json({ error: "Erro interno ao buscar estudantes" });
-  }
-}
-
-
-
+      res.status(200).json(studentsWithoutPassword);
+    } catch (error) {
+      console.error("Erro ao buscar estudantes com filtros:", error);
+      res.status(500).json({ error: "Erro interno ao buscar estudantes" });
+    }
+  },
 };
 
-async function hashPassword(password){
-  const saltRounds = 10
-  return await bcrypt.hash(password, saltRounds)
+async function hashPassword(password) {
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
 }
