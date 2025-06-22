@@ -82,7 +82,7 @@ const [student, setStudent] = useState<Student | null>(null);
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
         <TextField label="Nome" value={student.name} size="small" fullWidth
           InputProps={{ readOnly: true }}
-          sx={{ flex: 1 }}
+          sx={{ flex: 2 }}
         />
         <TextField label="CPF" value={student.cpf} size="small" fullWidth
           InputProps={{ readOnly: true }}
@@ -105,7 +105,7 @@ const [student, setStudent] = useState<Student | null>(null);
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
         <TextField label="Rua" value={student.address.street} size="small" fullWidth
           InputProps={{ readOnly: true }}
-          sx={{ flex: 1 }}
+          sx={{ flex: 2 }}
         />
         <TextField label="Bairro" value={student.address.neighborhood} size="small" fullWidth
           InputProps={{ readOnly: true }}
@@ -113,7 +113,7 @@ const [student, setStudent] = useState<Student | null>(null);
         />
         <TextField label="Número" value={student.address.number} size="small" fullWidth
           InputProps={{ readOnly: true }}
-          sx={{ flex: 1 }}
+          sx={{ flex: 0.5 }}
         />
         <TextField label="Cidade" value={student.address.city} size="small" fullWidth
           InputProps={{ readOnly: true }}
@@ -121,7 +121,7 @@ const [student, setStudent] = useState<Student | null>(null);
         />
         <TextField label="Estado" value={student.address.state} size="small" fullWidth
           InputProps={{ readOnly: true }}
-          sx={{ flex: 1 }}
+          sx={{ flex: 0.5 }}
         />
         <TextField label="CEP" value={student.address.postalCode} size="small" fullWidth
           InputProps={{ readOnly: true }}
