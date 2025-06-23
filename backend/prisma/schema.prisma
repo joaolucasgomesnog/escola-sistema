@@ -30,12 +30,10 @@ model Student {
   password    String
   addressId   Int
   email       String?
-  courseId    Int?
   classLinks  Class_Student[]
   attendances Attendence[]
   fees        Fee[]
   address     Address         @relation(fields: [addressId], references: [id])
-  course      Course?          @relation(fields: [courseId], references: [id])
 }
 
 model Teacher {
@@ -75,7 +73,6 @@ model Course {
   picture String?
 
   classes Class[]
-  Student Student[]
 }
 
 model Class {
