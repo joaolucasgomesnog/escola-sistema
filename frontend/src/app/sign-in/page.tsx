@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { Button, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { set } from "react-hook-form";
 
 const formatCpf = (value: string) => {
   return value
@@ -17,6 +18,7 @@ const LoginPage = () => {
   const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
   const [selectedValue, setSelectedValue] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCpf(formatCpf(e.target.value));
@@ -30,6 +32,7 @@ const LoginPage = () => {
 
 const handleLogin = async () => {
   try {
+    setSubmitting(true);
     const rawCpf = cpf.replace(/\D/g, '');
 
     const response = await fetch('http://localhost:3030/login', {
@@ -55,6 +58,7 @@ const handleLogin = async () => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
     });
+    
 
     // Redireciona baseado na role
     switch (data.currentRole) {
@@ -70,9 +74,11 @@ const handleLogin = async () => {
       default:
         alert('Perfil não reconhecido.');
     }
+    setSubmitting(false);
 
   } catch (error) {
     console.error('Erro na requisição de login:', error);
+    setSubmitting(false);
     alert('Erro ao conectar com o servidor. Tente novamente mais tarde.');
   }
 };
@@ -118,12 +124,15 @@ const handleLogin = async () => {
             </RadioGroup>
 
             <div>
-              <button
+              <Button
                 type="submit"
+                variant="contained"
+                color="primary"
+                loading={submitting}
                 className="w-full flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-white font-semibold hover:bg-indigo-500"
               >
                 Entrar
-              </button>
+              </Button>
             </div>
           </form>
         </div>
