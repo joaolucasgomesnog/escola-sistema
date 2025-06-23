@@ -129,7 +129,7 @@ const handleLogin = async () => {
                 variant="contained"
                 color="primary"
                 loading={submitting}
-                className="w-full flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-white font-semibold hover:bg-indigo-500"
+                sx={{ width: '80%', margin:'auto', display: 'block' }}
               >
                 Entrar
               </Button>
