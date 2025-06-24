@@ -306,8 +306,7 @@ if (user) {
         R$ {Number(params.value).toFixed(2).replace('.', ',')}
       </Typography>
     </Box>
-  ),}
-,
+  )},
   {
     field: "dueDate",
     headerName: "Vencimento",

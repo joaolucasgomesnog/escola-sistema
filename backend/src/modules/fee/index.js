@@ -4,7 +4,7 @@ export default {
 
   async createFee(req, res) {
     try {
-      const { studentId, price, dueDate, description  } = req.body;
+      const { studentId, price, dueDate, description } = req.body;
 
       const feeExists = await prisma.fee.findFirst({ where: { studentId } })
 
@@ -30,7 +30,7 @@ export default {
 
   // Buscar todos os fees
   async getAllFees(req, res) {
-    
+
     try {
       const fees = await prisma.fee.findMany();
       return res.status(200).json(fees);
@@ -47,7 +47,7 @@ export default {
     try {
       const { id } = req.params
 
-      const fee = await prisma.fee.findUnique({where: { id: Number(id) }});
+      const fee = await prisma.fee.findUnique({ where: { id: Number(id) } });
 
       if (!fee) {
         return res.status(404).json({ error: "Fee não encontrado" });
@@ -64,7 +64,7 @@ export default {
   async updateFee(req, res) {
     try {
 
-      const { id } = req.params;      
+      const { id } = req.params;
 
       const { studentId, price, dueDate, description } = req.body;
 
@@ -117,7 +117,7 @@ export default {
     }
   },
 
-    async getFeesByStudent(req, res) {
+  async getFeesByStudent(req, res) {
     try {
       const { studentId } = req.params;
 
@@ -126,11 +126,12 @@ export default {
           studentId: Number(studentId),
         },
         include: {
-          payments: true, // opcional: incluir pagamentos relacionados
+          payments: { select: { admin: { select: { name: true } }, createdAt: true, paymentType: true } }, // opcional: incluir pagamentos relacionados
         },
-        orderBy: {
-          dueDate: 'asc', // opcional: ordena por data de vencimento
-        }
+        orderBy: [
+          { dueDate: 'asc' },
+          { id: 'asc' }
+        ]
       });
 
       return res.status(200).json(fees);
