@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { formatPhone } from "@/lib/formatValues";
 
 type Student = {
   id: number;
@@ -115,6 +116,13 @@ const StudentListPage = () => {
       field: "phone",
       headerName: "Telefone",
       flex: 1,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box display="flex" alignItems="center" height="100%">
+        <Typography variant="body2">
+          {params.value ? formatPhone(params.value) : "Não informado"}
+        </Typography>
+        </Box>
+      ),
     },
     {
       field: "address",

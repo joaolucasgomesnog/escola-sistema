@@ -12,6 +12,7 @@ import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { formatPhone } from "@/lib/formatValues";
 
 type Teacher = {
   id: number;
@@ -113,6 +114,13 @@ const TeacherListPage = () => {
       field: "phone",
       headerName: "Telefone",
       flex: 1,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box display="flex" alignItems="center" height="100%">
+        <Typography variant="body2">
+          {params.value ? formatPhone(params.value) : "Não informado"}
+        </Typography>
+        </Box>
+      ),
     },
     {
       field: "address",
