@@ -98,7 +98,6 @@ export default {
 
           address: true,
           attendances: true,
-          course: true,
           classLinks: { 
             select: { 
               class: {
@@ -118,7 +117,6 @@ export default {
                   }
                 }
               },
-
             } 
           },
         },
