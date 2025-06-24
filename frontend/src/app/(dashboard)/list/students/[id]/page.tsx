@@ -16,6 +16,7 @@ import { Student } from '@/interfaces/student';
 import PrintIcon from '@mui/icons-material/Print';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
+import { formatCpf, formatPhone } from "@/lib/formatValues";
 
 type Props = {
   params: { id: string };
@@ -46,6 +47,7 @@ const SingleStudentPage = ({ params }: Props) => {
         if (!res.ok) throw new Error("Erro ao buscar aluno");
 
         const data = await res.json();
+        console.log("Dados do aluno:", data);
         setStudent(data);
       } catch (err) {
         console.error("Erro:", err);
@@ -161,19 +163,19 @@ const SingleStudentPage = ({ params }: Props) => {
 
   return (
     <Box
-  p={3}
-  bgcolor="white"
-  borderRadius={2}
-  m={2}
-  sx={{
-    height: 'calc(100vh - 64px)', // altura total da viewport menos o header, ajuste se necessário
-    overflowY: 'auto'
-  }}
->
+      p={3}
+      bgcolor="white"
+      borderRadius={2}
+      m={2}
+      sx={{
+        height: 'calc(100vh - 64px)', // altura total da viewport menos o header, ajuste se necessário
+        overflowY: 'auto'
+      }}
+    >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h6" fontWeight="bold">Perfil do aluno</Typography>
         <Box display="flex" gap={2}>
-          <Button variant="outlined">Editar</Button>
+          
           <Button variant="outlined">
             <PrintIcon />
           </Button>
@@ -188,53 +190,63 @@ const SingleStudentPage = ({ params }: Props) => {
       </Box>
 
       {/* Dados Pessoais */}
-      <Typography variant="body1" mb={3}>Dados Pessoais</Typography>
-
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Typography variant="body1">Dados Pessoais</Typography>
+<Button variant="outlined">Editar</Button>
+      </Box>  
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
-        <TextField label="Nome" value={student.name ?? ""} size="small" fullWidth
+        <TextField label="Nome" value={student.name ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 2 }}
         />
-        <TextField label="CPF" value={student.cpf ?? ""} size="small" fullWidth
+        <TextField
+          label="CPF"
+          value={student.cpf ? formatCpf(student.cpf) : ""}
+          size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Email" value={student.email ?? ""} size="small" fullWidth
+        <TextField label="Email" value={student.email ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Telefone" value={student.phone ?? ""} size="small" fullWidth
+        <TextField
+          label="Telefone"
+          value={student.phone ? formatPhone(student.phone) : ""}
+          size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
       </Box>
 
       <Divider sx={{ mb: 3 }} />
-      <Typography variant="body1" mb={3}>Endereço</Typography>
-
+ <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Typography variant="body1">Endereço</Typography>
+<Button variant="outlined">Editar</Button>
+      </Box>  
       {/* Endereço */}
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
-        <TextField label="Rua" value={student.address.street ?? ""} size="small" fullWidth
+        <TextField label="Rua" value={student.address.street ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 2 }}
         />
-        <TextField label="Bairro" value={student.address.neighborhood ?? ""} size="small" fullWidth
+        <TextField label="Bairro" value={student.address.neighborhood ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Número" value={student.address.number ?? ""} size="small" fullWidth
+        <TextField label="Número" value={student.address.number ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 0.5 }}
         />
-        <TextField label="Cidade" value={student.address.city ?? ""} size="small" fullWidth
+        <TextField label="Cidade" value={student.address.city ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Estado" value={student.address.state ?? ""} size="small" fullWidth
+        <TextField label="Estado" value={student.address.state ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 0.5 }}
         />
-        <TextField label="CEP" value={student.address.postalCode ?? ""} size="small" fullWidth
+        <TextField label="CEP" value={student.address.postalCode ?? ""} size="small"
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
@@ -252,13 +264,19 @@ const SingleStudentPage = ({ params }: Props) => {
 
       {/* Turmas */}
       <Typography variant="body1" mb={3}>Matriculas</Typography>
+      
+      
       {student?.classLinks.map(({ class: turma }) => (
         <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
-          <TextField label="Turma" value={turma.name ?? ""} size="small" fullWidth
+          <TextField label="Curso" value={turma.course.name ?? ""} size="small"
             InputProps={{ readOnly: true }}
             sx={{ flex: 1 }}
           />
-          <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small" fullWidth
+          <TextField label="Turma" value={turma.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small"
             InputProps={{ readOnly: true }}
             sx={{ flex: 1 }}
           />

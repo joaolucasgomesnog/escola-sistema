@@ -80,7 +80,7 @@ model Class {
   code      String   @unique
   name      String
   turno     String
-  horario   DateTime
+  horario   Json?
   startDate DateTime
   endDate   DateTime
   createdAt DateTime @default(now())

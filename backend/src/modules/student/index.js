@@ -110,6 +110,7 @@ export default {
                       code: true,
                     }
                   },
+                  horario: true,
                   teacher: {
                     select: {
                       name: true
