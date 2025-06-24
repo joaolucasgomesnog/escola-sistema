@@ -5,26 +5,14 @@ export default {
 
   async createPayment(req, res) {
     try {
-      const { feeId, paymentType, description, adminId, createdAt } = req.body;
+      const { feeId, paymentType, description, adminId} = req.body;
 
-      const isValidDate = isValidUTC(createdAt)
-
-      if(!isValidDate){
-        return res.status(400).json({error: "invalid createdAt"})
-      }
-
-      const start = startOfMonth(createdAt);
-      const end = endOfMonth(createdAt);
 
       //verifica se ja existe pagamento no mês do createdAt(que vem do front) e para o feeId
       // Assim pode criar pagamento para meses passados ou atual(atrasados) 
       const paymentExists = await prisma.payment.findFirst({
         where: {
           feeId,
-          createdAt: {
-            gte: start,
-            lte: end
-          }
         }
       });
 
@@ -38,7 +26,6 @@ export default {
           paymentType,
           description,
           adminId,
-          createdAt,
         }
       });
 

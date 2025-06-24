@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
+import { getUserFromToken } from "@/lib/getUserFromToken";
+import PrintIcon from '@mui/icons-material/Print';
 
 type Fee = {
   id: number;
@@ -83,7 +85,7 @@ const handleSearch = async () => {
     const token = Cookies.get("auth_token");
 
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -113,7 +115,7 @@ const handleSearch = async () => {
     if (!response.ok) {
       if (response.status === 401) {
         Cookies.remove("auth_token");
-        router.push("/login");
+        router.push("/sign-in");
         return;
       }
 
@@ -151,7 +153,7 @@ const fetchStudentFees = async (studentId: number) => {
   try {
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -179,6 +181,8 @@ const fetchStudentFees = async (studentId: number) => {
   }
 };
 
+
+
 const handleOpenPaymentModal = (studentId: number) => {
   setSelectedStudentId(studentId);
   fetchStudentFees(studentId);
@@ -189,16 +193,21 @@ const submitPayment = async () => {
   if (!selectedFeeId || !selectedStudentId) return;
 
   const token = Cookies.get("auth_token");
-  const adminId = Number(Cookies.get("admin_id")); // supondo que esteja salvo
+const user = getUserFromToken();
 
-  if (!token || !adminId) {
-    router.push("/login");
+if (user) {
+  console.log("ID do usuário:", user.id);
+  console.log("Função (role):", user.role);
+}
+  if (!token || !user) {
+    router.push("/sign-in");
     return;
   }
 
   try {
     setSubmitting(true);
-    const response = await fetch("http://localhost:3030/payment", {
+
+    const response = await fetch("http://localhost:3030/payment/create", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -208,23 +217,27 @@ const submitPayment = async () => {
         feeId: selectedFeeId,
         paymentType,
         description: paymentDescription,
-        adminId,
+        adminId: user.id,
       }),
     });
 
-    if (!response.ok) throw new Error("Erro ao registrar pagamento");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Erro ao registrar pagamento");
+    }
 
-    await fetchStudentFees(selectedStudentId); // Atualiza a lista de mensalidades
+    await fetchStudentFees(selectedStudentId);
     setPaymentDescription('');
     setSelectedFeeId(null);
     alert("Pagamento registrado com sucesso!");
   } catch (err) {
     console.error(err);
-    alert("Erro ao registrar pagamento.");
+    alert(err instanceof Error ? err.message : "Erro ao registrar pagamento.");
   } finally {
     setSubmitting(false);
   }
 };
+
 
 
 // useEffect(() => {
@@ -310,13 +323,14 @@ const submitPayment = async () => {
 
   return (
     <Box p={3} bgcolor="white" borderRadius={2} m={2}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6" fontWeight="bold">
-          Caixa
-        </Typography>
-        {/* {role === "admin" && (
-          <FormModal table="course" type="create" />
-        )} */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h6" fontWeight="bold">Caixa</Typography>
+        <Box display="flex" gap={2}>
+          <Button variant="outlined">Estorno</Button>
+          <Button variant="outlined">
+            <PrintIcon />
+          </Button>
+        </Box>
       </Box>
       {/* Formulário de busca */}
       <Box display="flex" gap={1} flexWrap="wrap" alignItems="center" maxWidth="100%">
@@ -400,7 +414,7 @@ const submitPayment = async () => {
       </Box>
 
       <Box display="flex" justifyContent="flex-end">
-        <Button variant="contained" color="success" onClick={submitPayment} disabled={submitting || !selectedFeeId}>
+        <Button variant="contained" color="success" onClick={submitPayment} disabled={submitting || !selectedFeeId} loading={submitting}>
           {submitting ? "Enviando..." : "Confirmar Pagamento"}
         </Button>
       </Box>
