@@ -5,7 +5,11 @@ import { getUserFromToken } from "../lib/getUserFromToken";
 import Cookies from "js-cookie";
 
 const Report = React.forwardRef(function Report({ children }, ref) {
-  
+
+  const now = new Date()
+  const formattedDate = now.toLocaleDateString("pt-BR"); // → "26/06/2025"
+
+
   return (
     <div ref={ref} className=" mx-auto w-[210mm] h-[297mm] px-4 py-8 ">
       <div className="flex items-center gap-8">
@@ -21,7 +25,7 @@ const Report = React.forwardRef(function Report({ children }, ref) {
       </div>
       <div className="flex justify-between text-[8px]">
         <div />
-        <p className="whitespace-pre">25/06/2025    |    14:22    |    LUCAS GOMES</p>
+        <p className="whitespace-pre">{formattedDate}    |    14:22    |    LUCAS GOMES</p>
       </div>
       <div className="bg-gray-300 text-center font-semibold text-xs my-2">
         RELATÓRIO DE CAIXA
