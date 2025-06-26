@@ -8,6 +8,10 @@ const Report = React.forwardRef(function Report({ children }, ref) {
 
   const now = new Date()
   const formattedDate = now.toLocaleDateString("pt-BR"); // → "26/06/2025"
+  const formattedTime = now.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }); // → "14:22"
 
 
   return (
@@ -25,7 +29,7 @@ const Report = React.forwardRef(function Report({ children }, ref) {
       </div>
       <div className="flex justify-between text-[8px]">
         <div />
-        <p className="whitespace-pre">{formattedDate}    |    14:22    |    LUCAS GOMES</p>
+        <p className="whitespace-pre">{formattedDate}    |    {formattedTime}    |    LUCAS GOMES</p>
       </div>
       <div className="bg-gray-300 text-center font-semibold text-xs my-2">
         RELATÓRIO DE CAIXA
