@@ -22,9 +22,9 @@ export default {
 
   async createStudent(req, res) {
     try {
-      const { name, cpf, phone, picture, password, address } = req.body;
+      const { name, cpf, phone, email, picture, password, address } = req.body;
 
-      if (!name || !cpf || !phone || !password || !address) {
+      if (!name || !cpf || !phone || !password || !email || !address) {
         return res
           .status(400)
           .json({ error: "Campos obrigatórios não foram preenchidos" });
@@ -53,6 +53,7 @@ export default {
           name,
           cpf,
           phone,
+          email,
           picture,
           password: hashedPassword,
           addressId: newAddress.id,
@@ -95,11 +96,10 @@ export default {
       const student = await prisma.student.findUnique({
         where: { id: Number(id) },
         include: {
-
           address: true,
           attendances: true,
-          classLinks: { 
-            select: { 
+          classLinks: {
+            select: {
               class: {
                 select: {
                   code: true,
@@ -108,17 +108,17 @@ export default {
                     select: {
                       name: true,
                       code: true,
-                    }
+                    },
                   },
                   horario: true,
                   teacher: {
                     select: {
-                      name: true
-                    }
-                  }
-                }
+                      name: true,
+                    },
+                  },
+                },
               },
-            } 
+            },
           },
         },
       });
@@ -140,7 +140,9 @@ export default {
   async updateStudent(req, res) {
     try {
       const { id } = req.params;
-      const { name, cpf, phone, picture, password, address } = req.body;
+      const { name, cpf, phone, email, picture, address } = req.body;
+
+      console.log("CHEGANDO: ", name, cpf, phone, email, picture, address);
 
       const studentExists = await prisma.student.findUnique({
         where: { id: Number(id) },
@@ -158,17 +160,44 @@ export default {
         });
       }
 
-      const hashedPassword = await hashPassword(password);
+      // const hashedPassword = await hashPassword(password);
 
       const updatedStudent = await prisma.student.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, picture, password: hashedPassword },
-        include: { address: true },
+        data: { name, cpf, phone, email, picture },
+        include: {
+          address: true,
+          attendances: true,
+          classLinks: {
+            select: {
+              class: {
+                select: {
+                  code: true,
+                  name: true,
+                  course: {
+                    select: {
+                      name: true,
+                      code: true,
+                    },
+                  },
+                  horario: true,
+                  teacher: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       delete updatedStudent.password;
 
-      res.status(200).json(updatedStudent);
+      console.log("ATUALIZADO: ", updatedStudent);
+
+      return res.status(200).json(updatedStudent);
     } catch (error) {
       console.error("Erro ao atualizar student:", error);
       res.status(500).json({ error: "Erro interno ao atualizar student" });

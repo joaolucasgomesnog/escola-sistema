@@ -29,6 +29,9 @@ const SingleStudentPage = ({ params }: Props) => {
   const [loading, setLoading] = useState(true);
   const [fees, setFees] = useState([]);
 
+  const [newStudent, setNewStudent] = useState<Student | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   useEffect(() => {
     const fetchStudent = async () => {
       const token = Cookies.get("auth_token");
@@ -41,6 +44,7 @@ const SingleStudentPage = ({ params }: Props) => {
         const res = await fetch(`http://localhost:3030/student/get/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
+
           },
         });
 
@@ -60,6 +64,31 @@ const SingleStudentPage = ({ params }: Props) => {
     fetchStudentFees(Number(id));
   }, [id]);
 
+  const updateStudent = async () => {
+    try {
+      const token = Cookies.get('auth_token')
+      const res = await fetch(`http://localhost:3030/student/update/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'PUT',
+        body: JSON.stringify(newStudent)
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) throw new Error("Erro ao atualizar aluno");
+      setStudent(data)
+
+    } catch (error) {
+      console.error("Erro:", error);
+
+    } finally {
+      setIsEditing(false)
+    }
+  }
 
   const fetchStudentFees = async (studentId: number) => {
     const token = Cookies.get("auth_token");
@@ -156,6 +185,10 @@ const SingleStudentPage = ({ params }: Props) => {
     }
   ];
 
+  const handleEdit = () => {
+    setIsEditing(true)
+    setNewStudent({ ...student })
+  }
 
 
   if (loading) return <Typography>Carregando...</Typography>;
@@ -175,7 +208,7 @@ const SingleStudentPage = ({ params }: Props) => {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h6" fontWeight="bold">Perfil do aluno</Typography>
         <Box display="flex" gap={2}>
-          
+
           <Button variant="outlined">
             <PrintIcon />
           </Button>
@@ -191,12 +224,24 @@ const SingleStudentPage = ({ params }: Props) => {
 
       {/* Dados Pessoais */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-      <Typography variant="body1">Dados Pessoais</Typography>
-<Button variant="outlined">Editar</Button>
-      </Box>  
+        <Typography variant="body1">Dados Pessoais</Typography>
+        {
+          isEditing ? (
+            <Button variant="contained" onClick={updateStudent}>Salvar</Button>
+          ) : (
+            <Button variant="outlined" onClick={handleEdit}>Editar</Button>
+          )
+        }
+      </Box>
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
-        <TextField label="Nome" value={student.name ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+        <TextField label="Nome"
+          size="small"
+          value={isEditing ? newStudent?.name ?? "" : student.name ?? ""}
+          InputProps={{ readOnly: !isEditing }}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({ ...newStudent, name: e.target.value })
+          }}
           sx={{ flex: 2 }}
         />
         <TextField
@@ -206,48 +251,141 @@ const SingleStudentPage = ({ params }: Props) => {
           InputProps={{ readOnly: true }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Email" value={student.email ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+        <TextField label="Email"
+          size="small"
+          value={isEditing ? newStudent?.email ?? "" : student.email ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({ ...newStudent, email: e.target.value })
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 1 }}
         />
         <TextField
           label="Telefone"
-          value={student.phone ? formatPhone(student.phone) : ""}
+          value={
+            isEditing
+              ? newStudent?.phone ?? ""
+              : student.phone
+                ? formatPhone(student.phone)
+                : ""
+          }
           size="small"
-          InputProps={{ readOnly: true }}
+          InputProps={{ readOnly: !isEditing }}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({ ...newStudent, phone: e.target.value });
+          }}
           sx={{ flex: 1 }}
         />
+
       </Box>
 
       <Divider sx={{ mb: 3 }} />
- <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-      <Typography variant="body1">Endereço</Typography>
-<Button variant="outlined">Editar</Button>
-      </Box>  
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="body1">Endereço</Typography>
+        {/* <Button variant="outlined">Editar</Button> */}
+      </Box>
       {/* Endereço */}
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
-        <TextField label="Rua" value={student.address.street ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+        <TextField label="Rua"
+          size="small"
+          value={isEditing ? newStudent?.address.street ?? "" : student.address.street ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({ ...newStudent, address: { ...newStudent.address, street: e.target.value } })
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 2 }}
         />
-        <TextField label="Bairro" value={student.address.neighborhood ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+
+        <TextField
+          label="Bairro"
+          size="small"
+          value={isEditing ? newStudent?.address.neighborhood ?? "" : student.address.neighborhood ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({
+              ...newStudent,
+              address: {
+                ...newStudent.address,
+                neighborhood: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Número" value={student.address.number ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+
+        <TextField
+          label="Número"
+          size="small"
+          value={isEditing ? newStudent?.address.number ?? "" : student.address.number ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({
+              ...newStudent,
+              address: {
+                ...newStudent.address,
+                number: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 0.5 }}
         />
-        <TextField label="Cidade" value={student.address.city ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+
+        <TextField
+          label="Cidade"
+          size="small"
+          value={isEditing ? newStudent?.address.city ?? "" : student.address.city ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({
+              ...newStudent,
+              address: {
+                ...newStudent.address,
+                city: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 1 }}
         />
-        <TextField label="Estado" value={student.address.state ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+
+        <TextField
+          label="Estado"
+          size="small"
+          value={isEditing ? newStudent?.address.state ?? "" : student.address.state ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({
+              ...newStudent,
+              address: {
+                ...newStudent.address,
+                state: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 0.5 }}
         />
-        <TextField label="CEP" value={student.address.postalCode ?? ""} size="small"
-          InputProps={{ readOnly: true }}
+
+        <TextField
+          label="CEP"
+          size="small"
+          value={isEditing ? newStudent?.address.postalCode ?? "" : student.address.postalCode ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newStudent) return;
+            setNewStudent({
+              ...newStudent,
+              address: {
+                ...newStudent.address,
+                postalCode: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 1 }}
         />
       </Box>
@@ -264,8 +402,8 @@ const SingleStudentPage = ({ params }: Props) => {
 
       {/* Turmas */}
       <Typography variant="body1" mb={3}>Matriculas</Typography>
-      
-      
+
+
       {student?.classLinks.map(({ class: turma }) => (
         <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
           <TextField label="Curso" value={turma.course.name ?? ""} size="small"
