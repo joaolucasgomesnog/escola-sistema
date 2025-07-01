@@ -15,7 +15,7 @@ type JwtPayload = {
   iat?: number;
 };
 
-export const getUserFromToken = (): { id: number; role: string } | null => {
+export const getUserFromToken = (): { id: number; name: string; role: string } | null => {
   const token = Cookies.get("auth_token");
 
   if (!token) return null;
@@ -24,13 +24,13 @@ export const getUserFromToken = (): { id: number; role: string } | null => {
     const decoded = jwtDecode<JwtPayload>(token);
 
     if (decoded.role === "admin" && decoded.adminId) {
-      return { id: decoded.adminId, role: "admin" };
+      return { id: decoded.adminId, role: "admin", name: decoded.user.name };
     }
     if (decoded.role === "teacher" && decoded.teacherId) {
-      return { id: decoded.teacherId, role: "teacher" };
+      return { id: decoded.teacherId, role: "teacher", name: decoded.user.name };
     }
     if (decoded.role === "student" && decoded.studentId) {
-      return { id: decoded.studentId, role: "student" };
+      return { id: decoded.studentId, role: "student", name: decoded.user.name };
     }
 
     return null;

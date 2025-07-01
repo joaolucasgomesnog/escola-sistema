@@ -1,11 +1,16 @@
 "client side"
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { ForwardedRef, useEffect, useState } from "react";
 import { getUserFromToken } from "../lib/getUserFromToken";
-import Cookies from "js-cookie";
 
-const Report = React.forwardRef(function Report({ children }, ref) {
+type ReportProps = {
+  children?: React.ReactNode;
+  title?: string;
+};
 
+const Report = React.forwardRef<HTMLDivElement, ReportProps>(({ children, title }, ref: ForwardedRef<HTMLDivElement>) => {
+
+const user = getUserFromToken()
   const now = new Date()
   const formattedDate = now.toLocaleDateString("pt-BR"); // → "26/06/2025"
   const formattedTime = now.toLocaleTimeString("pt-BR", {
@@ -17,22 +22,22 @@ const Report = React.forwardRef(function Report({ children }, ref) {
   return (
     <div ref={ref} className=" mx-auto w-[210mm] h-[297mm] px-4 py-8 ">
       <div className="flex items-center gap-8">
-        <Image src='/logo.png' width={200} height={0} alt="Logo" />
+        <Image src='/logo.png' width={150} height={0} alt="Logo" />
         <div className="text-[7px]">
-          <p>CNPJ: 00.000.000/0001-00</p>
-          <p>ENDEREÇO: RUA ENOCK IGNACIO DE OLIVEIRA, 700, N. SRA DA PENHA - SERRA TALHADA, PE</p>
+          <p>CNPJ: 35.030.958/0001-00</p>
+          <p>ENDEREÇO: Rua Enock Ignácio de Oliveira, 949 - Nossa Senhora da Penha - Serra Talhada - PE</p>
           <div className="flex justify-between">
-            <p>TELEFONE: (00) 00000-0000 </p>
-            <p>EMAIL: ESCOLA@ESCOLA.COM</p>
+            <p>TELEFONE:  (87) 9 9983-1241  </p>
+            <p>EMAIL: escola@escola.COM</p>
           </div>
         </div>
       </div>
       <div className="flex justify-between text-[8px]">
         <div />
-        <p className="whitespace-pre">{formattedDate}    |    {formattedTime}    |    LUCAS GOMES</p>
+        <p className="whitespace-pre">{formattedDate}    |    {formattedTime}    |    {user && user.name}</p>
       </div>
       <div className="bg-gray-300 text-center font-semibold text-xs my-2">
-        RELATÓRIO DE CAIXA
+        {title || "Relatório"}
       </div>
 
       {children}

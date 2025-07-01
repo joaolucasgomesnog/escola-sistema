@@ -75,6 +75,33 @@ const CashierPage = () => {
     cpf: ''
   });
 
+  const [payments, setPayments] = useState<any[]>([]);
+
+
+const fetchPayments = async () => {
+  try {
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/sign-in");
+      return;
+    }
+
+    const response = await fetch("http://localhost:3030/payment/getall", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error("Erro ao buscar pagamentos");
+
+    const data = await response.json();
+    setPayments(data);
+  } catch (error) {
+    console.error("Erro ao buscar pagamentos:", error);
+  }
+};
 
 
   const handleInputChange = (e: any) => {
@@ -324,20 +351,93 @@ const CashierPage = () => {
 
   const printRef = useRef(null)
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `My_HeaderText_Print`,
-    onAfterPrint: () => console.log('Printing completed'),
-  })
+const reactPrint = useReactToPrint({
+  contentRef: printRef,
+  documentTitle: `Relatório de Caixa - ${new Date().toLocaleDateString()}`,
+  onAfterPrint: () => console.log("Printing completed"),
+});
+
+
+
+  const handlePrint = async () => {
+  try {
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/sign-in");
+      return;
+    }
+
+    // Buscar os pagamentos no momento do clique
+    const response = await fetch("http://localhost:3030/payment/getall", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error("Erro ao buscar pagamentos");
+
+    const data = await response.json();
+    setPayments(data);
+
+    // Executar a impressão após setar os pagamentos
+    setTimeout(() => {
+      reactPrint();
+    }, 500); // Pequeno delay para garantir que o estado seja atualizado antes de imprimir
+  } catch (error) {
+    console.error("Erro ao buscar pagamentos:", error);
+  }
+};
+
 
   return (
     <Box p={3} bgcolor="white" borderRadius={2} m={2}>
 
-      <div className="hidden">
-        <Report ref={printRef} >
-          <div>Esse texto é  uma div passada no children</div>
-        </Report>
-      </div>
+      <Box className="hidden">
+<Report ref={printRef} title="Relatório de Caixa">
+  <Box>
+    <Typography variant="h6" mb={2}>Pagamentos Recebidos</Typography>
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead>
+        <tr>
+          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Data/Hora</th>
+          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Aluno</th>
+          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Descrição</th>
+          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Valor</th>
+          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Forma Pagamento</th>
+          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Recebido por</th>
+        </tr>
+      </thead>
+      <tbody>
+        {payments.map((p) => (
+          <tr key={p.id}>
+            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+              {dayjs(p.paymentDate).format("DD/MM/YYYY HH:mm")}
+            </td>
+            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+              {p.fee?.student?.name || "N/A"}
+            </td>
+            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+              {p.fee?.description || "N/A"}
+            </td>
+            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+              R$ {Number(p.price).toFixed(2).replace(".", ",")}
+            </td>
+            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+              {p.paymentType}
+            </td>
+            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+              {p.admin?.name || "N/A"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Box>
+</Report>
+
+      </Box>
 
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>

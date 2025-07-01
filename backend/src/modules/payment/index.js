@@ -37,17 +37,30 @@ export default {
   },
 
   // Buscar todos os payments
-  async getAllPayments(req, res) {
-    
-    try {
-      const payments = await prisma.payment.findMany();
-      return res.status(200).json(payments);
+async getAllPayments(req, res) {
+  try {
+    const payments = await prisma.payment.findMany({
+      include: {
+        admin: { select: { name: true } },
+        fee: {
+          select: {
+            description: true,
+            student: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-    } catch (error) {
-      console.error("Erro ao buscar payments:", error);
-      return res.status(500).json({ error: "Erro interno ao buscar payments" });
-    }
-  },
+    return res.status(200).json(payments);
+  } catch (error) {
+    console.error("Erro ao buscar payments:", error);
+    return res.status(500).json({ error: "Erro interno ao buscar payments" });
+  }
+},
   // Buscar todos os payments por mes
   async getPaymenstByMonth(req, res) {
     try {
@@ -107,7 +120,10 @@ export default {
     }
   },
 
+
 };
+
+  
 
 function isValidUTC(dateString){
   const date = parseISO(dateString)
