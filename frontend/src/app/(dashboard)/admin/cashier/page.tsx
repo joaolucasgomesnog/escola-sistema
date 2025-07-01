@@ -379,6 +379,7 @@ const reactPrint = useReactToPrint({
     if (!response.ok) throw new Error("Erro ao buscar pagamentos");
 
     const data = await response.json();
+    console.log("Dados recebidos para impressão:", data); // Log dos dados recebidos
     setPayments(data);
 
     // Executar a impressão após setar os pagamentos
@@ -413,7 +414,7 @@ const reactPrint = useReactToPrint({
         {payments.map((p) => (
           <tr key={p.id}>
             <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              {dayjs(p.paymentDate).format("DD/MM/YYYY HH:mm")}
+              {dayjs(p.createdAt).format("DD/MM/YYYY HH:mm")}
             </td>
             <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
               {p.fee?.student?.name || "N/A"}
@@ -422,7 +423,7 @@ const reactPrint = useReactToPrint({
               {p.fee?.description || "N/A"}
             </td>
             <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              R$ {Number(p.price).toFixed(2).replace(".", ",")}
+              R$ {Number(p.fee.price).toFixed(2).replace(".", ",")}
             </td>
             <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
               {p.paymentType}

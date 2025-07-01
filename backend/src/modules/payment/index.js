@@ -44,6 +44,7 @@ async getAllPayments(req, res) {
         admin: { select: { name: true } },
         fee: {
           select: {
+            price: true,
             description: true,
             student: {
               select: {
