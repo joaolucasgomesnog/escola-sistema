@@ -398,7 +398,7 @@ const reactPrint = useReactToPrint({
       <Box className="hidden">
 <Report ref={printRef} title="Relatório de Caixa">
   <Box>
-    <Typography variant="h6" mb={2}>Pagamentos Recebidos</Typography>
+    {/* <Typography variant="h6" mb={2}>Pagamentos Recebidos</Typography> */}
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>
         <tr>
@@ -423,7 +423,7 @@ const reactPrint = useReactToPrint({
               {p.fee?.description || "N/A"}
             </td>
             <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              R$ {Number(p.fee.price).toFixed(2).replace(".", ",")}
+              R$ {Number(p.fee?.price).toFixed(2).replace(".", ",")}
             </td>
             <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
               {p.paymentType}
@@ -433,10 +433,55 @@ const reactPrint = useReactToPrint({
             </td>
           </tr>
         ))}
+
+        {/* Linha de total monetário */}
+        <tr>
+          <td
+            colSpan={3}
+            style={{
+              border: "1px solid #ddd",
+              padding: "8px",
+              textAlign: "right",
+              fontWeight: "bold",
+              fontSize: 10,
+            }}
+          >
+            Total recebido
+          </td>
+          <td
+            style={{
+              border: "1px solid #ddd",
+              padding: "8px",
+              fontWeight: "bold",
+              fontSize: 10,
+            }}
+          >
+            R$ {payments.reduce((sum, p) => sum + Number(p.fee?.price || 0), 0).toFixed(2).replace(".", ",")}
+          </td>
+          <td colSpan={2} style={{ border: "1px solid #ddd", padding: "8px" }}></td>
+        </tr>
+
+        {/* Linha de total quantitativo */}
+        <tr>
+          <td
+            colSpan={6}
+            style={{
+              border: "1px solid #ddd",
+              padding: "8px",
+              textAlign: "right",
+              fontWeight: "bold",
+              fontSize: 10,
+            }}
+          >
+            Total de mensalidades recebidas: {payments.length}
+          </td>
+        </tr>
       </tbody>
     </table>
   </Box>
 </Report>
+
+
 
       </Box>
 

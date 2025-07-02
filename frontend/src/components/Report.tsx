@@ -10,14 +10,19 @@ type ReportProps = {
 
 const Report = React.forwardRef<HTMLDivElement, ReportProps>(({ children, title }, ref: ForwardedRef<HTMLDivElement>) => {
 
-const user = getUserFromToken()
-  const now = new Date()
-  const formattedDate = now.toLocaleDateString("pt-BR"); // → "26/06/2025"
-  const formattedTime = now.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }); // → "14:22"
+const [user, setUser] = useState<any>(null);
 
+const now = new Date()
+const formattedDate = now.toLocaleDateString("pt-BR"); // → "26/06/2025"
+const formattedTime = now.toLocaleTimeString("pt-BR", {
+  hour: "2-digit",
+  minute: "2-digit",
+}); // → "14:22"
+
+useEffect(() => {
+  const fetchedUser = getUserFromToken();
+  setUser(fetchedUser);
+}, []);
 
   return (
     <div ref={ref} className=" mx-auto w-[210mm] h-[297mm] px-4 py-8 ">
@@ -34,7 +39,7 @@ const user = getUserFromToken()
       </div>
       <div className="flex justify-between text-[8px]">
         <div />
-        <p className="whitespace-pre">{formattedDate}    |    {formattedTime}    |    {user && user.name}</p>
+        <p className="whitespace-pre">{formattedDate}    |    {formattedTime}    |    {user ? user.name : ""}</p>
       </div>
       <div className="bg-gray-300 text-center font-semibold text-xs my-2">
         {title || "Relatório"}
