@@ -24,6 +24,8 @@ export default {
     try {
       const { name, cpf, phone, email, picture, password, address } = req.body;
 
+      console.log(req.body)
+
       if (!name || !cpf || !phone || !password || !email || !address) {
         return res
           .status(400)

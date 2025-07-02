@@ -7,6 +7,7 @@ import InputField from "../InputField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { TextField } from "@mui/material";
 
 
 const formatCpf = (value: string) => {
@@ -25,6 +26,8 @@ const schema = z.object({
   name: z.string().min(1, { message: "Name is required!" }),
 
   phone: z.string().optional(),
+  email: z.string()
+    .email({ message: "E-mail inválido" }),
   picture: z
     .any()
     .refine(
@@ -89,7 +92,7 @@ const StudentForm = ({
       setValue("address.neighborhood", data.bairro);
       setValue("address.city", data.localidade);
       setValue("address.state", data.estado);
-      setValue("address.postalCode",cep)
+      setValue("address.postalCode", cep)
     } catch (error) {
       console.error("Erro ao buscar CEP:", error);
       window.alert("Erro ao buscar CEP");
@@ -136,7 +139,7 @@ const StudentForm = ({
       <h1 className="text-xl font-semibold">Cadastrar estudante</h1>
       <div className="flex flex-wrap gap-4">
 
-        <div className="flex flex-col gap-2 w-full ">
+        {/* <div className="flex flex-col gap-2 w-full ">
           <label className="text-xs text-gray-500">CPF</label>
           <input
             type="text"
@@ -153,7 +156,14 @@ const StudentForm = ({
           {errors?.cpf && (
             <p className="text-xs text-red-400">{errors.cpf.message?.toString()}</p>
           )}
-        </div>
+        </div> */}
+
+        <TextField label="CPF" type="text" {...register("cpf")} value={watch("cpf") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.cpf}
+          onChange={(e) => {
+            const formatted = formatCpf(e.target.value);
+            setValue("cpf", formatted);
+          }}
+        />
 
         <InputField label="Senha" name="password" type="password" defaultValue={data?.password} register={register} error={errors?.password} />
       </div>
@@ -164,6 +174,10 @@ const StudentForm = ({
 
       <div className="flex flex-wrap gap-4">
         <InputField label="Telefone" name="phone" defaultValue={data?.phone} register={register} error={errors?.phone} />
+      </div>
+
+      <div className="flex flex-wrap gap-4">
+        <InputField label="Email" name="email" defaultValue={data?.email} register={register} error={errors?.email} />
       </div>
 
       <span className="text-xs text-gray-400 font-medium">Endereço</span>
