@@ -62,6 +62,66 @@ async getAllPayments(req, res) {
     return res.status(500).json({ error: "Erro interno ao buscar payments" });
   }
 },
+
+async getPaymentReport(req, res) {
+  try {
+    const { startDate, endDate, adminId, paymentType } = req.query;
+
+    // Montar objeto de filtros dinamicamente
+    const filters = {};
+
+    // Filtrar por data (createdAt)
+    if (startDate && endDate) {
+      filters.createdAt = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
+    } else if (startDate) {
+      filters.createdAt = {
+        gte: new Date(startDate),
+      };
+    } else if (endDate) {
+      filters.createdAt = {
+        lte: new Date(endDate),
+      };
+    }
+
+    // Filtrar por adminId
+    if (adminId) {
+      filters.adminId = Number(adminId);
+    }
+
+    // Filtrar por tipo de pagamento
+    if (paymentType) {
+      filters.paymentType = paymentType;
+    }
+
+    const payments = await prisma.payment.findMany({
+      where: filters,
+      include: {
+        admin: { select: { name: true } },
+        fee: {
+          select: {
+            price: true,
+            description: true,
+            student: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res.status(200).json(payments);
+  } catch (error) {
+    console.error("Erro ao buscar payments:", error);
+    return res.status(500).json({ error: "Erro interno ao buscar payments" });
+  }
+},
+
+
   // Buscar todos os payments por mes
   async getPaymenstByMonth(req, res) {
     try {
