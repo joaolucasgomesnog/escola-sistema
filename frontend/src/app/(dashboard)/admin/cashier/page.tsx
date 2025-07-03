@@ -108,6 +108,7 @@ const FilterModal = ({
                 value={startDate ? dayjs(startDate) : null}
                 onChange={(date) => setValue("startDate", date ? date.toDate() : null)}
                 slotProps={{ textField: { size: "small" } }}
+                format="DD/MM/YYYY"
               />
             </LocalizationProvider>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -116,6 +117,7 @@ const FilterModal = ({
                 value={endDate ? dayjs(endDate) : null}
                 onChange={(date) => setValue("endDate", date ? date.toDate() : null)}
                 slotProps={{ textField: { size: "small" } }}
+                format="DD/MM/YYYY"
               />
             </LocalizationProvider>
 
