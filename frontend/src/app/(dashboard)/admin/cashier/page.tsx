@@ -549,6 +549,7 @@ const CashierPage = () => {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>ID</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Data/Hora</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Aluno</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Descrição</th>
@@ -559,7 +560,11 @@ const CashierPage = () => {
               </thead>
               <tbody>
                 {payments.map((p) => (
+                  
                   <tr key={p.id}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {p.id || "N/A"}
+                    </td>
                     <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {dayjs(p.createdAt).format("DD/MM/YYYY HH:mm")}
                     </td>
