@@ -186,8 +186,9 @@ const CashierPage = () => {
   });
 
   const [payments, setPayments] = useState<any[]>([]);
+  const [filterKey, setFilterKey] = useState(0);
 
-useEffect(() => {
+  useEffect(() => {
     fetchAdminList();
   }, []);
 
@@ -468,7 +469,11 @@ useEffect(() => {
   const reactPrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Relatório de Caixa - ${new Date().toLocaleDateString()}`,
-    onAfterPrint: () => console.log("Printing completed"),
+    onAfterPrint: () => {
+      console.log("Printing completed");
+      setReportFilters(null);
+      setFilterKey(prev => prev + 1); // Força recriação do modal
+    },
   });
 
 
@@ -483,18 +488,10 @@ useEffect(() => {
 
       const queryParams = new URLSearchParams();
 
-      if (filters.startDate) {
-        queryParams.append("startDate", filters.startDate.toISOString());
-      }
-      if (filters.endDate) {
-        queryParams.append("endDate", filters.endDate.toISOString());
-      }
-      if (filters.adminId) {
-        queryParams.append("adminId", filters.adminId);
-      }
-      if (filters.paymentType) {
-        queryParams.append("paymentType", filters.paymentType);
-      }
+      if (filters.startDate) queryParams.append("startDate", filters.startDate.toISOString());
+      if (filters.endDate) queryParams.append("endDate", filters.endDate.toISOString());
+      if (filters.adminId) queryParams.append("adminId", filters.adminId);
+      if (filters.paymentType) queryParams.append("paymentType", filters.paymentType);
 
       const url = `http://localhost:3030/payment/report?${queryParams.toString()}`;
 
@@ -511,6 +508,9 @@ useEffect(() => {
       const data = await response.json();
       setPayments(data);
 
+      // Salva os filtros para o cabeçalho
+      setReportFilters(filters);
+
       setTimeout(() => {
         reactPrint();
       }, 500);
@@ -520,43 +520,60 @@ useEffect(() => {
   };
 
 
+
   return (
     <Box p={3} bgcolor="white" borderRadius={2} m={2}>
 
       <Box className="hidden">
         <Report ref={printRef} title="Relatório de Caixa">
           <Box>
+            {reportFilters && (
+              <Box mb={2} display="flex" flexDirection="row" justifyContent={"space-between"} alignItems="center" gap={1}>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.startDate ? `Data inicial: ${dayjs(reportFilters.startDate).format("DD/MM/YYYY")}` : "Data inicial: __/__/____"}
+                </Typography>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.endDate ? `Data final: ${dayjs(reportFilters.endDate).format("DD/MM/YYYY")}` : "Data final: __/__/____"}
+                </Typography>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.adminId ? `Recebedor: ${adminList.find((a) => String(a.id) === String(reportFilters.adminId))?.name || "ID " + reportFilters.adminId}` : "Recebedor: -----------"}
+                </Typography>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.paymentType ? `Forma de pagamento: ${reportFilters.paymentType}` : "Forma de pagamento: -----------"}
+                </Typography>
+              </Box>
+            )}
             {/* <Typography variant="h6" mb={2}>Pagamentos Recebidos</Typography> */}
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Data/Hora</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Aluno</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Descrição</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Valor</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Forma Pagamento</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Recebido por</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Data/Hora</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Aluno</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Descrição</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Valor</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Forma Pagamento</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Recebido por</th>
                 </tr>
               </thead>
               <tbody>
                 {payments.map((p) => (
                   <tr key={p.id}>
-                    <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {dayjs(p.createdAt).format("DD/MM/YYYY HH:mm")}
                     </td>
-                    <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {p.fee?.student?.name || "N/A"}
                     </td>
-                    <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {p.fee?.description || "N/A"}
                     </td>
-                    <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       R$ {Number(p.fee?.price).toFixed(2).replace(".", ",")}
                     </td>
-                    <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {p.paymentType}
                     </td>
-                    <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {p.admin?.name || "N/A"}
                     </td>
                   </tr>
@@ -568,7 +585,7 @@ useEffect(() => {
                     colSpan={3}
                     style={{
                       border: "1px solid #ddd",
-                      padding: "8px",
+                      padding: "5px",
                       textAlign: "right",
                       fontWeight: "bold",
                       fontSize: 10,
@@ -579,14 +596,14 @@ useEffect(() => {
                   <td
                     style={{
                       border: "1px solid #ddd",
-                      padding: "8px",
+                      padding: "5px",
                       fontWeight: "bold",
                       fontSize: 10,
                     }}
                   >
                     R$ {payments.reduce((sum, p) => sum + Number(p.fee?.price || 0), 0).toFixed(2).replace(".", ",")}
                   </td>
-                  <td colSpan={2} style={{ border: "1px solid #ddd", padding: "8px" }}></td>
+                  <td colSpan={2} style={{ border: "1px solid #ddd", padding: "5px" }}></td>
                 </tr>
 
                 {/* Linha de total quantitativo */}
@@ -595,7 +612,7 @@ useEffect(() => {
                     colSpan={6}
                     style={{
                       border: "1px solid #ddd",
-                      padding: "8px",
+                      padding: "5px",
                       textAlign: "right",
                       fontWeight: "bold",
                       fontSize: 10,
@@ -638,15 +655,17 @@ useEffect(() => {
       </Box>
       <Table rows={students} columns={columns} />
 
-<FilterModal
-  onSubmit={(filters) => {
-    handlePrint(filters);
-    setFilterModalOpen(false);
-  }}
-  open={filterModalOpen}
-  onClose={() => setFilterModalOpen(false)}
-  adminList={adminList}
-/>
+      <FilterModal
+        key={filterKey}
+        onSubmit={(filters) => {
+          handlePrint(filters);
+          setFilterModalOpen(false);
+        }}
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        adminList={adminList}
+      />
+
 
       <Modal open={openModal} onClose={() => { setOpenModal(false); setSelectedFeeId(null); setPaymentDescription('') }}>
         <Box
