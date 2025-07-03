@@ -10,6 +10,7 @@ adminRoutes.post('/logout/', autenticateToken, authorizeRoles('admin'), admin.lo
 adminRoutes.post('/create', autenticateToken, authorizeRoles('admin'), admin.createAdmin)
 adminRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin'), admin.getAdminById);
 adminRoutes.get('/getall', autenticateToken, authorizeRoles('admin'), admin.getAllAdmins);
+adminRoutes.get('/allnames', autenticateToken, authorizeRoles('admin'), admin.getAllNames);
 adminRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), admin.updateAdmin);
 adminRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), admin.deleteAdmin);
 

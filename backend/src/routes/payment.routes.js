@@ -9,5 +9,6 @@ paymentRoutes.post('/create', autenticateToken, authorizeRoles('admin', 'teacher
 paymentRoutes.get('/get/date/:date', autenticateToken, authorizeRoles('admin'), payment.getPaymenstByMonth);
 paymentRoutes.get('/get/student/:student_id', autenticateToken, authorizeRoles('admin', 'student'), payment.getPaymentsByStudentID);
 paymentRoutes.get('/getall', autenticateToken, authorizeRoles('admin'), payment.getAllPayments);
+paymentRoutes.get('/report', autenticateToken, authorizeRoles('admin'), payment.getPaymentReport);
 
 export {paymentRoutes}

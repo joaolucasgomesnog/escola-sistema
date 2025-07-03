@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { DataGrid, GridColDef, GridRenderCellParams, GridSearchIcon } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
 import FormModal from "@/components/FormModal";
 import { role } from "@/lib/data";
-import { Avatar, Box, Button, IconButton, Modal, Paper, TextField, Typography } from "@mui/material";
+import { Avatar, Box, Button, IconButton, Modal, Paper, TextField, Typography, MenuItem } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
@@ -48,7 +51,116 @@ type Student = {
   address: string;
 };
 
+type FilterFormData = {
+  startDate: Date | null;
+  endDate: Date | null;
+  adminId: string;
+  paymentType: string;
+};
+
+const FilterModal = ({
+  onSubmit,
+  open,
+  onClose,
+  adminList,
+}: {
+  onSubmit: (data: FilterFormData) => void;
+  open: boolean;
+  onClose: () => void;
+  adminList: { id: number; name: string }[];
+}) => {
+  const { register, handleSubmit, setValue, watch } = useForm<FilterFormData>({
+    defaultValues: {
+      startDate: null,
+      endDate: null,
+      adminId: "",
+      paymentType: "",
+    },
+  });
+
+  const startDate = watch("startDate");
+  const endDate = watch("endDate");
+
+  const submitAndClose = (data: FilterFormData) => {
+    onSubmit(data);
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        component={Paper}
+        p={3}
+        m="auto"
+        mt={10}
+        maxWidth={500}
+        borderRadius={2}
+        boxShadow={10}
+      >
+        <Typography variant="h6" mb={2}>
+          Filtrar relatório
+        </Typography>
+
+        <form onSubmit={handleSubmit(submitAndClose)}>
+          <Box display="flex" flexDirection="column" gap={2}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Data Inicial"
+                value={startDate ? dayjs(startDate) : null}
+                onChange={(date) => setValue("startDate", date ? date.toDate() : null)}
+                slotProps={{ textField: { size: "small" } }}
+                format="DD/MM/YYYY"
+              />
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Data fim"
+                value={endDate ? dayjs(endDate) : null}
+                onChange={(date) => setValue("endDate", date ? date.toDate() : null)}
+                slotProps={{ textField: { size: "small" } }}
+                format="DD/MM/YYYY"
+              />
+            </LocalizationProvider>
+
+            <TextField
+              label="Administrador"
+              select
+              {...register("adminId")}
+              size="small"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {adminList.map((admin) => (
+                <MenuItem key={admin.id} value={admin.id}>
+                  {admin.name}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField label="Forma de pagamento" select {...register("paymentType")} size="small">
+              <MenuItem value="">Todos</MenuItem>
+              <MenuItem value="DINHEIRO">DINHEIRO</MenuItem>
+              <MenuItem value="PIX">PIX</MenuItem>
+              <MenuItem value="BOLETO">BOLETO</MenuItem>
+              <MenuItem value="CREDITO">CREDITO</MenuItem>
+              <MenuItem value="DEBITO">DEBITO</MenuItem>
+              <MenuItem value="DEPOSITO">DEPOSITO</MenuItem>
+            </TextField>
+
+            <Button type="submit" variant="contained" color="primary">
+              OK
+            </Button>
+          </Box>
+        </form>
+      </Box>
+    </Modal>
+  );
+};
+
+
+
 const CashierPage = () => {
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [adminList, setAdminList] = useState<any[]>([]);
+  const [reportFilters, setReportFilters] = useState<FilterFormData | null>(null);
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
@@ -76,32 +188,37 @@ const CashierPage = () => {
   });
 
   const [payments, setPayments] = useState<any[]>([]);
+  const [filterKey, setFilterKey] = useState(0);
 
+  useEffect(() => {
+    fetchAdminList();
+  }, []);
 
-const fetchPayments = async () => {
-  try {
-    const token = Cookies.get("auth_token");
-    if (!token) {
-      router.push("/sign-in");
-      return;
+  const fetchAdminList = async () => {
+    try {
+      const token = Cookies.get("auth_token");
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      const response = await fetch("http://localhost:3030/admin/allnames", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar lista de administradores");
+
+      const data = await response.json();
+      console.log("Dados brutos da API:", data); // Adicione este log
+      setAdminList(data);
+    } catch (error) {
+      console.error("Erro ao buscar lista de administradores:", error);
     }
-
-    const response = await fetch("http://localhost:3030/payment/getall", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) throw new Error("Erro ao buscar pagamentos");
-
-    const data = await response.json();
-    setPayments(data);
-  } catch (error) {
-    console.error("Erro ao buscar pagamentos:", error);
-  }
-};
+  };
 
 
   const handleInputChange = (e: any) => {
@@ -351,91 +468,167 @@ const fetchPayments = async () => {
 
   const printRef = useRef(null)
 
-const reactPrint = useReactToPrint({
-  contentRef: printRef,
-  documentTitle: `Relatório de Caixa - ${new Date().toLocaleDateString()}`,
-  onAfterPrint: () => console.log("Printing completed"),
-});
+  const reactPrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Relatório de Caixa - ${new Date().toLocaleDateString()}`,
+    onAfterPrint: () => {
+      console.log("Printing completed");
+      setReportFilters(null);
+      setFilterKey(prev => prev + 1); // Força recriação do modal
+    },
+  });
 
 
 
-  const handlePrint = async () => {
-  try {
-    const token = Cookies.get("auth_token");
-    if (!token) {
-      router.push("/sign-in");
-      return;
+  const handlePrint = async (filters: FilterFormData) => {
+    try {
+      const token = Cookies.get("auth_token");
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      const queryParams = new URLSearchParams();
+
+      if (filters.startDate) queryParams.append("startDate", filters.startDate.toISOString());
+      if (filters.endDate) queryParams.append("endDate", filters.endDate.toISOString());
+      if (filters.adminId) queryParams.append("adminId", filters.adminId);
+      if (filters.paymentType) queryParams.append("paymentType", filters.paymentType);
+
+      const url = `http://localhost:3030/payment/report?${queryParams.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar pagamentos");
+
+      const data = await response.json();
+      setPayments(data);
+
+      // Salva os filtros para o cabeçalho
+      setReportFilters(filters);
+
+      setTimeout(() => {
+        reactPrint();
+      }, 500);
+    } catch (error) {
+      console.error("Erro ao buscar pagamentos:", error);
     }
+  };
 
-    // Buscar os pagamentos no momento do clique
-    const response = await fetch("http://localhost:3030/payment/getall", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) throw new Error("Erro ao buscar pagamentos");
-
-    const data = await response.json();
-    setPayments(data);
-
-    // Executar a impressão após setar os pagamentos
-    setTimeout(() => {
-      reactPrint();
-    }, 500); // Pequeno delay para garantir que o estado seja atualizado antes de imprimir
-  } catch (error) {
-    console.error("Erro ao buscar pagamentos:", error);
-  }
-};
 
 
   return (
     <Box p={3} bgcolor="white" borderRadius={2} m={2}>
 
       <Box className="hidden">
-<Report ref={printRef} title="Relatório de Caixa">
-  <Box>
-    <Typography variant="h6" mb={2}>Pagamentos Recebidos</Typography>
-    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-      <thead>
-        <tr>
-          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Data/Hora</th>
-          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Aluno</th>
-          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Descrição</th>
-          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Valor</th>
-          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Forma Pagamento</th>
-          <th style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>Recebido por</th>
-        </tr>
-      </thead>
-      <tbody>
-        {payments.map((p) => (
-          <tr key={p.id}>
-            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              {dayjs(p.paymentDate).format("DD/MM/YYYY HH:mm")}
-            </td>
-            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              {p.fee?.student?.name || "N/A"}
-            </td>
-            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              {p.fee?.description || "N/A"}
-            </td>
-            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              R$ {Number(p.price).toFixed(2).replace(".", ",")}
-            </td>
-            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              {p.paymentType}
-            </td>
-            <td style={{ border: "1px solid #ddd", padding: "8px", fontSize: 10 }}>
-              {p.admin?.name || "N/A"}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </Box>
-</Report>
+        <Report ref={printRef} title="Relatório de Caixa">
+          <Box>
+            {reportFilters && (
+              <Box mb={2} display="flex" flexDirection="row" justifyContent={"space-between"} alignItems="center" gap={1}>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.startDate ? `Data inicial: ${dayjs(reportFilters.startDate).format("DD/MM/YYYY")}` : "Data inicial: __/__/____"}
+                </Typography>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.endDate ? `Data final: ${dayjs(reportFilters.endDate).format("DD/MM/YYYY")}` : "Data final: __/__/____"}
+                </Typography>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.adminId ? `Recebedor: ${adminList.find((a) => String(a.id) === String(reportFilters.adminId))?.name || "ID " + reportFilters.adminId}` : "Recebedor: -----------"}
+                </Typography>
+                <Typography variant="body2" fontSize={10}>
+                  {reportFilters.paymentType ? `Forma de pagamento: ${reportFilters.paymentType}` : "Forma de pagamento: -----------"}
+                </Typography>
+              </Box>
+            )}
+            {/* <Typography variant="h6" mb={2}>Pagamentos Recebidos</Typography> */}
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Data/Hora</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Aluno</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Descrição</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Valor</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Forma Pagamento</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Recebido por</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((p) => (
+                  <tr key={p.id}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {dayjs(p.createdAt).format("DD/MM/YYYY HH:mm")}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {p.fee?.student?.name || "N/A"}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {p.fee?.description || "N/A"}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      R$ {Number(p.fee?.price).toFixed(2).replace(".", ",")}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {p.paymentType}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {p.admin?.name || "N/A"}
+                    </td>
+                  </tr>
+                ))}
+
+                {/* Linha de total monetário */}
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      border: "1px solid #ddd",
+                      padding: "5px",
+                      textAlign: "right",
+                      fontWeight: "bold",
+                      fontSize: 10,
+                    }}
+                  >
+                    Total recebido
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #ddd",
+                      padding: "5px",
+                      fontWeight: "bold",
+                      fontSize: 10,
+                    }}
+                  >
+                    R$ {payments.reduce((sum, p) => sum + Number(p.fee?.price || 0), 0).toFixed(2).replace(".", ",")}
+                  </td>
+                  <td colSpan={2} style={{ border: "1px solid #ddd", padding: "5px" }}></td>
+                </tr>
+
+                {/* Linha de total quantitativo */}
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{
+                      border: "1px solid #ddd",
+                      padding: "5px",
+                      textAlign: "right",
+                      fontWeight: "bold",
+                      fontSize: 10,
+                    }}
+                  >
+                    Total de mensalidades recebidas: {payments.length}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </Box>
+        </Report>
+
+
 
       </Box>
 
@@ -444,7 +637,7 @@ const reactPrint = useReactToPrint({
         <Typography variant="h6" fontWeight="bold">Caixa</Typography>
         <Box display="flex" gap={2}>
           <Button variant="outlined">Estorno</Button>
-          <Button variant="outlined" onClick={handlePrint}>
+          <Button variant="outlined" onClick={() => setFilterModalOpen(true)}>
             <PrintIcon />
           </Button>
         </Box>
@@ -463,6 +656,17 @@ const reactPrint = useReactToPrint({
         </Button>
       </Box>
       <Table rows={students} columns={columns} />
+
+      <FilterModal
+        key={filterKey}
+        onSubmit={(filters) => {
+          handlePrint(filters);
+          setFilterModalOpen(false);
+        }}
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        adminList={adminList}
+      />
 
 
       <Modal open={openModal} onClose={() => { setOpenModal(false); setSelectedFeeId(null); setPaymentDescription('') }}>
