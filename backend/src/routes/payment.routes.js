@@ -10,5 +10,6 @@ paymentRoutes.get('/get/date/:date', autenticateToken, authorizeRoles('admin'), 
 paymentRoutes.get('/get/student/:student_id', autenticateToken, authorizeRoles('admin', 'student'), payment.getPaymentsByStudentID);
 paymentRoutes.get('/getall', autenticateToken, authorizeRoles('admin'), payment.getAllPayments);
 paymentRoutes.get('/report', autenticateToken, authorizeRoles('admin'), payment.getPaymentReport);
+paymentRoutes.delete('/chargeback/:id', autenticateToken, authorizeRoles('admin'), payment.deletePayment);
 
 export {paymentRoutes}
