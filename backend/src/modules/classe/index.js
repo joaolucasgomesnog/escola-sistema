@@ -38,7 +38,21 @@ export default {
   async getAllClasses(req, res) {
     
     try {
-      const classes = await prisma.class.findMany();
+      const classes = await prisma.class.findMany({
+        include: {
+          course: {
+            select: {
+              name: true
+            }
+          },
+          teacher: {
+            select: {
+              name: true
+            }
+          },
+        }
+      });
+
       return res.status(200).json(classes);
 
     } catch (error) {

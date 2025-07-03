@@ -8,6 +8,7 @@ const studentRoutes = Router();
 
 studentRoutes.post('/logout/', autenticateToken, authorizeRoles('student'), student.logout);
 studentRoutes.post('/create', autenticateToken, authorizeRoles('admin'), student.createStudent)
+studentRoutes.post('/create-class-student', autenticateToken, authorizeRoles('admin'), student.createClassStudent)
 studentRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin', 'teacher'), student.getStudentById);
 studentRoutes.get('/getall', autenticateToken, authorizeRoles('admin', 'teacher'), student.getAllStudents);
 studentRoutes.get('/search', autenticateToken, authorizeRoles('admin', 'teacher'), student.searchStudents);

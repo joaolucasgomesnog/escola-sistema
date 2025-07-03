@@ -139,25 +139,6 @@ const StudentForm = ({
       <h1 className="text-xl font-semibold">Cadastrar estudante</h1>
       <div className="flex flex-wrap gap-4">
 
-        {/* <div className="flex flex-col gap-2 w-full ">
-          <label className="text-xs text-gray-500">CPF</label>
-          <input
-            type="text"
-            {...register("cpf")}
-            value={watch("cpf") || ""}
-            onChange={(e) => {
-              const formatted = formatCpf(e.target.value);
-              setValue("cpf", formatted);
-            }}
-            maxLength={14}
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-          />
-
-          {errors?.cpf && (
-            <p className="text-xs text-red-400">{errors.cpf.message?.toString()}</p>
-          )}
-        </div> */}
-
         <TextField label="CPF" type="text" {...register("cpf")} value={watch("cpf") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.cpf}
           onChange={(e) => {
             const formatted = formatCpf(e.target.value);

@@ -8,12 +8,17 @@ import {
   Box,
   Button,
   Divider,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography
 } from "@mui/material";
 import { Student } from '@/interfaces/student';
 import PrintIcon from '@mui/icons-material/Print';
+import Add from '@mui/icons-material/Add';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { formatCpf, formatPhone } from "@/lib/formatValues";
@@ -29,8 +34,13 @@ const SingleStudentPage = ({ params }: Props) => {
   const [loading, setLoading] = useState(true);
   const [fees, setFees] = useState([]);
 
+  const [classes, setClasses] = useState([]);
+  const [selectedClasses, setSelectedClasses] = useState([]);
+
   const [newStudent, setNewStudent] = useState<Student | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const [selectVisible, setSelectVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -70,7 +80,7 @@ const SingleStudentPage = ({ params }: Props) => {
       const res = await fetch(`http://localhost:3030/student/update/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
 
         },
         method: 'PUT',
@@ -188,6 +198,66 @@ const SingleStudentPage = ({ params }: Props) => {
   const handleEdit = () => {
     setIsEditing(true)
     setNewStudent({ ...student })
+  }
+
+  const confirmClasses = async () => {
+    setSelectVisible(false)
+
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3030/student/create-class-student`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          selectedClasses,
+          studentId: id
+        })
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar mensalidades do aluno.");
+
+      const data = await response.json();
+      // setClasses(data)
+      window.alert("matrícula efetuada com sucesso")
+      console.log("retorno:", data);
+    } catch (error) {
+      setSelectedClasses([])
+      console.error("Erro ao carregar classes:", error);
+    }
+  }
+
+  const fetchClasses = async () => {
+    setSelectVisible(true)
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3030/class/getall`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar mensalidades do aluno.");
+
+      const data = await response.json();
+      setClasses(data)
+      console.log("Classes:", data);
+    } catch (error) {
+      console.error("Erro ao carregar classes:", error);
+    }
   }
 
 
@@ -392,16 +462,67 @@ const SingleStudentPage = ({ params }: Props) => {
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* Curso
-      <Box display="flex" flexWrap="wrap" gap={2} mb={3}>
-        <TextField label="Curso" value={student.course.name} size="small" fullWidth
-          InputProps={{ readOnly: true }}
-          sx={{ flex:1 }}
-        />
-      </Box> */}
 
       {/* Turmas */}
-      <Typography variant="body1" mb={3}>Matriculas</Typography>
+      <Box className="flex justify-between">
+        <Typography variant="body1" mb={3}>Matriculas</Typography>
+
+        {
+          selectVisible ? (
+
+            <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
+              Salvar
+            </Button>
+          ) : (
+
+            <Button color="primary" variant="contained" className="h-fit" onClick={fetchClasses}>
+              <Add fontSize="medium" />
+            </Button>
+          )
+        }
+
+      </Box>
+
+      <Box className={`${selectVisible ? 'visible' : 'hidden'} mb-4`}>
+        <FormControl className="w-32 " size="small">
+
+          <InputLabel id="demo-simple-select-label">Turma</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            onChange={(e) => {
+              setSelectedClasses([...selectedClasses, e.target.value])
+            }}
+          >
+            {
+              classes?.map((classe) => (
+                <MenuItem value={classe}>{classe.name}</MenuItem>
+
+              ))
+            }
+          </Select>
+        </FormControl>
+
+      </Box>
+      {
+        selectedClasses?.map((classe) => (
+          <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
+            <TextField label="Curso" value={classe.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Turma" value={classe.course.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Professor da turma" value={classe.teacher.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+          </Box>
+
+        ))
+      }
 
 
       {student?.classLinks.map(({ class: turma }) => (
