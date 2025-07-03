@@ -79,6 +79,23 @@ export default {
       res.status(500).json({ error: "Erro interno ao buscar admins" });
     }
   },
+
+    async getAllNames(req, res) {
+    try {
+      const admins = await prisma.admin.findMany({
+        select: {
+          id: true,
+          name: true
+        }
+      });
+
+
+      res.status(200).json(admins);
+    } catch (error) {
+      console.error("Erro ao buscar admins:", error);
+      res.status(500).json({ error: "Erro interno ao buscar admins" });
+    }
+  },
   // Buscar admin por ID
   async getAdminById(req, res) {
     try {

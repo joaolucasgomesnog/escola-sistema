@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { DataGrid, GridColDef, GridRenderCellParams, GridSearchIcon } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,10 +62,12 @@ const FilterModal = ({
   onSubmit,
   open,
   onClose,
+  adminList,
 }: {
   onSubmit: (data: FilterFormData) => void;
   open: boolean;
   onClose: () => void;
+  adminList: { id: number; name: string }[];
 }) => {
   const { register, handleSubmit, setValue, watch } = useForm<FilterFormData>({
     defaultValues: {
@@ -117,8 +119,19 @@ const FilterModal = ({
               />
             </LocalizationProvider>
 
-
-            <TextField label="Admin ID" {...register("adminId")} size="small" />
+            <TextField
+              label="Administrador"
+              select
+              {...register("adminId")}
+              size="small"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {adminList.map((admin) => (
+                <MenuItem key={admin.id} value={admin.id}>
+                  {admin.name}
+                </MenuItem>
+              ))}
+            </TextField>
 
             <TextField label="Forma de pagamento" select {...register("paymentType")} size="small">
               <MenuItem value="">Todos</MenuItem>
@@ -141,8 +154,11 @@ const FilterModal = ({
 };
 
 
+
 const CashierPage = () => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [adminList, setAdminList] = useState<any[]>([]);
+  const [reportFilters, setReportFilters] = useState<FilterFormData | null>(null);
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
@@ -171,8 +187,11 @@ const CashierPage = () => {
 
   const [payments, setPayments] = useState<any[]>([]);
 
+useEffect(() => {
+    fetchAdminList();
+  }, []);
 
-  const fetchPayments = async () => {
+  const fetchAdminList = async () => {
     try {
       const token = Cookies.get("auth_token");
       if (!token) {
@@ -180,7 +199,7 @@ const CashierPage = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:3030/payment/getall", {
+      const response = await fetch("http://localhost:3030/admin/allnames", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -188,12 +207,13 @@ const CashierPage = () => {
         },
       });
 
-      if (!response.ok) throw new Error("Erro ao buscar pagamentos");
+      if (!response.ok) throw new Error("Erro ao buscar lista de administradores");
 
       const data = await response.json();
-      setPayments(data);
+      console.log("Dados brutos da API:", data); // Adicione este log
+      setAdminList(data);
     } catch (error) {
-      console.error("Erro ao buscar pagamentos:", error);
+      console.error("Erro ao buscar lista de administradores:", error);
     }
   };
 
@@ -476,7 +496,7 @@ const CashierPage = () => {
         queryParams.append("paymentType", filters.paymentType);
       }
 
-      const url = `http://localhost:3030/payment/getall?${queryParams.toString()}`;
+      const url = `http://localhost:3030/payment/report?${queryParams.toString()}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -618,14 +638,15 @@ const CashierPage = () => {
       </Box>
       <Table rows={students} columns={columns} />
 
-      <FilterModal
-        onSubmit={(filters) => {
-          handlePrint(filters);
-          setFilterModalOpen(false);
-        }}
-        open={filterModalOpen}
-        onClose={() => setFilterModalOpen(false)}
-      />
+<FilterModal
+  onSubmit={(filters) => {
+    handlePrint(filters);
+    setFilterModalOpen(false);
+  }}
+  open={filterModalOpen}
+  onClose={() => setFilterModalOpen(false)}
+  adminList={adminList}
+/>
 
       <Modal open={openModal} onClose={() => { setOpenModal(false); setSelectedFeeId(null); setPaymentDescription('') }}>
         <Box
