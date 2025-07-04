@@ -71,7 +71,9 @@ model Course {
   name    String
   code    String  @unique
   picture String?
-
+  registrationFeeValue Float?
+  MonthlyFeeValue Float?
+  createdAt DateTime @default(now())
   classes Class[]
 }
 

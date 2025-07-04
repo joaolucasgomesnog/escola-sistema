@@ -22,7 +22,7 @@ import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
 
 const menuItems = [
   {
-    title: "MENU",
+    title: "Menu",
     items: [
       {
         icon: <HomeOutlined fontSize="small" color="action" />,
@@ -60,46 +60,46 @@ const menuItems = [
         href: "/admin/cashier",
         visible: ["admin"],
       },
-      {
-        icon: <QuizOutlined fontSize="small" color="action" />,
-        label: "Provas",
-        href: "/list/exams",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: <AssignmentOutlined fontSize="small" color="action" />,
-        label: "Trabalhos",
-        href: "/list/assignments",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: <GradeOutlined fontSize="small" color="action" />,
-        label: "Notas",
-        href: "/list/results",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: <EventAvailableOutlined fontSize="small" color="action" />,
-        label: "Chamada",
-        href: "/list/attendance",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: <PaymentsOutlined fontSize="small" color="action" />,
-        label: "Pagamentos",
-        href: "/list/payments",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: <CampaignOutlined fontSize="small" color="action" />,
-        label: "Lembrete",
-        href: "/list/announcements",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
+      // {
+      //   icon: <QuizOutlined fontSize="small" color="action" />,
+      //   label: "Provas",
+      //   href: "/list/exams",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
+      // {
+      //   icon: <AssignmentOutlined fontSize="small" color="action" />,
+      //   label: "Trabalhos",
+      //   href: "/list/assignments",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
+      // {
+      //   icon: <GradeOutlined fontSize="small" color="action" />,
+      //   label: "Notas",
+      //   href: "/list/results",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
+      // {
+      //   icon: <EventAvailableOutlined fontSize="small" color="action" />,
+      //   label: "Chamada",
+      //   href: "/list/attendance",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
+      // {
+      //   icon: <PaymentsOutlined fontSize="small" color="action" />,
+      //   label: "Pagamentos",
+      //   href: "/list/payments",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
+      // {
+      //   icon: <CampaignOutlined fontSize="small" color="action" />,
+      //   label: "Lembrete",
+      //   href: "/list/announcements",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
     ],
   },
   {
-    title: "OTHER",
+    title: "Outros",
     items: [
       {
         icon: <SettingsOutlined fontSize="small" color="action" />,

@@ -63,6 +63,22 @@ async getAllPayments(req, res) {
   }
 },
 
+async deletePayment(req, res) {
+  const { id } = req.params;
+  try {
+    const payment = await prisma.payment.delete({
+     where: { id: Number(id) },
+    });
+    if (!payment) {
+      return res.status(404).json({ error: "Pagamento não encontrado" });
+    }
+    return res.status(200).json({ message: "Pagamento deletado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao buscar Pagamento:", error);
+    return res.status(500).json({ error: "Erro interno ao buscar pagamento" });
+  }
+},
+
 async getPaymentReport(req, res) {
   try {
     const { startDate, endDate, adminId, paymentType } = req.query;

@@ -58,6 +58,10 @@ type FilterFormData = {
   paymentType: string;
 };
 
+type ChargeBackFormData = {
+  paymentId: string;
+};
+
 const FilterModal = ({
   onSubmit,
   open,
@@ -155,12 +159,70 @@ const FilterModal = ({
   );
 };
 
+const ChargeBackModal = ({
+  onSubmit,
+  open,
+  onClose,
+}: {
+  onSubmit: (data: ChargeBackFormData) => void;
+  open: boolean;
+  onClose: () => void;
+}) => {
+  const { register, handleSubmit, setValue, watch } = useForm<ChargeBackFormData>({
+    defaultValues: {
+      paymentId: "",
+    },
+  });
+
+
+  const submitAndClose = (data: ChargeBackFormData) => {
+    onSubmit(data);
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        component={Paper}
+        p={3}
+        m="auto"
+        mt={10}
+        maxWidth={500}
+        borderRadius={2}
+        boxShadow={10}
+      >
+        <Typography variant="h6" mb={2}>
+          Realizar estorno
+        </Typography>
+
+        <form onSubmit={handleSubmit(submitAndClose)}>
+          <Box display="flex" flexDirection="column" gap={2}>
+
+
+            <TextField
+              label="ID do pagamento"
+              {...register("paymentId")}
+              size="small"
+              type="number"
+            >
+            </TextField>
+
+            <Button type="submit" variant="contained" color="primary">
+              OK
+            </Button>
+          </Box>
+        </form>
+      </Box>
+    </Modal>
+  );
+};
 
 
 const CashierPage = () => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [adminList, setAdminList] = useState<any[]>([]);
   const [reportFilters, setReportFilters] = useState<FilterFormData | null>(null);
+
+  const [chargeBackModalOpen, setChargeBackModalOpen] = useState(false);
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
@@ -521,6 +583,34 @@ const CashierPage = () => {
     }
   };
 
+    const handleChargeBack = async (filters: ChargeBackFormData) => {
+    try {
+      const token = Cookies.get("auth_token");
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      if (filters.paymentId) {
+        const response = await fetch(`http://localhost:3030/payment/chargeback/${filters.paymentId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) throw new Error("Erro ao realizar estorno");
+
+        const data = await response.json();
+        alert("Estorno realizado com sucesso!");
+      }
+      setChargeBackModalOpen(false); 
+
+    } catch (error) {
+      console.error("Erro ao estornar pagamento:", error);
+    }
+  };
 
 
   return (
@@ -549,6 +639,7 @@ const CashierPage = () => {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>ID</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Data/Hora</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Aluno</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Descrição</th>
@@ -559,7 +650,11 @@ const CashierPage = () => {
               </thead>
               <tbody>
                 {payments.map((p) => (
+
                   <tr key={p.id}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {p.id || "N/A"}
+                    </td>
                     <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {dayjs(p.createdAt).format("DD/MM/YYYY HH:mm")}
                     </td>
@@ -636,7 +731,7 @@ const CashierPage = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h6" fontWeight="bold">Caixa</Typography>
         <Box display="flex" gap={2}>
-          <Button variant="outlined">Estorno</Button>
+          <Button variant="outlined" onClick={() => setChargeBackModalOpen(true)}>Estorno</Button>
           <Button variant="outlined" onClick={() => setFilterModalOpen(true)}>
             <PrintIcon />
           </Button>
@@ -666,6 +761,16 @@ const CashierPage = () => {
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
         adminList={adminList}
+      />
+
+      <ChargeBackModal
+        key={filterKey}
+        onSubmit={(filters) => {
+          handleChargeBack(filters);
+          setChargeBackModalOpen(false);
+        }}
+        open={chargeBackModalOpen}
+        onClose={() => setChargeBackModalOpen(false)}
       />
 
 
