@@ -22,6 +22,9 @@ import Add from '@mui/icons-material/Add';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { formatCpf, formatPhone } from "@/lib/formatValues";
+import StudentReport from "@/components/report/StudentReport";
+import { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 
 type Props = {
   params: { id: string };
@@ -34,13 +37,33 @@ const SingleStudentPage = ({ params }: Props) => {
   const [loading, setLoading] = useState(true);
   const [fees, setFees] = useState([]);
 
-  const [classes, setClasses] = useState([]);
-  const [selectedClasses, setSelectedClasses] = useState([]);
+  type Classe = {
+    code: string;
+    name: string;
+    course: { name: string };
+    teacher: { name: string };
+    [key: string]: any;
+  };
+
+  const [classes, setClasses] = useState<Classe[]>([]);
+  const [selectedClasses, setSelectedClasses] = useState<Classe[]>([]);
 
   const [newStudent, setNewStudent] = useState<Student | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
+
+
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
+    onAfterPrint: () => {
+      console.log("Printing completed");
+    },
+  });
+
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -197,7 +220,12 @@ const SingleStudentPage = ({ params }: Props) => {
 
   const handleEdit = () => {
     setIsEditing(true)
-    setNewStudent({ ...student })
+    if (student) {
+      setNewStudent({
+        ...student,
+        id: student.id ?? 0, // fallback to 0 if undefined, adjust as needed
+      });
+    }
   }
 
   const confirmClasses = async () => {
@@ -279,7 +307,7 @@ const SingleStudentPage = ({ params }: Props) => {
         <Typography variant="h6" fontWeight="bold">Perfil do aluno</Typography>
         <Box display="flex" gap={2}>
 
-          <Button variant="outlined">
+          <Button variant="outlined" onClick={handlePrint}>
             <PrintIcon />
           </Button>
         </Box>
@@ -491,13 +519,16 @@ const SingleStudentPage = ({ params }: Props) => {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             onChange={(e) => {
-              setSelectedClasses([...selectedClasses, e.target.value])
+              const selectedCode = e.target.value as string;
+              const selectedClasse = classes.find((classe) => classe.code === selectedCode);
+              if (selectedClasse && !selectedClasses.some((c) => c.code === selectedClasse.code)) {
+                setSelectedClasses([...selectedClasses, selectedClasse]);
+              }
             }}
           >
             {
               classes?.map((classe) => (
-                <MenuItem value={classe}>{classe.name}</MenuItem>
-
+                <MenuItem key={classe.code} value={classe.code}>{classe.name}</MenuItem>
               ))
             }
           </Select>
@@ -552,7 +583,9 @@ const SingleStudentPage = ({ params }: Props) => {
           getRowId={(row) => row.id}
         />
       </Box>
-
+      <Box sx={{ display: "none" }}>
+        <StudentReport ref={printRef} student={student} fees={fees} />
+      </Box>
     </Box>
   );
 };

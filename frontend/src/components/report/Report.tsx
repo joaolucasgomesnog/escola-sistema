@@ -1,7 +1,7 @@
 "client side"
 import Image from "next/image";
 import React, { ForwardedRef, useEffect, useState } from "react";
-import { getUserFromToken } from "../lib/getUserFromToken";
+import { getUserFromToken } from "@/lib/getUserFromToken";
 
 type ReportProps = {
   children?: React.ReactNode;

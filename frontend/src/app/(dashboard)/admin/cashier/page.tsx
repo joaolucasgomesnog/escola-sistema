@@ -20,7 +20,7 @@ import dayjs from "dayjs";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { getUserFromToken } from "@/lib/getUserFromToken";
 import PrintIcon from '@mui/icons-material/Print';
-import Report from "../../../../components/Report";
+import Report from "@/components/report/Report";
 import { useReactToPrint } from 'react-to-print'
 
 type Fee = {
