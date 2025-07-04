@@ -11,6 +11,7 @@ classeRoutes.get('/get/:code', autenticateToken, authorizeRoles('admin', 'teache
 classeRoutes.get('/getall', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getAllClasses);
 classeRoutes.get('/getall/teacher/:teacher_id', autenticateToken, authorizeRoles('admin', 'teacher'), classe.getAllClassesByTeacherId);
 classeRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), classe.updateClass);
+classeRoutes.put('/add-teacher', autenticateToken, authorizeRoles('admin'), classe.addTeacher);
 classeRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), classe.deleteClass);
 
 export {classeRoutes}

@@ -17,7 +17,7 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import {Teacher} from '@/interfaces/teacher'
+import { Teacher } from '@/interfaces/teacher'
 import PrintIcon from '@mui/icons-material/Print';
 import Add from '@mui/icons-material/Add';
 // import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -29,7 +29,7 @@ type Props = {
   params: { id: string };
 };
 
-const SingleTeacherPage = ({params}: props) => {
+const SingleTeacherPage = ({ params }: props) => {
 
   const { id } = params;
   const router = useRouter();
@@ -67,6 +67,7 @@ const SingleTeacherPage = ({params}: props) => {
 
         const data = await res.json();
         console.log("Dados do professor:", data);
+        console.log(data.Class)
         setTeacher(data);
       } catch (err) {
         console.error("Erro:", err);
@@ -215,25 +216,25 @@ const SingleTeacherPage = ({params}: props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/teacher/create-class-teacher`, {
+      const response = await fetch(`http://localhost:3030/class/add-teacher`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
 
         },
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify({
           selectedClasses,
           teacherId: id
         })
       });
 
-      if (!response.ok) throw new Error("Erro ao buscar mensalidades do professor.");
+      if (!response.ok) throw new Error("Erro ao confirmar turmas.");
 
       const data = await response.json();
+      console.log("retorno:", data);
       // setClasses(data)
       window.alert("matrícula efetuada com sucesso")
-      console.log("retorno:", data);
     } catch (error) {
       setSelectedClasses([])
       console.error("Erro ao carregar classes:", error);
@@ -470,7 +471,7 @@ const SingleTeacherPage = ({params}: props) => {
 
       {/* Turmas */}
       <Box className="flex justify-between">
-        <Typography variant="body1" mb={3}>Matriculas</Typography>
+        <Typography variant="body1" mb={3}>Turmas</Typography>
 
         {
           selectVisible ? (
@@ -520,7 +521,7 @@ const SingleTeacherPage = ({params}: props) => {
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />
-            <TextField label="Professor da turma" value={classe.teacher.name ?? ""} size="small"
+            <TextField label="Professor da turma" value={classe.teacher?.name ?? ""} size="small"
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />
@@ -530,20 +531,20 @@ const SingleTeacherPage = ({params}: props) => {
       }
 
 
-      {teacher?.class?.map(({ class: turma }) => (
-        <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
-          <TextField label="Curso" value={turma.course.name ?? ""} size="small"
+      {Array.isArray(teacher?.Class) && teacher.Class.map((turma) => (
+        <Box key={turma?.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+          <TextField label="Curso" value={turma?.course.name ?? ""} size="small"
             InputProps={{ readOnly: true }}
             sx={{ flex: 1 }}
           />
-          <TextField label="Turma" value={turma.name ?? ""} size="small"
+          <TextField label="Turma" value={turma?.name ?? ""} size="small"
             InputProps={{ readOnly: true }}
             sx={{ flex: 1 }}
           />
-          <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small"
+          {/* <TextField label="Professor da turma" value={turma?.teacher.name ?? ""} size="small"
             InputProps={{ readOnly: true }}
             sx={{ flex: 1 }}
-          />
+          /> */}
         </Box>
       ))}
 

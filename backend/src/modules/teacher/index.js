@@ -1,21 +1,19 @@
 import { prisma } from "../../lib/prisma.js";
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-const SECRET_KEY = process.env.JWT_SECRET; 
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export default {
-
-  async logout(req, res){
+  async logout(req, res) {
     try {
-      const {token} = req.body
+      const { token } = req.body;
 
-      console.log(token)
+      console.log(token);
 
-      await prisma.blackListToken.create({ data: {token}})
+      await prisma.blackListToken.create({ data: { token } });
 
-      return res.status(200).json({message: "token adicionado a blackList"})
-
+      return res.status(200).json({ message: "token adicionado a blackList" });
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       res.status(500).json({ error: "Erro interno ao fazer logout" });
@@ -26,19 +24,21 @@ export default {
     try {
       const { name, cpf, phone, picture, password, address } = req.body;
 
-      const teacherExists = await prisma.teacher.findUnique({ where: { cpf } })
+      const teacherExists = await prisma.teacher.findUnique({ where: { cpf } });
 
-      if(teacherExists){
-        return res.status(409).json({error: 'cpf informado já foi cadastrado'})
+      if (teacherExists) {
+        return res
+          .status(409)
+          .json({ error: "cpf informado já foi cadastrado" });
       }
-      
+
       // Criação do endereço
       const newAddress = await prisma.address.create({
         data: address,
       });
 
       //criptografar senha
-      const hashedPassword = await hashPassword(password)
+      const hashedPassword = await hashPassword(password);
 
       // Criação do teacher com vínculo ao endereço
       const teacher = await prisma.teacher.create({
@@ -53,8 +53,8 @@ export default {
         select: {
           id: true,
           name: true,
-          cpf: true
-        }
+          cpf: true,
+        },
       });
 
       res.status(201).json(teacher);
@@ -71,7 +71,9 @@ export default {
         include: { address: true },
       });
 
-      const teachersWithoutPassword = teachers.map(({password, ...rest}) => rest)
+      const teachersWithoutPassword = teachers.map(
+        ({ password, ...rest }) => rest
+      );
 
       res.status(200).json(teachersWithoutPassword);
     } catch (error) {
@@ -85,14 +87,14 @@ export default {
       const { id } = req.params;
       const teacher = await prisma.teacher.findUnique({
         where: { id: Number(id) },
-        include: { address: true, Class: true },
+        include: { address: true, Class: { include: { course: true} } },
       });
 
       if (!teacher) {
         return res.status(404).json({ error: "Teacher não encontrado" });
       }
 
-      delete teacher.password
+      delete teacher.password;
 
       res.status(200).json(teacher);
     } catch (error) {
@@ -105,7 +107,7 @@ export default {
   async updateTeacher(req, res) {
     try {
       const { id } = req.params;
-      const { name, cpf, phone, picture, password, address } = req.body;
+      const { name, cpf, phone, email, picture, address } = req.body;
 
       const teacherExists = await prisma.teacher.findUnique({
         where: { id: Number(id) },
@@ -123,15 +125,15 @@ export default {
         });
       }
 
-      const hashedPassword = await hashPassword(password)
+      // const hashedPassword = await hashPassword(password);
 
       const updatedTeacher = await prisma.teacher.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, picture, password:hashedPassword },
+        data: { name, cpf, phone, picture, email },
         include: { address: true },
       });
 
-      delete updatedTeacher.password
+      delete updatedTeacher.password;
 
       res.status(200).json(updatedTeacher);
     } catch (error) {
@@ -170,7 +172,7 @@ export default {
   },
 };
 
-async function hashPassword(password){
-  const saltRounds = 10
-  return await bcrypt.hash(password, saltRounds)
+async function hashPassword(password) {
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
 }
