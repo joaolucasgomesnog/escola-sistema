@@ -85,7 +85,7 @@ export default {
       const { id } = req.params;
       const teacher = await prisma.teacher.findUnique({
         where: { id: Number(id) },
-        include: { address: true },
+        include: { address: true, Class: true },
       });
 
       if (!teacher) {

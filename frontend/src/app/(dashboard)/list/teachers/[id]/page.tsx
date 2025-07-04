@@ -1,166 +1,564 @@
-import Announcements from "@/components/Announcements";
-import BigCalendar from "@/components/BigCalender";
-import FormModal from "@/components/FormModal";
-import Performance from "@/components/Performance";
-import { role } from "@/lib/data";
-import Image from "next/image";
-import Link from "next/link";
 
-const SingleTeacherPage = () => {
+'use client';
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import {
+  Avatar,
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from "@mui/material";
+import {Teacher} from '@/interfaces/teacher'
+import PrintIcon from '@mui/icons-material/Print';
+import Add from '@mui/icons-material/Add';
+// import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import dayjs from 'dayjs';
+import { formatCpf, formatPhone } from "@/lib/formatValues";
+
+
+type Props = {
+  params: { id: string };
+};
+
+const SingleTeacherPage = ({params}: props) => {
+
+  const { id } = params;
+  const router = useRouter();
+
+  const [teacher, setTeacher] = useState<Teacher | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // const [fees, setFees] = useState([]);
+
+  const [classes, setClasses] = useState([]);
+  const [selectedClasses, setSelectedClasses] = useState([]);
+
+  const [newTeacher, setNewTeacher] = useState<Teacher | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const [selectVisible, setSelectVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      const token = Cookies.get("auth_token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:3030/teacher/get/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+
+          },
+        });
+
+        if (!res.ok) throw new Error("Erro ao buscar professor");
+
+        const data = await res.json();
+        console.log("Dados do professor:", data);
+        setTeacher(data);
+      } catch (err) {
+        console.error("Erro:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeacher();
+    // fetchTeacherFees(Number(id));
+  }, [id]);
+
+  const updateTeacher = async () => {
+    try {
+      const token = Cookies.get('auth_token')
+      const res = await fetch(`http://localhost:3030/teacher/update/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'PUT',
+        body: JSON.stringify(newTeacher)
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) throw new Error("Erro ao atualizar professor");
+      setTeacher(data)
+
+    } catch (error) {
+      console.error("Erro:", error);
+
+    } finally {
+      setIsEditing(false)
+    }
+  }
+
+  // const fetchTeacherFees = async (teacherId: number) => {
+  //   const token = Cookies.get("auth_token");
+  //   if (!token) {
+  //     router.push("/login");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await fetch(`http://localhost:3030/fee/teacher/${teacherId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     if (!response.ok) throw new Error("Erro ao buscar mensalidades do professor.");
+
+  //     const data = await response.json();
+  //     console.log("Mensalidades do professor:", data);
+  //     setFees(data);
+  //   } catch (error) {
+  //     console.error("Erro ao carregar mensalidades:", error);
+  //   }
+  // };
+
+
+  // const feeColumns: GridColDef[] = [
+  //   { field: "id", headerName: "ID", flex: 0.3 },
+  //   { field: "description", headerName: "Descrição", flex: 2 },
+  //   {
+  //     field: "price",
+  //     headerName: "Valor",
+  //     flex: 0.5,
+  //     renderCell: (params: GridRenderCellParams) => (
+  //       <Box display="flex" alignItems="center" height="100%">
+
+  //         <Typography variant="body2">
+  //           R$ {Number(params.value).toFixed(2).replace('.', ',')}
+  //         </Typography>
+  //       </Box>
+  //     )
+  //   },
+  //   {
+  //     field: "dueDate",
+  //     headerName: "Vencimento",
+  //     flex: 0.5,
+  //     valueFormatter: ({ value }) => dayjs(value).format("DD/MM/YYYY"),
+  //   },
+  //   {
+  //     field: "paymentDate",
+  //     headerName: "Data do Pagamento",
+  //     flex: 0.5,
+  //     renderCell: (params: GridRenderCellParams<any>) => {
+  //       const payment = params.row?.payments?.[0];
+  //       return (
+  //         <Box display="flex" alignItems="center" height="100%">
+  //           <Typography variant="body2">
+  //             {payment?.createdAt ? dayjs(payment.createdAt).format("DD/MM/YYYY") : "—"}
+  //           </Typography>
+  //         </Box>
+  //       );
+  //     }
+  //   },
+  //   {
+  //     field: "paymentType",
+  //     headerName: "Forma de Pagamento",
+  //     flex: 0.5,
+  //     renderCell: (params: GridRenderCellParams<any>) => {
+  //       const payment = params.row?.payments?.[0];
+  //       return (
+  //         <Box display="flex" alignItems="center" height="100%">
+
+  //           <Typography variant="body2" alignSelf={"center"}>
+  //             {payment?.paymentType ?? "—"}
+  //           </Typography>
+  //         </Box>
+  //       );
+  //     }
+  //   },
+  //   {
+  //     field: "adminName",
+  //     headerName: "Recebedor",
+  //     flex: 0.5,
+  //     renderCell: (params: GridRenderCellParams<any>) => {
+  //       const payment = params.row?.payments?.[0];
+  //       return (
+  //         <Box display="flex" alignItems="center" height="100%">
+  //           <Typography variant="body2">
+  //             {payment?.admin?.name ?? "—"}
+  //           </Typography>
+  //         </Box>
+  //       );
+  //     }
+  //   }
+  // ];
+
+  const handleEdit = () => {
+    setIsEditing(true)
+    setNewTeacher({ ...teacher })
+  }
+
+  const confirmClasses = async () => {
+    setSelectVisible(false)
+
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3030/teacher/create-class-teacher`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          selectedClasses,
+          teacherId: id
+        })
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar mensalidades do professor.");
+
+      const data = await response.json();
+      // setClasses(data)
+      window.alert("matrícula efetuada com sucesso")
+      console.log("retorno:", data);
+    } catch (error) {
+      setSelectedClasses([])
+      console.error("Erro ao carregar classes:", error);
+    }
+  }
+
+  const fetchClasses = async () => {
+    setSelectVisible(true)
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3030/class/getall`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar mensalidades do professor.");
+
+      const data = await response.json();
+      setClasses(data)
+      console.log("Classes:", data);
+    } catch (error) {
+      console.error("Erro ao carregar classes:", error);
+    }
+  }
+
+
+  if (loading) return <Typography>Carregando...</Typography>;
+  if (!teacher) return <Typography>Professor não encontrado.</Typography>;
+
   return (
-    <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
-      {/* LEFT */}
-      <div className="w-full xl:w-2/3">
-        {/* TOP */}
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* USER INFO CARD */}
-          <div className="bg-lamaSky py-6 px-4 rounded-md flex-1 flex gap-4">
-            <div className="w-1/3">
-              <Image
-                src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                alt=""
-                width={144}
-                height={144}
-                className="w-36 h-36 rounded-full object-cover"
-              />
-            </div>
-            <div className="w-2/3 flex flex-col justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <h1 className="text-xl font-semibold">Leonard Snyder</h1>
-                {role === "admin" && <FormModal
-                  table="teacher"
-                  type="update"
-                  data={{
-                    id: 1,
-                    username: "deanguerrero",
-                    email: "deanguerrero@gmail.com",
-                    password: "password",
-                    firstName: "Dean",
-                    lastName: "Guerrero",
-                    phone: "+1 234 567 89",
-                    address: "1234 Main St, Anytown, USA",
-                    bloodType: "A+",
-                    dateOfBirth: "2000-01-01",
-                    sex: "male",
-                    img: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=1200",
-                  }}
-                />}
-              </div>
-              <p className="text-sm text-gray-500">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              </p>
-              <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
-                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Image src="/blood.png" alt="" width={14} height={14} />
-                  <span>A+</span>
-                </div>
-                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Image src="/date.png" alt="" width={14} height={14} />
-                  <span>January 2025</span>
-                </div>
-                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Image src="/mail.png" alt="" width={14} height={14} />
-                  <span>user@gmail.com</span>
-                </div>
-                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Image src="/phone.png" alt="" width={14} height={14} />
-                  <span>+1 234 567</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* SMALL CARDS */}
-          <div className="flex-1 flex gap-4 justify-between flex-wrap">
-            {/* CARD */}
-            <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleAttendance.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">90%</h1>
-                <span className="text-sm text-gray-400">Attendance</span>
-              </div>
-            </div>
-            {/* CARD */}
-            <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleBranch.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">2</h1>
-                <span className="text-sm text-gray-400">Branches</span>
-              </div>
-            </div>
-            {/* CARD */}
-            <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleLesson.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">6</h1>
-                <span className="text-sm text-gray-400">Lessons</span>
-              </div>
-            </div>
-            {/* CARD */}
-            <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleClass.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">6</h1>
-                <span className="text-sm text-gray-400">Classes</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* BOTTOM */}
-        <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-          <h1>Teacher&apos;s Schedule</h1>
-          <BigCalendar />
-        </div>
-      </div>
-      {/* RIGHT */}
-      <div className="w-full xl:w-1/3 flex flex-col gap-4">
-        <div className="bg-white p-4 rounded-md">
-          <h1 className="text-xl font-semibold">Shortcuts</h1>
-          <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-            <Link className="p-3 rounded-md bg-lamaSkyLight" href="/">
-              Teacher&apos;s Classes
-            </Link>
-            <Link className="p-3 rounded-md bg-lamaPurpleLight" href="/">
-              Teacher&apos;s Students
-            </Link>
-            <Link className="p-3 rounded-md bg-lamaYellowLight" href="/">
-              Teacher&apos;s Lessons
-            </Link>
-            <Link className="p-3 rounded-md bg-pink-50" href="/">
-              Teacher&apos;s Exams
-            </Link>
-            <Link className="p-3 rounded-md bg-lamaSkyLight" href="/">
-              Teacher&apos;s Assignments
-            </Link>
-          </div>
-        </div>
-        <Performance />
-        <Announcements />
-      </div>
-    </div>
+    <Box
+      p={3}
+      bgcolor="white"
+      borderRadius={2}
+      m={2}
+      sx={{
+        height: 'calc(100vh - 64px)', // altura total da viewport menos o header, ajuste se necessário
+        overflowY: 'auto'
+      }}
+    >
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h6" fontWeight="bold">Perfil do professor</Typography>
+        <Box display="flex" gap={2}>
+
+          <Button variant="outlined">
+            <PrintIcon />
+          </Button>
+        </Box>
+      </Box>
+
+      <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" gap={2} m={6}>
+        <Box display="flex" alignItems="center" gap={2} flexDirection="column">
+          <Avatar src={teacher.picture} sx={{ width: 150, height: 150 }} />
+          <Typography variant="h6" fontWeight="bold" color="primary">{teacher.name.toUpperCase()}</Typography>
+        </Box>
+      </Box>
+
+      {/* Dados Pessoais */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="body1">Dados Pessoais</Typography>
+        {
+          isEditing ? (
+            <Button variant="contained" onClick={updateTeacher}>Salvar</Button>
+          ) : (
+            <Button variant="outlined" onClick={handleEdit}>Editar</Button>
+          )
+        }
+      </Box>
+      <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
+        <TextField label="Nome"
+          size="small"
+          value={isEditing ? newTeacher?.name ?? "" : teacher.name ?? ""}
+          InputProps={{ readOnly: !isEditing }}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({ ...newTeacher, name: e.target.value })
+          }}
+          sx={{ flex: 2 }}
+        />
+        <TextField
+          label="CPF"
+          value={teacher.cpf ? formatCpf(teacher.cpf) : ""}
+          size="small"
+          InputProps={{ readOnly: true }}
+          sx={{ flex: 1 }}
+        />
+        <TextField label="Email"
+          size="small"
+          value={isEditing ? newTeacher?.email ?? "" : teacher.email ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({ ...newTeacher, email: e.target.value })
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 1 }}
+        />
+        <TextField
+          label="Telefone"
+          value={
+            isEditing
+              ? newTeacher?.phone ?? ""
+              : teacher.phone
+                ? formatPhone(teacher.phone)
+                : ""
+          }
+          size="small"
+          InputProps={{ readOnly: !isEditing }}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({ ...newTeacher, phone: e.target.value });
+          }}
+          sx={{ flex: 1 }}
+        />
+
+      </Box>
+
+      <Divider sx={{ mb: 3 }} />
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="body1">Endereço</Typography>
+        {/* <Button variant="outlined">Editar</Button> */}
+      </Box>
+      {/* Endereço */}
+      <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
+        <TextField label="Rua"
+          size="small"
+          value={isEditing ? newTeacher?.address.street ?? "" : teacher.address.street ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({ ...newTeacher, address: { ...newTeacher.address, street: e.target.value } })
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 2 }}
+        />
+
+        <TextField
+          label="Bairro"
+          size="small"
+          value={isEditing ? newTeacher?.address.neighborhood ?? "" : teacher.address.neighborhood ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({
+              ...newTeacher,
+              address: {
+                ...newTeacher.address,
+                neighborhood: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 1 }}
+        />
+
+        <TextField
+          label="Número"
+          size="small"
+          value={isEditing ? newTeacher?.address.number ?? "" : teacher.address.number ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({
+              ...newTeacher,
+              address: {
+                ...newTeacher.address,
+                number: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 0.5 }}
+        />
+
+        <TextField
+          label="Cidade"
+          size="small"
+          value={isEditing ? newTeacher?.address.city ?? "" : teacher.address.city ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({
+              ...newTeacher,
+              address: {
+                ...newTeacher.address,
+                city: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 1 }}
+        />
+
+        <TextField
+          label="Estado"
+          size="small"
+          value={isEditing ? newTeacher?.address.state ?? "" : teacher.address.state ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({
+              ...newTeacher,
+              address: {
+                ...newTeacher.address,
+                state: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 0.5 }}
+        />
+
+        <TextField
+          label="CEP"
+          size="small"
+          value={isEditing ? newTeacher?.address.postalCode ?? "" : teacher.address.postalCode ?? ""}
+          onChange={(e) => {
+            if (!isEditing || !newTeacher) return;
+            setNewTeacher({
+              ...newTeacher,
+              address: {
+                ...newTeacher.address,
+                postalCode: e.target.value
+              }
+            });
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          sx={{ flex: 1 }}
+        />
+      </Box>
+
+      <Divider sx={{ mb: 3 }} />
+
+
+      {/* Turmas */}
+      <Box className="flex justify-between">
+        <Typography variant="body1" mb={3}>Matriculas</Typography>
+
+        {
+          selectVisible ? (
+
+            <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
+              Salvar
+            </Button>
+          ) : (
+
+            <Button color="primary" variant="contained" className="h-fit" onClick={fetchClasses}>
+              <Add fontSize="medium" />
+            </Button>
+          )
+        }
+
+      </Box>
+
+      <Box className={`${selectVisible ? 'visible' : 'hidden'} mb-4`}>
+        <FormControl className="w-32 " size="small">
+
+          <InputLabel id="demo-simple-select-label">Turma</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            onChange={(e) => {
+              setSelectedClasses([...selectedClasses, e.target.value])
+            }}
+          >
+            {
+              classes?.map((classe) => (
+                <MenuItem value={classe}>{classe.name}</MenuItem>
+
+              ))
+            }
+          </Select>
+        </FormControl>
+
+      </Box>
+      {
+        selectedClasses?.map((classe) => (
+          <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
+            <TextField label="Curso" value={classe.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Turma" value={classe.course.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Professor da turma" value={classe.teacher.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+          </Box>
+
+        ))
+      }
+
+
+      {teacher?.class?.map(({ class: turma }) => (
+        <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+          <TextField label="Curso" value={turma.course.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Turma" value={turma.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+        </Box>
+      ))}
+
+      <Divider sx={{ my: 3 }} />
+      <Typography variant="body1" mb={2}>Mensalidades e Pagamentos</Typography>
+
+      {/* <Box sx={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={fees}
+          columns={feeColumns}
+          getRowId={(row) => row.id}
+        />
+      </Box> */}
+
+    </Box>
   );
 };
 

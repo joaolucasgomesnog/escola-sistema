@@ -86,11 +86,11 @@ model Class {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   courseId  Int
-  teacherId Int
+  teacherId Int?
 
   course Course @relation(fields: [courseId], references: [id])
 
-  teacher     Teacher         @relation(fields: [teacherId], references: [id])
+  teacher     Teacher?         @relation(fields: [teacherId], references: [id])
   students    Class_Student[]
   attendances Attendence[]
 }
