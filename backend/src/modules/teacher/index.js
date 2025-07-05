@@ -82,26 +82,47 @@ export default {
     }
   },
   // Buscar teacher por ID
-  async getTeacherById(req, res) {
-    try {
-      const { id } = req.params;
-      const teacher = await prisma.teacher.findUnique({
-        where: { id: Number(id) },
-        include: { address: true, Class: { include: { course: true} } },
-      });
 
-      if (!teacher) {
-        return res.status(404).json({ error: "Teacher não encontrado" });
-      }
 
-      delete teacher.password;
+async getTeacherById(req, res) {
+  try {
+    const { id } = req.params;
 
-      res.status(200).json(teacher);
-    } catch (error) {
-      console.error("Erro ao buscar teacher:", error);
-      res.status(500).json({ error: "Erro interno ao buscar teacher" });
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: Number(id) },
+      include: {
+        address: true,
+        Class: {
+          select: {
+            code: true,
+            name: true,
+            turno: true,
+            horario: true,
+            course: {
+              select: {
+                name: true,
+                code: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!teacher) {
+      return res.status(404).json({ error: "Professor não encontrado" });
     }
-  },
+
+    // Remove a senha antes de retornar
+    delete teacher.password;
+
+    res.status(200).json(teacher);
+  } catch (error) {
+    console.error("Erro ao buscar teacher:", error);
+    res.status(500).json({ error: "Erro interno ao buscar professor" });
+  }
+},
+
 
   // Atualizar teacher
   async updateTeacher(req, res) {

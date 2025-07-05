@@ -16,4 +16,4 @@ interface Student {
   course: Course
 }
 
-export {Student}
+export type {Student}

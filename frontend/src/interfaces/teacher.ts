@@ -10,7 +10,8 @@ interface Teacher {
   addressId: number
   email: string
   address: Address
-  class: any[]
+  Class: any[]
+  classLinks: any[]
 }
 
-export {Teacher}
+export type {Teacher}

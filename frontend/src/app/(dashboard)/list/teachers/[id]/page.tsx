@@ -23,13 +23,15 @@ import Add from '@mui/icons-material/Add';
 // import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { formatCpf, formatPhone } from "@/lib/formatValues";
-
+import TeacherReport from "@/components/report/TeacherReport";
+import { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 
 type Props = {
   params: { id: string };
 };
 
-const SingleTeacherPage = ({ params }: props) => {
+const SingleTeacherPage = ({ params }: Props) => {
 
   const { id } = params;
   const router = useRouter();
@@ -39,13 +41,33 @@ const SingleTeacherPage = ({ params }: props) => {
 
   // const [fees, setFees] = useState([]);
 
-  const [classes, setClasses] = useState([]);
-  const [selectedClasses, setSelectedClasses] = useState([]);
+  type Class = {
+    code: string;
+    name: string;
+    course: { name: string };
+    teacher?: { name: string };
+    // add other properties as needed
+  };
+
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [selectedClasses, setSelectedClasses] = useState<Class[]>([]);
 
   const [newTeacher, setNewTeacher] = useState<Teacher | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
+
+  
+  
+    const printRef = useRef<HTMLDivElement>(null);
+  
+    const handlePrint = useReactToPrint({
+      contentRef: printRef,
+      documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
+      onAfterPrint: () => {
+        console.log("Printing completed");
+      },
+    });
 
   useEffect(() => {
     const fetchTeacher = async () => {
@@ -203,7 +225,9 @@ const SingleTeacherPage = ({ params }: props) => {
 
   const handleEdit = () => {
     setIsEditing(true)
-    setNewTeacher({ ...teacher })
+    if (teacher) {
+      setNewTeacher(teacher as Teacher)
+    }
   }
 
   const confirmClasses = async () => {
@@ -285,7 +309,7 @@ const SingleTeacherPage = ({ params }: props) => {
         <Typography variant="h6" fontWeight="bold">Perfil do professor</Typography>
         <Box display="flex" gap={2}>
 
-          <Button variant="outlined">
+          <Button variant="outlined" onClick={handlePrint}>
             <PrintIcon />
           </Button>
         </Box>
@@ -496,68 +520,49 @@ const SingleTeacherPage = ({ params }: props) => {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
+            value=""
             onChange={(e) => {
-              setSelectedClasses([...selectedClasses, e.target.value])
+              const selectedCode = e.target.value;
+              const selectedClasse = classes.find((classe) => classe.code === selectedCode);
+              if (selectedClasse && !selectedClasses.some((c) => c.code === selectedClasse.code)) {
+                setSelectedClasses([...selectedClasses, selectedClasse]);
+              }
             }}
           >
             {
               classes?.map((classe) => (
-                <MenuItem value={classe}>{classe.name}</MenuItem>
-
+                <MenuItem key={classe.code} value={classe.code}>{classe.name}</MenuItem>
               ))
             }
           </Select>
         </FormControl>
 
       </Box>
-      {
-        selectedClasses?.map((classe) => (
-          <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
-            <TextField label="Curso" value={classe.name ?? ""} size="small"
-              InputProps={{ readOnly: true }}
-              sx={{ flex: 1 }}
-            />
-            <TextField label="Turma" value={classe.course.name ?? ""} size="small"
-              InputProps={{ readOnly: true }}
-              sx={{ flex: 1 }}
-            />
-            <TextField label="Professor da turma" value={classe.teacher?.name ?? ""} size="small"
-              InputProps={{ readOnly: true }}
-              sx={{ flex: 1 }}
-            />
-          </Box>
+{Array.isArray(teacher?.Class) && teacher.Class.map((turma) => (
+  <Box key={turma?.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+    <TextField label="Código Turma" value={turma?.code ?? ""} size="small"
+      InputProps={{ readOnly: true }}
+      sx={{ flex: 1 }}
+    />
+      <TextField label="Nome Turma" value={turma?.name ?? ""} size="small"
+        InputProps={{ readOnly: true }}
+        sx={{ flex: 1 }}
+      />
+    <TextField label="Curso" value={turma?.course?.name ?? ""} size="small"
+      InputProps={{ readOnly: true }}
+      sx={{ flex: 1 }}
+    />
+    <TextField label="Turno" value={turma?.turno ?? ""} size="small"
+      InputProps={{ readOnly: true }}
+      sx={{ flex: 1 }}
+    />
+  </Box>
+))}
 
-        ))
-      }
 
-
-      {Array.isArray(teacher?.Class) && teacher.Class.map((turma) => (
-        <Box key={turma?.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
-          <TextField label="Curso" value={turma?.course.name ?? ""} size="small"
-            InputProps={{ readOnly: true }}
-            sx={{ flex: 1 }}
-          />
-          <TextField label="Turma" value={turma?.name ?? ""} size="small"
-            InputProps={{ readOnly: true }}
-            sx={{ flex: 1 }}
-          />
-          {/* <TextField label="Professor da turma" value={turma?.teacher.name ?? ""} size="small"
-            InputProps={{ readOnly: true }}
-            sx={{ flex: 1 }}
-          /> */}
-        </Box>
-      ))}
-
-      <Divider sx={{ my: 3 }} />
-      <Typography variant="body1" mb={2}>Mensalidades e Pagamentos</Typography>
-
-      {/* <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={fees}
-          columns={feeColumns}
-          getRowId={(row) => row.id}
-        />
-      </Box> */}
+<Box sx={{ display: "none" }}>
+        <TeacherReport ref={printRef} teacher={teacher} />
+      </Box> 
 
     </Box>
   );
