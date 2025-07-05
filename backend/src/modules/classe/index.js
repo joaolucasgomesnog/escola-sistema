@@ -13,7 +13,7 @@ export default {
         startDate,
         endDate,
         courseId,
-        teacherId,
+        // teacherId,
       } = req.body;
 
       const classExists = await prisma.class.findUnique({ where: { code } });
@@ -33,7 +33,7 @@ export default {
           startDate,
           endDate,
           courseId,
-          teacherId,
+          // teacherId
         },
       });
 

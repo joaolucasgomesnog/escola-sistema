@@ -29,6 +29,8 @@ const InputField = ({
       size="small"
       error={!!error}
       helperText={error?.message}
+      InputLabelProps={type === "date" ? { shrink: true } : undefined} // Força o label a subir
+      inputProps={type === "date" ? { placeholder: "" } : undefined}    // Remove o mm/dd/yyyy
       {...(register ? register(name) : {})} // ← evita erro aqui
       {...inputProps}
     />
