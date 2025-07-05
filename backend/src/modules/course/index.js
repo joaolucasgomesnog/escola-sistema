@@ -4,7 +4,7 @@ export default {
 
   async createCourse(req, res) {
     try {
-      const { name, code, picture } = req.body;
+      const { name, code, monthlyFeeValue, registrationFeeValue } = req.body;
 
       const courseExists = await prisma.course.findUnique({ where: { code } })
 
@@ -16,7 +16,8 @@ export default {
         data: {
           name, 
           code: code.toLowerCase(), 
-          picture,
+          MonthlyFeeValue: Number(monthlyFeeValue),
+          registrationFeeValue: Number(registrationFeeValue)
         }
       });
 

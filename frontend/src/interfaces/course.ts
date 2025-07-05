@@ -3,6 +3,8 @@ interface Course{
   name: string
   code: string
   picture: string
+  registrationFeeValue: float
+  monthlyFeeValue: float
 }
 
 export {Course}

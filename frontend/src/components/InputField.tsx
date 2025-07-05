@@ -29,7 +29,7 @@ const InputField = ({
       size="small"
       error={!!error}
       helperText={error?.message}
-      {...register(name)}
+      {...(register ? register(name) : {})} // ← evita erro aqui
       {...inputProps}
     />
   );
