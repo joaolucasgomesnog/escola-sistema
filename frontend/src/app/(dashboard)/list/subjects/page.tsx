@@ -115,7 +115,7 @@ const CourseListPage = () => {
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         <div className="flex items-center gap-2 h-12">
-          <Link href={`/list/courses/${params.row.id}`}>
+          <Link href={`/list/subjects/${params.row.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>

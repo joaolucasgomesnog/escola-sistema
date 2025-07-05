@@ -41,8 +41,24 @@ export default {
     }
   },
 
-
   // Buscar course por ID
+  async getCourseById(req, res) {
+    try {
+      const { id } = req.params
+
+      const course = await prisma.course.findUnique({where: { id: Number(id) }});
+
+      if (!course) {
+        return res.status(404).json({ error: "Course não encontrado" });
+      }
+
+      return res.status(200).json(course);
+    } catch (error) {
+      console.error("Erro ao buscar course:", error);
+      return res.status(500).json({ error: "Erro interno ao buscar course" });
+    }
+  },
+
   async getCourseByCode(req, res) {
     try {
       const { code } = req.params
@@ -66,7 +82,9 @@ export default {
 
       const { id } = req.params;      
 
-      const { name, code, picture } = req.body;
+      const { name, code, picture, monthlyFeeValue, registrationFeeValue } = req.body;
+
+      console.log(req.body)
 
       const courseExists = await prisma.course.findUnique({ where: { id: Number(id) } })
 
@@ -82,8 +100,13 @@ export default {
           name, 
           code, 
           picture,
+          MonthlyFeeValue: monthlyFeeValue,
+          registrationFeeValue,
         }
       });
+
+      console.log('updatedCourse')
+      console.log(updatedCourse)
 
       return res.status(200).json(updatedCourse);
     } catch (error) {

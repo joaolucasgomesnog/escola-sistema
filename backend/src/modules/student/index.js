@@ -24,7 +24,7 @@ export default {
     try {
       const { name, cpf, phone, email, picture, password, address } = req.body;
 
-      console.log(req.body)
+      console.log(req.body);
 
       if (!name || !cpf || !phone || !password || !email || !address) {
         return res
@@ -74,35 +74,33 @@ export default {
     }
   },
 
-  async createClassStudent(req, res){
+  async createClassStudent(req, res) {
     try {
       const { studentId, selectedClasses } = req.body;
 
-      console.log(req.body)
+      console.log(req.body);
 
       const studentExists = await prisma.student.findUnique({
         where: { id: Number(studentId) },
       });
 
       if (!studentExists) {
-        return res
-          .status(409)
-          .json({ error: "estudante nao cadastrado" });
+        return res.status(409).json({ error: "estudante nao cadastrado" });
       }
 
       const studentClasses = selectedClasses.map((classe) => {
-        return {classId: classe.id, studentId: Number(studentId)}
-      })
-
+        return { classId: classe.id, studentId: Number(studentId) };
+      });
 
       const list = await prisma.class_Student.createMany({
-        data: studentClasses
-      })
+        data: studentClasses,
+      });
 
-      return res.status(200).json({"message": "Matrícula efetuada com sucesso"})
-
+      return res
+        .status(200)
+        .json({ message: "Matrícula efetuada com sucesso" });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   },
 
@@ -118,6 +116,33 @@ export default {
       );
 
       res.status(200).json(studentsWithoutPassword);
+    } catch (error) {
+      console.error("Erro ao buscar students:", error);
+      res.status(500).json({ error: "Erro interno ao buscar students" });
+    }
+  },
+
+  async getAllStudentsByCourseId(req, res) {
+    const { courseId } = req.params;
+
+    try {
+      const students = await prisma.student.findMany({
+        where: {
+          classLinks: {
+            some: {
+              class: {
+                courseId: Number(courseId),
+              },
+            },
+          },
+        },
+      });
+
+      const studentsWithoutPassword = students.map(
+        ({ password, ...rest }) => rest
+      );
+
+      return res.status(200).json(studentsWithoutPassword);
     } catch (error) {
       console.error("Erro ao buscar students:", error);
       res.status(500).json({ error: "Erro interno ao buscar students" });
