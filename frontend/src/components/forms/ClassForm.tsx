@@ -7,7 +7,13 @@ import InputField from "../InputField";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { Course } from "../../interfaces/course";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 const schema = z.object({
   code: z.string().min(1, { message: "Código é obrigatório!" }),
@@ -17,6 +23,17 @@ const schema = z.object({
   startDate: z.string().min(1, { message: "Data de início é obrigatória!" }),
   endDate: z.string().min(1, { message: "Data de término é obrigatória!" }),
 });
+
+const weekdays = [
+  { key: 'sunday', label: 'Domingo' },
+  { key: 'monday', label: 'Segunda-feira' },
+  { key: 'tuesday', label: 'Terça-feira' },
+  { key: 'wednesday', label: 'Quarta-feira' },
+  { key: 'thursday', label: 'Quinta-feira' },
+  { key: 'friday', label: 'Sexta-feira' },
+  { key: 'saturday', label: 'Sábado' },
+];
+
 
 type Inputs = z.infer<typeof schema>;
 
@@ -49,6 +66,20 @@ const ClassForm = ({
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedCourseId, setSelectedCourseId] = useState<Course>(null)
 
+  const [selectedDays, setSelectedDays] = useState<string[]>([])
+  const [schedule, setSchedule] = useState<Record<string, string | null>>({
+    sunday: null,
+    monday: null,
+    tuesday: null,
+    wednesday: null,
+    thursday: null,
+    friday: null,
+    saturday: null,
+  });
+
+
+
+
   const fetchCourses = async () => {
     try {
       const token = Cookies.get("auth_token");
@@ -79,6 +110,11 @@ const ClassForm = ({
     fetchCourses()
   }, [])
 
+  useEffect(() => {
+    console.log(schedule)
+    // console.log(selectedDays)
+  }, [selectedDays, schedule])
+
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
@@ -93,7 +129,8 @@ const ClassForm = ({
           ...formData,
           startDate: new Date(formData.startDate),
           endDate: new Date(formData.endDate),
-          courseId: selectedCourseId
+          courseId: selectedCourseId,
+          horario: schedule
         }),
       });
 
@@ -129,7 +166,7 @@ const ClassForm = ({
 
       <div className="flex flex-wrap gap-4">
         <InputField label="Turno (ex: Manhã, Tarde, Noite)" name="turno" register={register} error={errors?.turno} />
-        <InputField label="Horário" name="horario" register={register} error={errors?.horario} />
+        {/* <InputField label="Horário" name="horario" register={register} error={errors?.horario} /> */}
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -137,6 +174,71 @@ const ClassForm = ({
         />
         <InputField label="Data de Término" name="endDate" type="date" register={register} error={errors?.endDate} />
       </div>
+
+      <Typography variant="body1" my={-2}>Horario</Typography>
+
+      <FormControl className="w-56 " size="small">
+
+        <InputLabel id="demo-simple-select-label">Dias da semana</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value=""
+          onChange={(e) => {
+            const selectedDay = e.target.value;
+            setSelectedDays([...selectedDays, selectedDay]);
+          }}
+        >
+          {
+            weekdays?.map((day) => (
+              <MenuItem key={day.key} value={day.key}>{day.label}</MenuItem>
+            ))
+          }
+        </Select>
+      </FormControl>
+
+      <Box display="flex" flexWrap="wrap" gap={2} >
+        {selectedDays?.map((day) => {
+          const label = weekdays.find((d) => d.key === day)?.label;
+
+          return (
+            <Box display='flex' gap={2}>
+              <TextField
+                label="Dia"
+                value={label ?? ""}
+                size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 2 }}
+              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="Hora"
+                  value={schedule[day] ? dayjs(schedule[day]) : null}
+                  onChange={(newValue) => {
+                    if (newValue) {
+                      const utcIso = newValue.utc().toISOString(); // formato "2025-07-06T16:00:00Z"
+                      setSchedule((prev) => ({
+                        ...prev,
+                        [day]: utcIso,
+                      }));
+                    }
+                  }}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+
+
+
+            </Box>
+          );
+        })}
+      </Box>
+
+
 
       <FormControl className="w-32 " size="small" fullWidth>
 
