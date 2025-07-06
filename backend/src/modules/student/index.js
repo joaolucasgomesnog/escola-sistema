@@ -148,6 +148,31 @@ export default {
       res.status(500).json({ error: "Erro interno ao buscar students" });
     }
   },
+  async getAllStudentsByClassId(req, res) {
+    const { classId } = req.params;
+
+    try {
+      const students = await prisma.class_Student.findMany({
+        where: {
+          classId: Number(classId)
+        },
+        select: {
+          student: true
+        }
+      });
+
+      const studentsWithoutPassword = students.map(
+        ({ password, ...rest }) => rest.student
+      );
+
+      console.log(studentsWithoutPassword)
+
+      return res.status(200).json(studentsWithoutPassword);
+    } catch (error) {
+      console.error("Erro ao buscar students:", error);
+      res.status(500).json({ error: "Erro interno ao buscar students" });
+    }
+  },
   // Buscar student por ID
   async getStudentById(req, res) {
     try {

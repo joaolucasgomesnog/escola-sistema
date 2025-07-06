@@ -105,6 +105,24 @@ export default {
       return res.status(500).json({ error: "Erro interno ao buscar class" });
     }
   },
+  async getClassById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const classe = await prisma.class.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!classe) {
+        return res.status(404).json({ error: "Class não encontrado" });
+      }
+
+      return res.status(200).json(classe);
+    } catch (error) {
+      console.error("Erro ao buscar class:", error);
+      return res.status(500).json({ error: "Erro interno ao buscar class" });
+    }
+  },
 
   // Atualizar class
   async updateClass(req, res) {
