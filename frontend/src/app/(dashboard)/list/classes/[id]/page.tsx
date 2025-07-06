@@ -15,6 +15,7 @@ import { useReactToPrint } from "react-to-print";
 import PrintIcon from '@mui/icons-material/Print';
 import { Class } from "@/interfaces/class";
 import { Student } from "../../../../../interfaces/student";
+import { DataGrid } from "@mui/x-data-grid";
 
 const SingleClassPage = ({ params }) => {
   const { id } = params;
@@ -61,7 +62,6 @@ const SingleClassPage = ({ params }) => {
         });
         if (!res.ok) throw new Error("Erro ao buscar alunos");
         const data = await res.json();
-        console.log(data)
         setStudents(data);
       } catch (err) {
         console.error(err);
@@ -95,6 +95,15 @@ const SingleClassPage = ({ params }) => {
       console.error(err);
     }
   };
+
+  const studentColumns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 0.3 },
+    { field: "name", headerName: "Nome", flex: 2 },
+    { field: "cpf", headerName: "CPF", flex: 1 },
+    { field: "email", headerName: "Email", flex: 2 },
+    { field: "phone", headerName: "Telefone", flex: 1 },
+
+  ];
 
   if (loading) return <Typography>Carregando...</Typography>;
   if (!turma) return <Typography>Turma não encontrada.</Typography>;
@@ -170,8 +179,8 @@ const SingleClassPage = ({ params }) => {
           value={isEditing ? newTurma?.startDate.split("T")[0] ?? "" : turma.startDate.split("T")[0] ?? ""}
           onChange={(e) => isEditing && setNewTurma({ ...newTurma, startDate: e.target.value })}
           InputProps={{ readOnly: !isEditing }}
-          InputLabelProps={{ shrink: true } } // Força o label a subir
-          inputProps={{ placeholder: "" } }    // Remove o mm/dd/yyyy
+          InputLabelProps={{ shrink: true }} // Força o label a subir
+          inputProps={{ placeholder: "" }}    // Remove o mm/dd/yyyy
           sx={{ flex: 2 }}
         />
         <TextField
@@ -181,8 +190,8 @@ const SingleClassPage = ({ params }) => {
           value={isEditing ? newTurma?.endDate.split("T")[0] ?? "" : turma.endDate.split("T")[0] ?? ""}
           onChange={(e) => isEditing && setNewTurma({ ...newTurma, endDate: e.target.value })}
           InputProps={{ readOnly: !isEditing }}
-          InputLabelProps={{ shrink: true } } // Força o label a subir
-          inputProps={{ placeholder: "" } }    // Remove o mm/dd/yyyy
+          InputLabelProps={{ shrink: true }} // Força o label a subir
+          inputProps={{ placeholder: "" }}    // Remove o mm/dd/yyyy
           sx={{ flex: 2 }}
         />
 
@@ -192,19 +201,13 @@ const SingleClassPage = ({ params }) => {
       <Divider sx={{ mb: 3 }} />
       <Typography variant="body1" mb={2}>Alunos matriculados</Typography>
 
-      {students?.map((student) => (
-        <Box key={student.id} display="flex" gap={2} mb={2}>
-          <TextField label="Nome" value={student.name ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 2 }} />
-          <TextField label="CPF" value={student.cpf ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 1 }} />
-          <TextField
-            label="Email"
-            value={student.email ?? ""}
-            size="small"
-            InputProps={{ readOnly: true }}
-            sx={{ flex: 2 }}
-          />
-        </Box>
-      ))}
+      <Box sx={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={students}
+          columns={studentColumns}
+          getRowId={(row) => row.id}
+        />
+      </Box>
 
       {/* <Box sx={{ display: "none" }}>
         <ClassReport ref={printRef} class={turma} students={students} />
