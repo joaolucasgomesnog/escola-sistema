@@ -57,7 +57,7 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                             ? Object.entries(turma.horario)
                                   .filter(([_, value]) => value !== null)
                                   .map(([day, value]) => {
-                                      const hora = dayjs(value).format("HH:mm");
+                                      const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
                                       const dayMap: Record<string, string> = {
                                           sunday: "Domingo",
                                           monday: "Segunda",

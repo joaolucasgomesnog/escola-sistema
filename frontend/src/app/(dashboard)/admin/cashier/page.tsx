@@ -519,12 +519,17 @@ const CashierPage = () => {
     {
       field: "dueDate",
       headerName: "Vencimento",
-      width: 130,
-      valueFormatter: ({ value }) => {
-        return dayjs(value).format("DD/MM/YYYY");
+      flex: 0.5,
+      renderCell: (params) => {
+        const dueDate = params.row?.dueDate;
+        return (
+          <Box display="flex" alignItems="center" height="100%">
+          <Typography variant="body2">
+            {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
+          </Typography>
+          </Box>
+        );
       },
-
-
     }
   ];
 
@@ -643,6 +648,7 @@ const CashierPage = () => {
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Data/Hora</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Aluno</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Descrição</th>
+                  <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Vencimento</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Valor</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Forma Pagamento</th>
                   <th style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>Recebido por</th>
@@ -664,6 +670,9 @@ const CashierPage = () => {
                     <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {p.fee?.description || "N/A"}
                     </td>
+                                        <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                      {dayjs(p.fee?.dueDate).format("DD/MM/YYYY") || "N/A"}
+                    </td>
                     <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       R$ {Number(p.fee?.price).toFixed(2).replace(".", ",")}
                     </td>
@@ -679,7 +688,7 @@ const CashierPage = () => {
                 {/* Linha de total monetário */}
                 <tr>
                   <td
-                    colSpan={3}
+                    colSpan={5}
                     style={{
                       border: "1px solid #ddd",
                       padding: "5px",
@@ -706,7 +715,7 @@ const CashierPage = () => {
                 {/* Linha de total quantitativo */}
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={8}
                     style={{
                       border: "1px solid #ddd",
                       padding: "5px",

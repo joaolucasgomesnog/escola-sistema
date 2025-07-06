@@ -267,7 +267,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     }
   }
 
-  const fetchClasses = async () => {
+  const fetchAvailableClasses = async () => {
     setSelectVisible(true)
     const token = Cookies.get("auth_token");
     if (!token) {
@@ -276,7 +276,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/class/getall`, {
+      const response = await fetch(`http://localhost:3030/class/getallavailable`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -507,7 +507,7 @@ const SingleTeacherPage = ({ params }: Props) => {
             </Button>
           ) : (
 
-            <Button color="primary" variant="contained" className="h-fit" onClick={fetchClasses}>
+            <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
               <Add fontSize="medium" />
             </Button>
           )

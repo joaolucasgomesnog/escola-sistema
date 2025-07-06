@@ -1,4 +1,5 @@
 interface Course{
+  image: string | undefined
   id: number
   name: string
   code: string
@@ -7,4 +8,4 @@ interface Course{
   MonthlyFeeValue: float
 }
 
-export {Course}
+export type {Course}

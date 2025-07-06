@@ -25,17 +25,21 @@ import { Course } from "../../../../../interfaces/course";
 import { Teacher } from "../../../../../interfaces/teacher";
 // import CourseReport from "@/components/report/CourseReport";
 
-const SingleCoursePage = ({ params }) => {
+interface SingleCoursePageProps {
+  params: { id: string };
+}
+
+const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
   const { id } = params;
   const router = useRouter();
 
-  const [course, setCourse] = useState<Course>(null);
+  const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classes, setClasses] = useState([]);
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [newCourse, setNewCourse] = useState<Course>(null);
+  const [newCourse, setNewCourse] = useState<Course | undefined>(undefined);
 
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -218,7 +222,7 @@ const SingleCoursePage = ({ params }) => {
       <Divider sx={{ mb: 3 }} />
       <Typography variant="body1" mb={2}>Professores inscritos</Typography>
 
-      {teachers?.map((teacher) => (
+      {teachers.length !=0 ? teachers?.map((teacher) => (
         <Box key={teacher.id} display="flex" gap={2} mb={2}>
           <TextField label="Nome" value={teacher.name ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 2 }} />
           <TextField label="CPF" value={teacher.cpf ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 1 }} />
@@ -232,7 +236,10 @@ const SingleCoursePage = ({ params }) => {
             sx={{ flex: 3 }}
           />
         </Box>
-      ))}
+
+      )) : (
+        <Typography variant="body2" color="textSecondary">Nenhum professor inscrito neste curso.</Typography>
+      )}
 
       {/* <Box sx={{ display: "none" }}>
         <CourseReport ref={printRef} course={course} teachers={teachers} />

@@ -69,6 +69,35 @@ export default {
     }
   },
 
+    async getAllAvailableClasses(req, res) {
+    try {
+      const classes = await prisma.class.findMany({
+        where:{
+          endDate: {
+            gte: new Date(), // Filtra classes que ainda não terminaram
+          }
+        },
+        include: {
+          course: {
+            select: {
+              name: true,
+            },
+          },
+          teacher: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      return res.status(200).json(classes);
+    } catch (error) {
+      console.error("Erro ao buscar classes:", error);
+      return res.status(500).json({ error: "Erro interno ao buscar classes" });
+    }
+  },
+
   async getAllClassesByTeacherId(req, res) {
     try {
       const { teacher_id } = req.params;

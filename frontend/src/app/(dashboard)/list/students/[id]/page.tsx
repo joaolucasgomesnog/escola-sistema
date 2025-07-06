@@ -164,19 +164,21 @@ const SingleStudentPage = ({ params }: Props) => {
         </Box>
       )
     },
-{
-  field: "dueDate",
-  headerName: "Vencimento",
-  flex: 0.5,
-  renderCell: (params) => {
-    const dueDate = params.row?.dueDate;
-    return (
-      <Typography variant="body2">
-        {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
-      </Typography>
-    );
-  },
-},
+    {
+      field: "dueDate",
+      headerName: "Vencimento",
+      flex: 0.5,
+      renderCell: (params) => {
+        const dueDate = params.row?.dueDate;
+        return (
+          <Box display="flex" alignItems="center" height="100%">
+          <Typography variant="body2">
+            {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
+          </Typography>
+          </Box>
+        );
+      },
+    },
 
 
     {
@@ -273,7 +275,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
   }
 
-  const fetchClasses = async () => {
+  const fetchAvailableClasses = async () => {
     setSelectVisible(true)
     const token = Cookies.get("auth_token");
     if (!token) {
@@ -282,13 +284,13 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/class/getall`, {
+      const response = await fetch(`http://localhost:3030/class/getallavailable`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) throw new Error("Erro ao buscar mensalidades do aluno.");
+      if (!response.ok) throw new Error("Erro ao buscar classes do aluno.");
 
       const data = await response.json();
       setClasses(data)
@@ -513,7 +515,7 @@ const SingleStudentPage = ({ params }: Props) => {
             </Button>
           ) : (
 
-            <Button color="primary" variant="contained" className="h-fit" onClick={fetchClasses}>
+            <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
               <Add fontSize="medium" />
             </Button>
           )
@@ -546,94 +548,94 @@ const SingleStudentPage = ({ params }: Props) => {
 
       </Box>
       {
-selectedClasses?.map((classe) => {
-  const horario = classe.horario
-    ? Object.entries(classe.horario)
-        .filter(([_, value]) => value !== null)
-        .map(([day, value]) => {
-          const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
-          const dayMap: Record<string, string> = {
-            sunday: "Domingo",
-            monday: "Segunda",
-            tuesday: "Terça",
-            wednesday: "Quarta",
-            thursday: "Quinta",
-            friday: "Sexta",
-            saturday: "Sábado"
-          };
-          return `${dayMap[day] ?? day}: ${hora}`;
-        })
-        .join(" | ")
-    : "Sem horário definido";
+        selectedClasses?.map((classe) => {
+          const horario = classe.horario
+            ? Object.entries(classe.horario)
+              .filter(([_, value]) => value !== null)
+              .map(([day, value]) => {
+                const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
+                const dayMap: Record<string, string> = {
+                  sunday: "Domingo",
+                  monday: "Segunda",
+                  tuesday: "Terça",
+                  wednesday: "Quarta",
+                  thursday: "Quinta",
+                  friday: "Sexta",
+                  saturday: "Sábado"
+                };
+                return `${dayMap[day] ?? day}: ${hora}`;
+              })
+              .join(" | ")
+            : "Sem horário definido";
 
-  return (
-    <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
-      <TextField label="Curso" value={classe.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-      <TextField label="Turma" value={classe.course.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-      <TextField label="Professor da turma" value={classe.teacher.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-      <TextField label="Horários" value={horario} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 2 }}
-      />
-    </Box>
-  );
-})
+          return (
+            <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
+              <TextField label="Curso" value={classe.name ?? ""} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 1 }}
+              />
+              <TextField label="Turma" value={classe.course.name ?? ""} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 1 }}
+              />
+              <TextField label="Professor da turma" value={classe.teacher.name ?? ""} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 1 }}
+              />
+              <TextField label="Horários" value={horario} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 2 }}
+              />
+            </Box>
+          );
+        })
 
       }
 
 
-{student?.classLinks.map(({ class: turma }) => {
-  // Montar uma string com os dias e horários
-  const horario = turma.horario
-    ? Object.entries(turma.horario)
-        .filter(([_, value]) => value !== null)
-        .map(([day, value]) => {
-          const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
-          // Traduzir o nome do dia
-          const dayMap: Record<string, string> = {
-            sunday: "Domingo",
-            monday: "Segunda",
-            tuesday: "Terça",
-            wednesday: "Quarta",
-            thursday: "Quinta",
-            friday: "Sexta",
-            saturday: "Sábado"
-          };
-          return `${dayMap[day] ?? day}: ${hora}`;
-        })
-        .join(" | ")
-    : "Sem horário definido";
+      {student?.classLinks.map(({ class: turma }) => {
+        // Montar uma string com os dias e horários
+        const horario = turma.horario
+          ? Object.entries(turma.horario)
+            .filter(([_, value]) => value !== null)
+            .map(([day, value]) => {
+              const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
+              // Traduzir o nome do dia
+              const dayMap: Record<string, string> = {
+                sunday: "Domingo",
+                monday: "Segunda",
+                tuesday: "Terça",
+                wednesday: "Quarta",
+                thursday: "Quinta",
+                friday: "Sexta",
+                saturday: "Sábado"
+              };
+              return `${dayMap[day] ?? day}: ${hora}`;
+            })
+            .join(" | ")
+          : "Sem horário definido";
 
-  return (
-    <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
-      <TextField label="Curso" value={turma.course.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-      <TextField label="Turma" value={turma.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-      <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-      <TextField label="Horários" value={horario} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 2 }}
-      />
-    </Box>
-  );
-})}
+        return (
+          <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+            <TextField label="Curso" value={turma.course.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Turma" value={turma.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Horários" value={horario} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 2 }}
+            />
+          </Box>
+        );
+      })}
 
 
       <Divider sx={{ my: 3 }} />
