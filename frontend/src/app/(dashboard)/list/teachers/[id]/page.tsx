@@ -42,6 +42,7 @@ const SingleTeacherPage = ({ params }: Props) => {
   // const [fees, setFees] = useState([]);
 
   type Class = {
+    turno: string;
     code: string;
     name: string;
     course: { name: string };
@@ -57,46 +58,46 @@ const SingleTeacherPage = ({ params }: Props) => {
 
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
 
-  
-  
-    const printRef = useRef<HTMLDivElement>(null);
-  
-    const handlePrint = useReactToPrint({
-      contentRef: printRef,
-      documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
-      onAfterPrint: () => {
-        console.log("Printing completed");
-      },
-    });
 
+
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
+    onAfterPrint: () => {
+      console.log("Printing completed");
+    },
+  });
+
+  const fetchTeacher = async () => {
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3030/teacher/get/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+
+        },
+      });
+
+      if (!res.ok) throw new Error("Erro ao buscar professor");
+
+      const data = await res.json();
+      console.log("Dados do professor:", data);
+      console.log(data.Class)
+      setTeacher(data);
+    } catch (err) {
+      console.error("Erro:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchTeacher = async () => {
-      const token = Cookies.get("auth_token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      try {
-        const res = await fetch(`http://localhost:3030/teacher/get/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-
-          },
-        });
-
-        if (!res.ok) throw new Error("Erro ao buscar professor");
-
-        const data = await res.json();
-        console.log("Dados do professor:", data);
-        console.log(data.Class)
-        setTeacher(data);
-      } catch (err) {
-        console.error("Erro:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchTeacher();
     // fetchTeacherFees(Number(id));
@@ -256,6 +257,7 @@ const SingleTeacherPage = ({ params }: Props) => {
       if (!response.ok) throw new Error("Erro ao confirmar turmas.");
 
       const data = await response.json();
+      fetchTeacher()
       console.log("retorno:", data);
       // setClasses(data)
       window.alert("matrícula efetuada com sucesso")
@@ -538,31 +540,51 @@ const SingleTeacherPage = ({ params }: Props) => {
         </FormControl>
 
       </Box>
-{Array.isArray(teacher?.Class) && teacher.Class.map((turma) => (
-  <Box key={turma?.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
-    <TextField label="Código Turma" value={turma?.code ?? ""} size="small"
-      InputProps={{ readOnly: true }}
-      sx={{ flex: 1 }}
-    />
-      <TextField label="Nome Turma" value={turma?.name ?? ""} size="small"
-        InputProps={{ readOnly: true }}
-        sx={{ flex: 1 }}
-      />
-    <TextField label="Curso" value={turma?.course?.name ?? ""} size="small"
-      InputProps={{ readOnly: true }}
-      sx={{ flex: 1 }}
-    />
-    <TextField label="Turno" value={turma?.turno ?? ""} size="small"
-      InputProps={{ readOnly: true }}
-      sx={{ flex: 1 }}
-    />
-  </Box>
-))}
+      {Array.isArray(teacher?.Class) && teacher.Class.map((turma) => (
+        <Box key={turma?.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+          <TextField label="Código Turma" value={turma?.code ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Nome Turma" value={turma?.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Curso" value={turma?.course?.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Turno" value={turma?.turno ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+        </Box>
+      ))}
+      {selectedClasses.map((turma) => (
+        <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+          <TextField label="Código Turma" value={turma.code ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Nome Turma" value={turma.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Curso" value={turma.course?.name ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          <TextField label="Turno" value={turma?.turno ?? ""} size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 1 }}
+          />
+          {/* Adicione outros campos se necessário */}
+        </Box>
+      ))}
 
-
-<Box sx={{ display: "none" }}>
+      <Box sx={{ display: "none" }}>
         <TeacherReport ref={printRef} teacher={teacher} />
-      </Box> 
+      </Box>
 
     </Box>
   );
