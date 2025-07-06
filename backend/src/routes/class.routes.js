@@ -8,6 +8,7 @@ const classeRoutes = Router();
 
 classeRoutes.post('/create', autenticateToken, authorizeRoles('admin'), classe.createClass)
 classeRoutes.get('/get/:code', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getClassByCode);
+classeRoutes.get('/get-by-id/:id', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getClassById);
 classeRoutes.get('/getall', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getAllClasses);
 classeRoutes.get('/getall/teacher/:teacher_id', autenticateToken, authorizeRoles('admin', 'teacher'), classe.getAllClassesByTeacherId);
 classeRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), classe.updateClass);

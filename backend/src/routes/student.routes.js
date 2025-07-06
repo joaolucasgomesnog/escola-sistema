@@ -12,6 +12,7 @@ studentRoutes.post('/create-class-student', autenticateToken, authorizeRoles('ad
 studentRoutes.get('/get/:id', autenticateToken, authorizeRoles('admin', 'teacher'), student.getStudentById);
 studentRoutes.get('/getall', autenticateToken, authorizeRoles('admin', 'teacher'), student.getAllStudents);
 studentRoutes.get('/getall-by-course/:courseId', autenticateToken, authorizeRoles('admin', 'teacher'), student.getAllStudentsByCourseId);
+studentRoutes.get('/getall-by-class/:classId', autenticateToken, authorizeRoles('admin', 'teacher'), student.getAllStudentsByClassId);
 studentRoutes.get('/search', autenticateToken, authorizeRoles('admin', 'teacher'), student.searchStudents);
 studentRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), student.updateStudent);
 studentRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), student.deleteStudent);
