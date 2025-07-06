@@ -91,7 +91,16 @@ const ResultListPage = () => {
   ];
 
   return (
-    <Box p={3} bgcolor="white" borderRadius={2} m={2} >
+        <Box
+      p={3}
+      bgcolor="white"
+      borderRadius={2}
+      m={2}
+      sx={{
+        height: 'calc(100vh - 64px)', // altura total da viewport menos o header, ajuste se necessário
+        overflowY: 'auto'
+      }}
+    >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
           Notas

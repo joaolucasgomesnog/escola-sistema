@@ -27,8 +27,8 @@ const menuItems = [
       {
         icon: <HomeOutlined fontSize="small" color="action" />,
         label: "Home",
-        href: "/",
-        visible: ["admin", "teacher", "student", "parent"],
+        href: `/admin`,
+        visible: ["admin"],
       },
       {
         icon: <SchoolOutlined fontSize="small" color="action" />,
