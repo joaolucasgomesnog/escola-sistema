@@ -74,35 +74,96 @@ export default {
     }
   },
 
-  async createClassStudent(req, res) {
-    try {
-      const { studentId, selectedClasses } = req.body;
+async createClassStudent(req, res) {
+  try {
+    const { studentId, selectedClasses } = req.body;
 
-      console.log(req.body);
+    const studentExists = await prisma.student.findUnique({
+      where: { id: Number(studentId) },
+    });
 
-      const studentExists = await prisma.student.findUnique({
-        where: { id: Number(studentId) },
+    if (!studentExists) {
+      return res.status(409).json({ error: "estudante nao cadastrado" });
+    }
+
+    // Cria os vínculos student <-> class
+    const studentClasses = selectedClasses.map((classe) => ({
+      classId: classe.id,
+      studentId: Number(studentId),
+    }));
+
+    await prisma.class_Student.createMany({
+      data: studentClasses,
+    });
+
+    // Para cada turma, cria os fees
+    for (const classe of selectedClasses) {
+      // Buscar informações da turma para pegar o courseId
+      const classData = await prisma.class.findUnique({
+        where: { id: classe.id },
+        include: { course: true },
       });
 
-      if (!studentExists) {
-        return res.status(409).json({ error: "estudante nao cadastrado" });
+      if (!classData || !classData.course) {
+        console.log(`Curso não encontrado para a turma ${classe.id}`);
+        continue;
       }
 
-      const studentClasses = selectedClasses.map((classe) => {
-        return { classId: classe.id, studentId: Number(studentId) };
+      const registrationFeeValue = classData.course.registrationFeeValue ?? 0;
+      const monthlyFeeValue = classData.course.MonthlyFeeValue ?? 0;
+
+      const today = new Date();
+
+      // Cria fee de matrícula (vencimento hoje)
+      await prisma.fee.create({
+        data: {
+          studentId: Number(studentId),
+          price: registrationFeeValue,
+          dueDate: today,
+          description: `Matrícula - ${classData.name}`,
+        },
       });
 
-      const list = await prisma.class_Student.createMany({
-        data: studentClasses,
-      });
+for (let i = 1; i <= 5; i++) {
+  // Mês base: mês atual + i
+  const dueDate = new Date(today);
+  const targetMonth = dueDate.getMonth() + i;
+  const targetYear = dueDate.getFullYear();
 
-      return res
-        .status(200)
-        .json({ message: "Matrícula efetuada com sucesso" });
-    } catch (error) {
-      console.log(error);
+  // Dia base: mesmo dia do mês da matrícula
+  let day = today.getDate();
+
+  // Tentar criar a data desejada
+  const tempDate = new Date(targetYear, targetMonth, day);
+
+  // Se o mês "estourar" (por exemplo, 31 em fevereiro), o JS automaticamente passa para o próximo mês.
+  // Então, precisamos ajustar:
+  if (tempDate.getMonth() !== (targetMonth % 12)) {
+    // Se o mês resultante for diferente, significa que o dia não existia.
+    // Vamos colocar para o último dia válido do mês desejado.
+    // Usar 0 no dia significa "último dia do mês anterior".
+    tempDate.setDate(0);
+  }
+
+  await prisma.fee.create({
+    data: {
+      studentId: Number(studentId),
+      price: monthlyFeeValue,
+      dueDate: tempDate,
+      description: `Mensalidade ${i} - ${classData.name}`,
+    },
+  });
+}
+
     }
-  },
+
+    return res.status(200).json({ message: "Matrícula efetuada com sucesso e fees criados" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Erro ao matricular estudante" });
+  }
+},
+
 
   // Buscar todos os students
   async getAllStudents(req, res) {

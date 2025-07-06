@@ -18,20 +18,15 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
     return (
         <Report ref={ref} title={`Ficha do Aluno`}>
             <Box display="flex" justifyContent="space-between" mb={2}>
-
-
                 {/* Dados Pessoais */}
                 <Box>
                     <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
                         Dados Pessoais
                     </Typography>
-                    <Typography variant="body2" style={{ fontSize: 10 }}>Nome:         {student.name}
-                    </Typography>
-
+                    <Typography variant="body2" style={{ fontSize: 10 }}>Nome: {student.name}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>CPF: {formatCpf(student.cpf)}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Email: {student.email}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Telefone: {formatPhone(student.phone)}</Typography>
-
                 </Box>
                 <Avatar src={student.picture} sx={{ width: 100, height: 100 }} style={{ borderRadius: 0 }} />
             </Box>
@@ -41,26 +36,13 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
                     Endereço
                 </Typography>
-                <Typography variant="body2" style={{ fontSize: 10 }}>
-                    Rua: {student.address.street}
-                </Typography>
-                <Typography variant="body2" style={{ fontSize: 10 }}>
-                    Número: {student.address.number}
-                </Typography>
-                <Typography variant="body2" style={{ fontSize: 10 }}>
-                    Bairro: {student.address.neighborhood}
-                </Typography>
-                <Typography variant="body2" style={{ fontSize: 10 }}>
-                    Cidade: {student.address.city}
-                </Typography>
-                <Typography variant="body2" style={{ fontSize: 10 }}>
-                    Estado: {student.address.state}
-                </Typography>
-                <Typography variant="body2" style={{ fontSize: 10 }}>
-                    CEP: {student.address.postalCode}
-                </Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>Rua: {student.address.street}</Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>Número: {student.address.number}</Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>Bairro: {student.address.neighborhood}</Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>Cidade: {student.address.city}</Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>Estado: {student.address.state}</Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>CEP: {student.address.postalCode}</Typography>
             </Box>
-
 
             {/* Matriculas */}
             <Box mt={2}>
@@ -68,17 +50,40 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                     Matriculas
                 </Typography>
 
-                {student.classLinks.length ?
+                {student.classLinks.length ? (
+                    student.classLinks.map(({ class: turma }) => {
+                        // Montar string de horários
+                        const horario = turma.horario
+                            ? Object.entries(turma.horario)
+                                  .filter(([_, value]) => value !== null)
+                                  .map(([day, value]) => {
+                                      const hora = dayjs(value).format("HH:mm");
+                                      const dayMap: Record<string, string> = {
+                                          sunday: "Domingo",
+                                          monday: "Segunda",
+                                          tuesday: "Terça",
+                                          wednesday: "Quarta",
+                                          thursday: "Quinta",
+                                          friday: "Sexta",
+                                          saturday: "Sábado",
+                                      };
+                                      return `${dayMap[day] ?? day}: ${hora}`;
+                                  })
+                                  .join(" | ")
+                            : "Sem horário definido";
 
-                    student.classLinks?.map(({ class: turma }) => (
-                        <Box key={turma.code} mb={1}>
-                            <Typography variant="body2" style={{ fontSize: 10 }}>Curso: {turma.course.name}</Typography>
-                            <Typography variant="body2" style={{ fontSize: 10 }}>Turma: {turma.name}</Typography>
-                            <Typography variant="body2" style={{ fontSize: 10 }}>Professor: {turma.teacher.name}</Typography>
-                        </Box>
-                    )) :
+                        return (
+                            <Box key={turma.code} mb={1}>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Curso: {turma.course.name}</Typography>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Turma: {turma.name}</Typography>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Professor: {turma.teacher.name}</Typography>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Horários: {horario}</Typography>
+                            </Box>
+                        );
+                    })
+                ) : (
                     <Typography variant="body2" style={{ fontSize: 10 }}>Nenhuma matrícula encontrada.</Typography>
-                }
+                )}
             </Box>
 
             {/* Mensalidades */}
