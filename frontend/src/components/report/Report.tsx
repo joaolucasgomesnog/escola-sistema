@@ -8,31 +8,40 @@ type ReportProps = {
   title?: string;
 };
 
-const Report = React.forwardRef<HTMLDivElement, ReportProps>(({ children, title }, ref: ForwardedRef<HTMLDivElement>) => {
+const Report = React.forwardRef<HTMLDivElement, ReportProps>(({ children, title }, ref) => {
+  const [user, setUser] = useState<any>(null);
 
-const [user, setUser] = useState<any>(null);
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString("pt-BR");
+  const formattedTime = now.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-const now = new Date()
-const formattedDate = now.toLocaleDateString("pt-BR"); // → "26/06/2025"
-const formattedTime = now.toLocaleTimeString("pt-BR", {
-  hour: "2-digit",
-  minute: "2-digit",
-}); // → "14:22"
-
-useEffect(() => {
-  const fetchedUser = getUserFromToken();
-  setUser(fetchedUser);
-}, []);
+  useEffect(() => {
+    const fetchedUser = getUserFromToken();
+    setUser(fetchedUser);
+  }, []);
 
   return (
-    <div ref={ref} className=" mx-auto w-[210mm] h-[297mm] px-4 py-8 ">
+    <div
+      ref={ref}
+      className="mx-0 w-[210mm] px-0 py-0"
+    >
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+          }
+        }
+      `}</style>
       <div className="flex items-center gap-8">
-        <Image src='/logo.png' width={150} height={0} alt="Logo" />
+        <Image src="/logo.png" width={150} height={0} alt="Logo" />
         <div className="text-[7px]">
           <p>CNPJ: 35.030.958/0001-00</p>
           <p>ENDEREÇO: Rua Enock Ignácio de Oliveira, 949 - Nossa Senhora da Penha - Serra Talhada - PE</p>
           <div className="flex justify-between">
-            <p>TELEFONE:  (87) 9 9983-1241  </p>
+            <p>TELEFONE: (87) 9 9983-1241</p>
             <p>EMAIL: escola@escola.COM</p>
           </div>
         </div>
@@ -49,5 +58,6 @@ useEffect(() => {
     </div>
   );
 });
+
 
 export default Report;

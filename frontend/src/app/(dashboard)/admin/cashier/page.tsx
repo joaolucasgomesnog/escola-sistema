@@ -252,6 +252,12 @@ const CashierPage = () => {
   const [payments, setPayments] = useState<any[]>([]);
   const [filterKey, setFilterKey] = useState(0);
 
+  // Add pagination model state for DataGrid
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
+
   useEffect(() => {
     fetchAdminList();
   }, []);
@@ -790,24 +796,29 @@ const CashierPage = () => {
           m="auto"
           mt={10}
           maxWidth={700}
+          maxHeight={"80vh"}
+          overflow={"auto"}
           borderRadius={2}
           boxShadow={10}
         >
           <Typography variant="h6" mb={2}>
             Mensalidades em aberto
           </Typography>
-          <DataGrid
-            autoHeight
-            rows={studentFees}
-            columns={feeColumns}
-            checkboxSelection
-            disableMultipleRowSelection
-            onRowClick={(params) => {
-              setSelectedFeeId(params.row.id);
-              setPaymentDescription(params.row.description);
-            }}
+<DataGrid
+  autoHeight
+  rows={studentFees}
+  columns={feeColumns}
+  checkboxSelection
+  pageSizeOptions={[5, 10, 20]}
+  paginationModel={paginationModel}
+  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+  disableMultipleRowSelection
+  onRowClick={(params) => {
+    setSelectedFeeId(params.row.id);
+    setPaymentDescription(params.row.description);
+  }}
+/>
 
-          />
           <Box mt={2}>
             <Typography variant="subtitle1" gutterBottom>
               Registrar Pagamento

@@ -17,8 +17,9 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
 
     return (
         <Report ref={ref} title={`Ficha do Aluno`}>
-            <Box display="flex" justifyContent="space-between" mb={2}>
+            <Box display="flex" gap={2} mb={2}>
                 {/* Dados Pessoais */}
+                <Avatar src={student.picture} sx={{ width: 100, height: 100 }} style={{ borderRadius: 0 }} />
                 <Box>
                     <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
                         Dados Pessoais
@@ -28,9 +29,8 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                     <Typography variant="body2" style={{ fontSize: 10 }}>Email: {student.email}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Telefone: {formatPhone(student.phone)}</Typography>
                 </Box>
-                <Avatar src={student.picture} sx={{ width: 100, height: 100 }} style={{ borderRadius: 0 }} />
             </Box>
-
+            <hr />
             {/* Endereço */}
             <Box mt={2}>
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
@@ -43,7 +43,7 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                 <Typography variant="body2" style={{ fontSize: 10 }}>Estado: {student.address.state}</Typography>
                 <Typography variant="body2" style={{ fontSize: 10 }}>CEP: {student.address.postalCode}</Typography>
             </Box>
-
+            <hr />
             {/* Matriculas */}
             <Box mt={2}>
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
@@ -55,21 +55,21 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                         // Montar string de horários
                         const horario = turma.horario
                             ? Object.entries(turma.horario)
-                                  .filter(([_, value]) => value !== null)
-                                  .map(([day, value]) => {
-                                      const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
-                                      const dayMap: Record<string, string> = {
-                                          sunday: "Domingo",
-                                          monday: "Segunda",
-                                          tuesday: "Terça",
-                                          wednesday: "Quarta",
-                                          thursday: "Quinta",
-                                          friday: "Sexta",
-                                          saturday: "Sábado",
-                                      };
-                                      return `${dayMap[day] ?? day}: ${hora}`;
-                                  })
-                                  .join(" | ")
+                                .filter(([_, value]) => value !== null)
+                                .map(([day, value]) => {
+                                    const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
+                                    const dayMap: Record<string, string> = {
+                                        sunday: "Domingo",
+                                        monday: "Segunda",
+                                        tuesday: "Terça",
+                                        wednesday: "Quarta",
+                                        thursday: "Quinta",
+                                        friday: "Sexta",
+                                        saturday: "Sábado",
+                                    };
+                                    return `${dayMap[day] ?? day}: ${hora}`;
+                                })
+                                .join(" | ")
                             : "Sem horário definido";
 
                         return (
@@ -85,7 +85,7 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                     <Typography variant="body2" style={{ fontSize: 10 }}>Nenhuma matrícula encontrada.</Typography>
                 )}
             </Box>
-
+            <hr />
             {/* Mensalidades */}
             <Box mt={3}>
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
