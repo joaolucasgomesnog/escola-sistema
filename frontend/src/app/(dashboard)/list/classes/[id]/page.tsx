@@ -16,6 +16,22 @@ import PrintIcon from '@mui/icons-material/Print';
 import { Class } from "@/interfaces/class";
 import { Student } from "../../../../../interfaces/student";
 import { DataGrid } from "@mui/x-data-grid";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+dayjs.extend(utc);
+
+const weekdays = [
+  { key: 'sunday', label: 'Domingo' },
+  { key: 'monday', label: 'Segunda-feira' },
+  { key: 'tuesday', label: 'Terça-feira' },
+  { key: 'wednesday', label: 'Quarta-feira' },
+  { key: 'thursday', label: 'Quinta-feira' },
+  { key: 'friday', label: 'Sexta-feira' },
+  { key: 'saturday', label: 'Sábado' },
+];
 
 const SingleClassPage = ({ params }) => {
   const { id } = params;
@@ -161,17 +177,6 @@ const SingleClassPage = ({ params }) => {
           InputProps={{ readOnly: !isEditing }}
           sx={{ flex: 2 }}
         />
-      </Box>
-
-      <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
-        <TextField
-          label="Horário"
-          size="small"
-          value={isEditing ? newTurma?.horario ?? "" : turma.horario ?? ""}
-          onChange={(e) => isEditing && setNewTurma({ ...newTurma, horario: e.target.value })}
-          InputProps={{ readOnly: !isEditing }}
-          sx={{ flex: 2 }}
-        />
         <TextField
           label="Data de início"
           size="small"
@@ -194,6 +199,53 @@ const SingleClassPage = ({ params }) => {
           inputProps={{ placeholder: "" }}    // Remove o mm/dd/yyyy
           sx={{ flex: 2 }}
         />
+      </Box>
+        <Typography variant="body1">Horarios</Typography>
+
+
+      <Box display="flex" flexWrap="wrap" flexDirection='column' gap={2} my={4}>
+
+        {Object.entries(turma?.horario ?? {})
+          .filter(([_, timeValue]) => timeValue !== null)
+          .map(([dayKey, timeValue]) => {
+            const label = weekdays.find((d) => d.key === dayKey)?.label;
+
+            return (
+              <Box key={dayKey} display="flex" gap={2} mb={1}>
+                <TextField
+                  label="Dia"
+                  value={label ?? ""}
+                  size="small"
+                  InputProps={{ readOnly: true }}
+                  sx={{ width: 200 }}
+                  
+                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    label="Hora"
+                    value={dayjs(timeValue)}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const utcIso = dayjs(newValue).utc().toISOString();
+                        setSchedule((prev) => ({
+                          ...prev,
+                          [dayKey]: utcIso,
+                        }));
+                      }
+                    }}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Box>
+            );
+          })}
+
+
+
 
 
       </Box>
