@@ -82,7 +82,7 @@ export default {
 
       const { id } = req.params;      
 
-      const { name, code, picture, monthlyFeeValue, registrationFeeValue } = req.body;
+      const { name, code, picture, MonthlyFeeValue, registrationFeeValue } = req.body;
 
       console.log(req.body)
 
@@ -100,7 +100,7 @@ export default {
           name, 
           code, 
           picture,
-          MonthlyFeeValue: monthlyFeeValue,
+          MonthlyFeeValue,
           registrationFeeValue,
         }
       });

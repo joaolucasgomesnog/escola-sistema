@@ -22,7 +22,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import Add from '@mui/icons-material/Add';
 import { useReactToPrint } from "react-to-print";
 import { Course } from "../../../../../interfaces/course";
-import { Student } from "../../../../../interfaces/student";
+import { Teacher } from "../../../../../interfaces/teacher";
 // import CourseReport from "@/components/report/CourseReport";
 
 const SingleCoursePage = ({ params }) => {
@@ -31,7 +31,7 @@ const SingleCoursePage = ({ params }) => {
 
   const [course, setCourse] = useState<Course>(null);
   const [loading, setLoading] = useState(true);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classes, setClasses] = useState([]);
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -63,16 +63,16 @@ const SingleCoursePage = ({ params }) => {
       }
     };
 
-    const fetchStudents = async () => {
+    const fetchTeachers = async () => {
       const token = Cookies.get("auth_token");
       if (!token) return router.push("/login");
       try {
-        const res = await fetch(`http://localhost:3030/student/getall-by-course/${id}`, {
+        const res = await fetch(`http://localhost:3030/teacher/getall-by-course/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Erro ao buscar alunos");
         const data = await res.json();
-        setStudents(data);
+        setTeachers(data);
         console.log(data)
       } catch (err) {
         console.error(err);
@@ -80,7 +80,7 @@ const SingleCoursePage = ({ params }) => {
     };
 
     fetchCourse();
-    fetchStudents();
+    fetchTeachers();
   }, [id]);
 
   const formatValue = (value: string) => {
@@ -108,7 +108,7 @@ const SingleCoursePage = ({ params }) => {
         body: JSON.stringify({
           ...newCourse,
           registrationFeeValue: Number(newCourse.registrationFeeValue.replace(/[^0-9,]/g, '').replace(',', '.')),
-          monthlyFeeValue: Number(newCourse.monthlyFeeValue.replace(/[^0-9,]/g, '').replace(',', '.'))
+          MonthlyFeeValue: Number(newCourse.MonthlyFeeValue.replace(/[^0-9,]/g, '').replace(',', '.'))
         }),
       });
       const data = await res.json();
@@ -148,7 +148,7 @@ const SingleCoursePage = ({ params }) => {
                 registrationFeeValue: formatValue(
                   (course.registrationFeeValue ?? 0).toString()
                 ),
-                monthlyFeeValue: formatValue(
+                MonthlyFeeValue: formatValue(
                   (course.MonthlyFeeValue ?? 0).toString()
                 ),
               });
@@ -180,7 +180,11 @@ const SingleCoursePage = ({ params }) => {
         <TextField
           label="Taxa de matrícula"
           size="small"
-          value={isEditing ? newCourse?.registrationFeeValue ?? "" : course.registrationFeeValue ?? ""}
+          value={
+            isEditing
+              ? newCourse?.registrationFeeValue ?? ""
+              : formatValue((course.registrationFeeValue ?? 0).toString())
+          }
           InputProps={{ readOnly: !isEditing }}
           inputProps={{ maxLength: 14 }}
           onChange={(e) =>
@@ -193,11 +197,15 @@ const SingleCoursePage = ({ params }) => {
         <TextField
           label="Mensalidade"
           size="small"
-          value={isEditing ? newCourse?.monthlyFeeValue ?? "" : course.MonthlyFeeValue ?? ""}
+          value={
+            isEditing
+              ? newCourse?.MonthlyFeeValue ?? ""
+              : formatValue((course.MonthlyFeeValue ?? 0).toString())
+          }
           InputProps={{ readOnly: !isEditing }}
           inputProps={{ maxLength: 14 }}
           onChange={(e) =>
-            isEditing && setNewCourse({ ...newCourse, monthlyFeeValue: formatValue(e.target.value) })
+            isEditing && setNewCourse({ ...newCourse, MonthlyFeeValue: formatValue(e.target.value) })
           }
           sx={{ flex: 2 }}
 
@@ -208,16 +216,26 @@ const SingleCoursePage = ({ params }) => {
 
 
       <Divider sx={{ mb: 3 }} />
-      <Typography variant="body1" mb={2}>Alunos matriculados</Typography>
-      {students.map((student) => (
-        <Box key={student.id} display="flex" gap={2} mb={2}>
-          <TextField label="Nome" value={student.name ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 2 }} />
-          <TextField label="CPF" value={student.cpf ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 1 }} />
+      <Typography variant="body1" mb={2}>Professores inscritos</Typography>
+
+      {teachers?.map((teacher) => (
+        <Box key={teacher.id} display="flex" gap={2} mb={2}>
+          <TextField label="Nome" value={teacher.name ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 2 }} />
+          <TextField label="CPF" value={teacher.cpf ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 1 }} />
+          <TextField
+            label="Turmas"
+            value={
+              teacher.Class?.map((turma) => turma.name).join(', ') || "Sem turmas"
+            }
+            size="small"
+            InputProps={{ readOnly: true }}
+            sx={{ flex: 3 }}
+          />
         </Box>
       ))}
 
       {/* <Box sx={{ display: "none" }}>
-        <CourseReport ref={printRef} course={course} students={students} />
+        <CourseReport ref={printRef} course={course} teachers={teachers} />
       </Box> */}
     </Box>
   );

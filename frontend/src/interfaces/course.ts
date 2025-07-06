@@ -4,7 +4,7 @@ interface Course{
   code: string
   picture: string
   registrationFeeValue: float
-  monthlyFeeValue: float
+  MonthlyFeeValue: float
 }
 
 export {Course}
