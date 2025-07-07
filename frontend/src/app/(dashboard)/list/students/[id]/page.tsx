@@ -284,7 +284,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/class/getallavailable`, {
+      const response = await fetch(`http://localhost:3030/class/getallavailable/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

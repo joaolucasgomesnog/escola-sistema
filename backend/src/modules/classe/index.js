@@ -69,13 +69,29 @@ export default {
     }
   },
 
-    async getAllAvailableClasses(req, res) {
+  async getAllAvailableClasses(req, res) {
+    const { student_id } = req.params;
+
+      const studentId = Number(student_id);
+  if (isNaN(studentId)) {
+    return res.status(400).json({ error: "ID do aluno inválido" });
+  }
     try {
       const classes = await prisma.class.findMany({
-        where:{
-          endDate: {
-            gte: new Date(), // Filtra classes que ainda não terminaram
+        where: {
+          AND: [{
+            endDate: {
+              gte: new Date(), // Filtra classes que ainda não terminaram
+            },
+          }, {
+            students: {
+              none: {
+                id: studentId, // Filtra classes que o aluno ainda não está matriculado
+              },
+            },
+
           }
+          ]
         },
         include: {
           course: {
@@ -232,7 +248,7 @@ export default {
       return res
         .status(200)
         .json({ message: "Matrícula efetuada com sucesso" });
-    } catch (error) {}
+    } catch (error) { }
   },
 
   // Deletar class
