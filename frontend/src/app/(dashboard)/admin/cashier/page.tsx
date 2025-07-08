@@ -22,6 +22,8 @@ import { getUserFromToken } from "@/lib/getUserFromToken";
 import PrintIcon from '@mui/icons-material/Print';
 import Report from "@/components/report/Report";
 import { useReactToPrint } from 'react-to-print'
+import Recipe from "@/components/recipe/Recipe";
+import { cp } from "fs";
 
 type Fee = {
   id: number;
@@ -252,6 +254,24 @@ const CashierPage = () => {
   const [payments, setPayments] = useState<any[]>([]);
   const [filterKey, setFilterKey] = useState(0);
 
+
+  const [lastPayment, setLastPayment] = useState<any | null>(null);
+  const [lastStudent, setLastStudent] = useState<Student | null>(null);
+  const [lastFee, setLastFee] = useState<Fee | null>(null);
+
+
+  const printRecipeRef = useRef<HTMLDivElement>(null);
+
+  const handlePrintRecipe = useReactToPrint({
+    contentRef: printRecipeRef,
+    documentTitle: `Comprovante - ${new Date().toLocaleDateString()}`,
+    onAfterPrint: () => {
+      console.log("Printing completed");
+      setReportFilters(null);
+      setFilterKey(prev => prev + 1); // Força recriação do modal
+    },
+  });
+
   // Add pagination model state for DataGrid
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
@@ -342,6 +362,7 @@ const CashierPage = () => {
       const formattedStudents: Student[] = data.map((s: any) => ({
         id: s.id,
         studentId: String(s.id),
+        cpf: s.cpf || "",
         name: s.name,
         email: s.email || "",
         photo: s.picture || "/default-avatar.png",
@@ -409,10 +430,6 @@ const CashierPage = () => {
     const token = Cookies.get("auth_token");
     const user = getUserFromToken();
 
-    if (user) {
-      console.log("ID do usuário:", user.id);
-      console.log("Função (role):", user.role);
-    }
     if (!token || !user) {
       router.push("/sign-in");
       return;
@@ -440,10 +457,27 @@ const CashierPage = () => {
         throw new Error(errorData.error || "Erro ao registrar pagamento");
       }
 
+      const paymentData = await response.json();
+
+      // Buscar dados atualizados do estudante e fee
+      const fee = studentFees.find((f) => f.id === selectedFeeId);
+      const student = students.find((s) => s.id === selectedStudentId);
+
+      setLastPayment(paymentData);
+      setLastFee(fee || null);
+      setLastStudent(student || null);
+
+      // Atualizar lista de mensalidades
       await fetchStudentFees(selectedStudentId);
+
       setPaymentDescription('');
       setSelectedFeeId(null);
       alert("Pagamento registrado com sucesso!");
+
+      // Dispara a impressão do comprovante
+      setTimeout(() => {
+        handlePrintRecipe();
+      }, 500);
     } catch (err) {
       console.error(err);
       alert(err instanceof Error ? err.message : "Erro ao registrar pagamento.");
@@ -530,9 +564,9 @@ const CashierPage = () => {
         const dueDate = params.row?.dueDate;
         return (
           <Box display="flex" alignItems="center" height="100%">
-          <Typography variant="body2">
-            {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
-          </Typography>
+            <Typography variant="body2">
+              {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
+            </Typography>
           </Box>
         );
       },
@@ -594,7 +628,7 @@ const CashierPage = () => {
     }
   };
 
-    const handleChargeBack = async (filters: ChargeBackFormData) => {
+  const handleChargeBack = async (filters: ChargeBackFormData) => {
     try {
       const token = Cookies.get("auth_token");
       if (!token) {
@@ -616,7 +650,7 @@ const CashierPage = () => {
         const data = await response.json();
         alert("Estorno realizado com sucesso!");
       }
-      setChargeBackModalOpen(false); 
+      setChargeBackModalOpen(false);
 
     } catch (error) {
       console.error("Erro ao estornar pagamento:", error);
@@ -676,7 +710,7 @@ const CashierPage = () => {
                     <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {p.fee?.description || "N/A"}
                     </td>
-                                        <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
+                    <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
                       {dayjs(p.fee?.dueDate).format("DD/MM/YYYY") || "N/A"}
                     </td>
                     <td style={{ border: "1px solid #ddd", padding: "5px", fontSize: 10 }}>
@@ -804,20 +838,20 @@ const CashierPage = () => {
           <Typography variant="h6" mb={2}>
             Mensalidades em aberto
           </Typography>
-<DataGrid
-  autoHeight
-  rows={studentFees}
-  columns={feeColumns}
-  checkboxSelection
-  pageSizeOptions={[5, 10, 20]}
-  paginationModel={paginationModel}
-  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-  disableMultipleRowSelection
-  onRowClick={(params) => {
-    setSelectedFeeId(params.row.id);
-    setPaymentDescription(params.row.description);
-  }}
-/>
+          <DataGrid
+            autoHeight
+            rows={studentFees}
+            columns={feeColumns}
+            checkboxSelection
+            pageSizeOptions={[5, 10, 20]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+            disableMultipleRowSelection
+            onRowClick={(params) => {
+              setSelectedFeeId(params.row.id);
+              setPaymentDescription(params.row.description);
+            }}
+          />
 
           <Box mt={2}>
             <Typography variant="subtitle1" gutterBottom>
@@ -867,6 +901,14 @@ const CashierPage = () => {
           </Box>
         </Box>
       </Modal>
+      <Box className="hidden">
+      <Recipe
+        ref={printRecipeRef}
+        student={lastStudent}
+        payment={lastPayment}
+        fee={lastFee}
+      />
+      </Box>
     </Box>
   );
 };
