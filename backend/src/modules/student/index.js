@@ -247,6 +247,7 @@ for (let i = 1; i <= 5; i++) {
             select: {
               class: {
                 select: {
+                  id: true,
                   code: true,
                   name: true,
                   course: {
