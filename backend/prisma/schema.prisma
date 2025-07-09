@@ -30,10 +30,20 @@ model Student {
   password    String
   addressId   Int
   email       String?
+  discountId  Int?
   classLinks  Class_Student[]
   attendances Attendence[]
   fees        Fee[]
+  discount    Discount?       @relation(fields: [discountId], references: [id])
   address     Address         @relation(fields: [addressId], references: [id])
+}
+
+model Discount {
+  id          Int       @id @default(autoincrement())
+  code        String
+  description String
+  percentage  Float
+  students    Student[]
 }
 
 model Teacher {
@@ -67,14 +77,14 @@ model Admin {
 }
 
 model Course {
-  id      Int     @id @default(autoincrement())
-  name    String
-  code    String  @unique
-  picture String?
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  code                 String   @unique
+  picture              String?
   registrationFeeValue Float?
-  MonthlyFeeValue Float?
-  createdAt DateTime @default(now())
-  classes Class[]
+  MonthlyFeeValue      Float?
+  createdAt            DateTime @default(now())
+  classes              Class[]
 }
 
 model Class {
@@ -92,7 +102,7 @@ model Class {
 
   course Course @relation(fields: [courseId], references: [id])
 
-  teacher     Teacher?         @relation(fields: [teacherId], references: [id])
+  teacher     Teacher?        @relation(fields: [teacherId], references: [id])
   students    Class_Student[]
   attendances Attendence[]
 }

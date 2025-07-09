@@ -9,6 +9,7 @@ import { courseRoutes } from './course.routes.js';
 import { feeRoutes } from './fee.routes.js';
 import { paymentRoutes } from './payment.routes.js';
 import { classeStudentRoutes } from './class_student.routes.js';
+import { discountRoutes } from './discount.routes.js';
 
 const routes = express()
 
@@ -20,6 +21,7 @@ routes.use('/class', classeRoutes)
 routes.use('/class-student', classeStudentRoutes)
 routes.use('/course', courseRoutes)
 routes.use('/fee', feeRoutes)
+routes.use('/discount', discountRoutes)
 routes.use('/payment', paymentRoutes)
 routes.use('/login', loginRoutes)
 
