@@ -67,7 +67,7 @@ const TeacherReport = forwardRef<HTMLDivElement, Props>(({ teacher }, ref) => {
                     Turmas
                 </Typography>
 
-                {teacher.Class.length ?
+                {teacher.Class?.length ?
                     (Array.isArray(teacher?.Class) && teacher.Class.map((turma) => (
                         <Box key={turma?.code} mb={1}>
                             <Typography variant="body2" style={{ fontSize: 10 }}>Turma: {turma?.code ?? ""}</Typography>
