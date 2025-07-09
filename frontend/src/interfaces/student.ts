@@ -1,5 +1,6 @@
 import { Address } from "./adress"
 import { Course } from "./course"
+import { Discount } from "./discount"
 
 
 interface Student {
@@ -14,6 +15,8 @@ interface Student {
   attendances: any[]
   classLinks: any[]
   course: Course
+  discountId: number
+  discount: Discount
 }
 
 export type {Student}

@@ -19,6 +19,7 @@ import PaymentsOutlined from "@mui/icons-material/PaymentsOutlined";
 import CampaignOutlined from "@mui/icons-material/CampaignOutlined";
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
+import DiscountIcon from '@mui/icons-material/Discount';
 
 const menuItems = [
   {
@@ -58,6 +59,12 @@ const menuItems = [
         icon: <PointOfSaleOutlined fontSize="small" color="action" />,
         label: "Caixa",
         href: "/admin/cashier",
+        visible: ["admin"],
+      },
+      {
+        icon: <DiscountIcon fontSize="small" color="action" />,
+        label: "Descontos",
+        href: "/list/discounts",
         visible: ["admin"],
       },
       // {

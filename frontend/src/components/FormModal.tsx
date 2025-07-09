@@ -23,6 +23,9 @@ const CourseForm = dynamic(() => import("./forms/CourseForm"), {
 const ClassForm = dynamic(() => import("./forms/ClassForm"), {
   loading: () => <h1>Loading...</h1>,
 })
+const DiscountForm = dynamic(() => import("./forms/DiscountForm"), {
+  loading: () => <h1>Loading...</h1>,
+})
 
 const forms: {
   [key: string]: (type: "create" | "update", data?: any) => JSX.Element;
@@ -30,7 +33,8 @@ const forms: {
   teacher: (type, data) => <TeacherForm type={type} data={data} />,
   student: (type, data) => <StudentForm type={type} data={data} />,
   course: (type, data) => <CourseForm type={type} data={data} />,
-  class: (type, data) => <ClassForm type={type} data={data} />
+  class: (type, data) => <ClassForm type={type} data={data} />,
+  discount: (type, data) => <DiscountForm type={type} data={data} />
 
 };
 
