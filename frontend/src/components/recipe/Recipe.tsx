@@ -52,8 +52,8 @@ const Recipe = React.forwardRef<HTMLDivElement, RecipeProps>(({ children, studen
         }
       `}</style>
       <div className="flex items-center gap-3 flex-col text-center">
-        <Image src="/logo.png" width={180} height={0} alt="Logo" />
-        <div className="text-[9px]">
+        <Image src="/logo_black.png" width={180} height={0} alt="Logo" />
+        <div className="text-[9px] font-bold">
           <p>CNPJ: 35.030.958/0001-00</p>
           <p>ENDEREÇO: RUA ENOCK IGNÁCIO DE OLIVEIRA, 949 - NOSSA SENHORA DA PENHA - SERRA TALHADA - PE</p>
           <div className="flex justify-between">
@@ -62,45 +62,45 @@ const Recipe = React.forwardRef<HTMLDivElement, RecipeProps>(({ children, studen
           </div>
         </div>
       </div>
-      <div className="bg-gray-300 text-center font-semibold text-xs my-2">
+      <div className=" text-center font-bold text-xs my-2 border-black border-y-2">
         {"COMPROVANTE DE PAGAMENTO"}
       </div>
       <div>
-        <p className=" text-[10px] font-semibold">DADOS DO ESTUDANTE</p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px] font-bold">DADOS DO ESTUDANTE</p>
+        <p className=" text-[10px] font-semibold">
           CPF: {student?.cpf ? maskCpfWithFormat(student?.cpf) : "N/A"}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px] font-semibold">
           NOME: {student?.name ? student.name.toUpperCase() : "N/A"}
         </p>
       </div>
       <div>
-        <p className=" text-[10px] font-semibold">ITEM PAGO</p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px] font-bold">ITEM PAGO</p>
+        <p className=" text-[10px] font-semibold">
           ID TAXA: {fee?.id ? String(fee.id).toUpperCase() : "N/A"}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px] font-semibold">
           DESCRIÇÃO: {fee?.description ? fee.description.toUpperCase() : "N/A"}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px]  font-semibold">
           VENCIMENTO: {fee?.dueDate ? new Date(fee.dueDate).toLocaleDateString("pt-BR") : "N/A"}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px]  font-semibold">
           VALOR: R$ {fee?.price ? fee.price.toFixed(2).replace(".", ",") : "N/A"}
         </p>
       </div>
       <div>
-        <p className=" text-[10px] font-semibold">DADOS DO PAGAMENTO</p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px] font-bold">DADOS DO PAGAMENTO</p>
+        <p className=" text-[10px]  font-semibold">
           ID PAGAMENTO: {payment?.id ? String(payment.id).toUpperCase() : "N/A"}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px]  font-semibold">
           RECEBEDOR: {user?.name ? user.name.toUpperCase() : ""}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px]  font-semibold">
           FORMA DE PAGAMENTO: {payment?.paymentType ? payment.paymentType.toUpperCase() : ""}
         </p>
-        <p className=" text-[10px] ">
+        <p className=" text-[10px]  font-semibold">
           DATA E HORA: {formattedDate} {formattedTime}
         </p>
       </div>
