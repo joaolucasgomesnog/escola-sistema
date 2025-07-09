@@ -125,6 +125,7 @@ export default {
           address: true,
           Class: {
             select: {
+              id: true,
               code: true,
               name: true,
               turno: true,

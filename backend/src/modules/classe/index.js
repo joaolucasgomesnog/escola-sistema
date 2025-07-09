@@ -251,7 +251,35 @@ export default {
     } catch (error) { }
   },
 
-  // Deletar class
+  // Deletar teacher
+  async deleteTeacher(req, res) {
+    try {
+      const { id } = req.params;
+      
+      const classe = await prisma.class.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!classe) {
+        return res.status(404).json({ error: "Class não encontrado" });
+      }
+
+      await prisma.class.update({
+        where: {
+          id: Number(id)
+        },
+        data: {
+          teacherId: null
+        }
+      })
+
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Erro ao deletar class:", error);
+      return res.status(500).json({ error: "Erro interno ao deletar class" });
+    }
+  },
+
   async deleteClass(req, res) {
     try {
       const { id } = req.params;

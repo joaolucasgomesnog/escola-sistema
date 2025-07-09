@@ -12,12 +12,14 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
+  Modal,
   Select,
   TextField,
   Typography
 } from "@mui/material";
 import { Student } from '@/interfaces/student';
 import PrintIcon from '@mui/icons-material/Print';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Add from '@mui/icons-material/Add';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
@@ -53,7 +55,30 @@ const SingleStudentPage = ({ params }: Props) => {
 
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
 
+  const [selectdClassId, setSelectedClassId] = useState<number>(null);
 
+  const [classe, setClasse] = useState('');
+
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = async (classId) => {
+    setOpen(true)
+    setSelectedClassId(classId)
+  };
+
+  const handleClose = () => setOpen(false);
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    borderRadius: 2,
+    p: 4,
+  };
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
@@ -64,34 +89,34 @@ const SingleStudentPage = ({ params }: Props) => {
     },
   });
 
+  const fetchStudent = async () => {
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3030/student/get/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+
+        },
+      });
+
+      if (!res.ok) throw new Error("Erro ao buscar aluno");
+
+      const data = await res.json();
+      console.log("Dados do aluno:", data);
+      setStudent(data);
+    } catch (err) {
+      console.error("Erro:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStudent = async () => {
-      const token = Cookies.get("auth_token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      try {
-        const res = await fetch(`http://localhost:3030/student/get/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-
-          },
-        });
-
-        if (!res.ok) throw new Error("Erro ao buscar aluno");
-
-        const data = await res.json();
-        console.log("Dados do aluno:", data);
-        setStudent(data);
-      } catch (err) {
-        console.error("Erro:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchStudent();
     fetchStudentFees(Number(id));
@@ -172,9 +197,9 @@ const SingleStudentPage = ({ params }: Props) => {
         const dueDate = params.row?.dueDate;
         return (
           <Box display="flex" alignItems="center" height="100%">
-          <Typography variant="body2">
-            {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
-          </Typography>
+            <Typography variant="body2">
+              {dueDate ? dayjs(dueDate).format("DD/MM/YYYY") : "—"}
+            </Typography>
           </Box>
         );
       },
@@ -297,6 +322,44 @@ const SingleStudentPage = ({ params }: Props) => {
       console.log("Classes:", data);
     } catch (error) {
       console.error("Erro ao carregar classes:", error);
+    }
+  }
+
+  const deleteClassStudent = async () => {
+
+
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      if (!selectdClassId) {
+        setOpen(false)
+        return
+      }
+
+      const response = await fetch(`http://localhost:3030/class-student/delete/${selectdClassId}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'DELETE',
+
+      });
+
+      if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
+      setOpen(false)
+
+
+      window.alert("matrícula deletada com sucesso")
+      fetchStudent()
+
+    } catch (error) {
+      setSelectedClasses([])
+      console.error("Erro ao deletar matricula", error);
     }
   }
 
@@ -509,10 +572,21 @@ const SingleStudentPage = ({ params }: Props) => {
 
         {
           selectVisible ? (
+            <Box display='flex' gap={2} >
 
-            <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
-              Salvar
-            </Button>
+              <Button color="error" variant="outlined" className="h-fit" onClick={() => {
+                setSelectedClasses([])
+                setClasse('')
+                setSelectVisible(false)
+              }}>
+                Cancelar
+              </Button>
+              <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
+                Salvar
+              </Button>
+
+            </Box>
+
           ) : (
 
             <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
@@ -530,6 +604,7 @@ const SingleStudentPage = ({ params }: Props) => {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
+            value={classe}
             onChange={(e) => {
               const selectedCode = e.target.value as string;
               const selectedClasse = classes.find((classe) => classe.code === selectedCode);
@@ -586,6 +661,7 @@ const SingleStudentPage = ({ params }: Props) => {
                 InputProps={{ readOnly: true }}
                 sx={{ flex: 2 }}
               />
+
             </Box>
           );
         })
@@ -595,6 +671,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
       {student?.classLinks.map(({ class: turma }) => {
         // Montar uma string com os dias e horários
+        console.log(turma)
         const horario = turma.horario
           ? Object.entries(turma.horario)
             .filter(([_, value]) => value !== null)
@@ -633,9 +710,36 @@ const SingleStudentPage = ({ params }: Props) => {
               InputProps={{ readOnly: true }}
               sx={{ flex: 2 }}
             />
+            <Button variant="outlined" color="error" onClick={() => { handleOpen(turma.id) }}>
+              <DeleteForeverIcon fontSize="medium" />
+            </Button>
           </Box>
         );
       })}
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description">
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Tem certeza?
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Esta ação não poderá ser desfeita
+          </Typography>
+          <Box sx={{ mt: 2 }} display='flex' gap={2}>
+            <Button variant="contained" color="primary" onClick={handleClose}>
+              Cancelar
+            </Button>
+            {/* <Button variant="contained" color="error" > */}
+            <Button variant="contained" color="error" onClick={() => { deleteClassStudent() }}>
+              Confirmar
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
 
 
       <Divider sx={{ my: 3 }} />

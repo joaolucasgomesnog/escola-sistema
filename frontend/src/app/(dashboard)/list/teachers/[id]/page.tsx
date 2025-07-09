@@ -13,6 +13,7 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
+  Modal,
   Select,
   TextField,
   Typography
@@ -26,6 +27,7 @@ import { formatCpf, formatPhone } from "@/lib/formatValues";
 import TeacherReport from "@/components/report/TeacherReport";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
+import { GridDeleteForeverIcon } from "@mui/x-data-grid";
 
 type Props = {
   params: { id: string };
@@ -58,9 +60,32 @@ const SingleTeacherPage = ({ params }: Props) => {
 
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
 
-
-
   const printRef = useRef<HTMLDivElement>(null);
+
+  const [classe, setClasse] = useState('');
+
+  const [selectdClassId, setSelectedClassId] = useState<number>(null);
+
+  const [open, setOpen] = useState(false);
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    borderRadius: 2,
+    p: 4,
+  };
+
+  const handleOpen = async (classId) => {
+    setOpen(true)
+    setSelectedClassId(classId)
+  };
+
+  const handleClose = () => setOpen(false);
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -292,6 +317,45 @@ const SingleTeacherPage = ({ params }: Props) => {
     }
   }
 
+  const deleteClassTeacher = async () => {
+
+
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      if (!selectdClassId) {
+        setOpen(false)
+        return
+      }
+
+      const response = await fetch(`http://localhost:3030/class/delete-teacher/${selectdClassId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'PUT',
+
+      });
+
+      if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
+      setOpen(false)
+
+
+      window.alert("matrícula deletada com sucesso")
+      fetchTeacher()
+
+    } catch (error) {
+      setSelectedClasses([])
+      console.error("Erro ao deletar matricula", error);
+    }
+  }
+
+
 
   if (loading) return <Typography>Carregando...</Typography>;
   if (!teacher) return <Typography>Professor não encontrado.</Typography>;
@@ -502,9 +566,20 @@ const SingleTeacherPage = ({ params }: Props) => {
         {
           selectVisible ? (
 
-            <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
-              Salvar
-            </Button>
+            <Box display='flex' gap={2} >
+
+              <Button color="error" variant="outlined" className="h-fit" onClick={() => {
+                setSelectedClasses([])
+                setClasse('')
+                setSelectVisible(false)
+              }}>
+                Cancelar
+              </Button>
+              <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
+                Salvar
+              </Button>
+
+            </Box>
           ) : (
 
             <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
@@ -558,6 +633,9 @@ const SingleTeacherPage = ({ params }: Props) => {
             InputProps={{ readOnly: true }}
             sx={{ flex: 1 }}
           />
+          <Button variant="outlined" color="error" onClick={() => { handleOpen(turma?.id) }}>
+            <GridDeleteForeverIcon fontSize="medium" />
+          </Button>
         </Box>
       ))}
       {selectedClasses.map((turma) => (
@@ -581,6 +659,30 @@ const SingleTeacherPage = ({ params }: Props) => {
           {/* Adicione outros campos se necessário */}
         </Box>
       ))}
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description">
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Tem certeza?
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Esta ação não poderá ser desfeita
+          </Typography>
+          <Box sx={{ mt: 2 }} display='flex' gap={2}>
+            <Button variant="contained" color="primary" onClick={handleClose}>
+              Cancelar
+            </Button>
+            {/* <Button variant="contained" color="error" > */}
+            <Button variant="contained" color="error" onClick={() => { deleteClassTeacher() }}>
+              Confirmar
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
 
       <Box sx={{ display: "none" }}>
         <TeacherReport ref={printRef} teacher={teacher} />
