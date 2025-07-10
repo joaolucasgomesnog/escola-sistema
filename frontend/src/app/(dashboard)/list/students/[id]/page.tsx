@@ -49,26 +49,22 @@ const SingleStudentPage = ({ params }: Props) => {
     [key: string]: any;
   };
 
+  const [newStudent, setNewStudent] = useState<Student | null>(null);
+
   const [classes, setClasses] = useState<Classe[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<Classe[]>([]);
-
+  const [selectdClassId, setSelectedClassId] = useState<number>(null);
+  const [classe, setClasse] = useState('');
+  
+  const [selectedDiscountId, setSelectedDiscountId] = useState<number>(null);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-
-  const [newStudent, setNewStudent] = useState<Student | null>(null);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-
+  
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
   const [selectDiscountVisible, setSelectDiscountVisible] = useState<boolean>(false);
-
-  const [selectdClassId, setSelectedClassId] = useState<number>(null);
-  const [selectedDiscountId, setSelectedDiscountId] = useState<number>(null);
-
-  const [classe, setClasse] = useState('');
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [openClassModal, setOpenClassModal] = useState(false);
   const [openDiscountModal, setOpenDiscountModal] = useState(false);
-
-
 
   const handleOpenClassModal = async (classId) => {
     setOpenClassModal(true)
@@ -76,26 +72,12 @@ const SingleStudentPage = ({ params }: Props) => {
   };
   const handleOpenDiscountModal = async () => {
     setOpenDiscountModal(true)
-    // setSelectedDiscountId(discountId)
   };
-
-  // const [open, setOpen] = useState(false);
 
   const handleClose = () => {
     setOpenClassModal(false)
   }
 
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    borderRadius: 2,
-    p: 4,
-  };
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
@@ -124,7 +106,6 @@ const SingleStudentPage = ({ params }: Props) => {
       if (!res.ok) throw new Error("Erro ao buscar aluno");
 
       const data = await res.json();
-      console.log("Dados do aluno:", data);
       setStudent(data);
     } catch (err) {
       console.error("Erro:", err);
@@ -134,7 +115,6 @@ const SingleStudentPage = ({ params }: Props) => {
   };
 
   useEffect(() => {
-
     fetchStudent();
     fetchStudentFees(Number(id));
   }, [id]);
@@ -188,7 +168,6 @@ const SingleStudentPage = ({ params }: Props) => {
       console.error("Erro ao carregar mensalidades:", error);
     }
   };
-
 
   const feeColumns: GridColDef[] = [
     { field: "id", headerName: "ID", flex: 0.3 },
@@ -361,14 +340,12 @@ const SingleStudentPage = ({ params }: Props) => {
 
       const data = await response.json();
       setDiscounts(data)
-      console.log("descontos:", data);
     } catch (error) {
       console.error("Erro ao carregar descontos:", error);
     }
   }
 
   const deleteClassStudent = async () => {
-
 
     const token = Cookies.get("auth_token");
     if (!token) {
@@ -389,13 +366,10 @@ const SingleStudentPage = ({ params }: Props) => {
 
         },
         method: 'DELETE',
-
       });
 
       if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
       setOpen(false)
-
-
       window.alert("matrícula deletada com sucesso")
       fetchStudent()
 
@@ -415,27 +389,17 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      // if (!selectedDiscountId) {
-      //   setOpenDiscountModal(false)
-      //   return
-      // }
 
       const response = await fetch(`http://localhost:3030/student/delete-discount/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
-
         },
         method: 'PUT',
-
-
       });
 
       if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
       setOpenDiscountModal(false)
-
-      console.log(response)
-
       window.alert("desconto deletada com sucesso")
       fetchStudent()
 
@@ -447,7 +411,6 @@ const SingleStudentPage = ({ params }: Props) => {
 
   const addDiscountToStudent = async () => {
 
-
     const token = Cookies.get("auth_token");
     if (!token) {
       router.push("/login");
@@ -455,10 +418,6 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      // if (!selectedDiscountId) {
-      //   setOpenDiscountModal(false)
-      //   return
-      // }
 
       const response = await fetch(`http://localhost:3030/student/add-discount/${id}`, {
         headers: {
@@ -580,7 +539,6 @@ const SingleStudentPage = ({ params }: Props) => {
       <Divider sx={{ mb: 3 }} />
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="body1">Endereço</Typography>
-        {/* <Button variant="outlined">Editar</Button> */}
       </Box>
       {/* Endereço */}
       <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
@@ -767,9 +725,7 @@ const SingleStudentPage = ({ params }: Props) => {
         )
       }
 
-
       <Divider sx={{ mb: 3 }} />
-
 
       {/* Turmas */}
       <Box className="flex justify-between">
@@ -789,11 +745,9 @@ const SingleStudentPage = ({ params }: Props) => {
               <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
                 Salvar
               </Button>
-
             </Box>
 
           ) : (
-
             <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
               <Add fontSize="medium" />
             </Button>
@@ -804,7 +758,6 @@ const SingleStudentPage = ({ params }: Props) => {
 
       <Box className={`${selectVisible ? 'visible' : 'hidden'} mb-4`}>
         <FormControl className="w-32 " size="small">
-
           <InputLabel id="demo-simple-select-label">Turma</InputLabel>
           <Select
             labelId="demo-simple-select-label"
@@ -876,7 +829,6 @@ const SingleStudentPage = ({ params }: Props) => {
 
       {student?.classLinks.map(({ class: turma }) => {
         // Montar uma string com os dias e horários
-        console.log(turma)
         const horario = turma.horario
           ? Object.entries(turma.horario)
             .filter(([_, value]) => value !== null)
@@ -922,10 +874,8 @@ const SingleStudentPage = ({ params }: Props) => {
         );
       })}
 
-
       <ModalComponent onConfirm={deleteClassStudent} open={openClassModal} handleClose={handleClose} />
       <ModalComponent onConfirm={deleteDiscountFromStudent} open={openDiscountModal} handleClose={handleClose} />
-
 
       <Divider sx={{ my: 3 }} />
       <Typography variant="body1" mb={2}>Mensalidades e Pagamentos</Typography>
