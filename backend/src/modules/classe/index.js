@@ -302,4 +302,44 @@ export default {
       return res.status(500).json({ error: "Erro interno ao deletar class" });
     }
   },
+  async searchClasses(req, res) {
+  try {
+    const { name, code, turno, courseName, teacherName, startDate, endDate } = req.query;
+
+    const classes = await prisma.class.findMany({
+      where: {
+        name: name ? { contains: name, mode: "insensitive" } : undefined,
+        code: code ? { contains: code, mode: "insensitive" } : undefined,
+        turno: turno ? { contains: turno, mode: "insensitive" } : undefined,
+        startDate: startDate ? { gte: new Date(startDate) } : undefined,
+        endDate: endDate ? { lte: new Date(endDate) } : undefined,
+        course: courseName
+          ? {
+              name: { contains: courseName, mode: "insensitive" },
+            }
+          : undefined,
+        teacher: teacherName
+          ? {
+              name: { contains: teacherName, mode: "insensitive" },
+            }
+          : undefined,
+      },
+      include: {
+        course: true,
+        teacher: true,
+        students: {
+          include: {
+            student: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json(classes);
+  } catch (error) {
+    console.error("Erro ao buscar turmas com filtros:", error);
+    res.status(500).json({ error: "Erro interno ao buscar turmas" });
+  }
+}
+
 };

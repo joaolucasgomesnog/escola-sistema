@@ -16,5 +16,7 @@ classeRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), class
 classeRoutes.put('/add-teacher', autenticateToken, authorizeRoles('admin'), classe.addTeacher);
 classeRoutes.put('/delete-teacher/:id', autenticateToken, authorizeRoles('admin'), classe.deleteTeacher);
 classeRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), classe.deleteClass);
+classeRoutes.get('/search', autenticateToken, authorizeRoles('admin', 'teacher'), classe.searchClasses);
+
 
 export {classeRoutes}
