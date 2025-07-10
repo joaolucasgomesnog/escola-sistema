@@ -461,7 +461,7 @@ for (let i = 1; i <= 5; i++) {
       console.error("Erro ao atualizar student:", error);
       return res.status(500).json({ error: "Erro interno ao atualizar student" });
     }
-  }
+  },
   
   async deleteDiscount(req, res){
     try {
@@ -481,7 +481,7 @@ for (let i = 1; i <= 5; i++) {
       return res.status(500).json({ error: "Erro interno ao atualizar student" });
     }
   }
-},
+}
 
 async function hashPassword(password) {
   const saltRounds = 10;
