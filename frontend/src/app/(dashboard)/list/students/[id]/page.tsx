@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import {
@@ -792,11 +792,11 @@ const SingleStudentPage = ({ params }: Props) => {
 
           return (
             <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
-              <TextField label="Curso" value={classe.name ?? ""} size="small"
+              <TextField label="Curso" value={classe?.name ?? ""} size="small"
                 InputProps={{ readOnly: true }}
                 sx={{ flex: 1 }}
               />
-              <TextField label="Turma" value={classe.course.name ?? ""} size="small"
+              <TextField label="Turma" value={classe?.course?.name ?? ""} size="small"
                 InputProps={{ readOnly: true }}
                 sx={{ flex: 1 }}
               />
@@ -841,15 +841,15 @@ const SingleStudentPage = ({ params }: Props) => {
 
         return (
           <Box key={turma.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
-            <TextField label="Curso" value={turma.course.name ?? ""} size="small"
+            <TextField label="Curso" value={turma?.course?.name ?? ""} size="small"
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />
-            <TextField label="Turma" value={turma.name ?? ""} size="small"
+            <TextField label="Turma" value={turma?.name ?? ""} size="small"
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />
-            <TextField label="Professor da turma" value={turma.teacher?.name ?? ""} size="small"
+            <TextField label="Professor da turma" value={turma?.teacher?.name ?? ""} size="small"
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />
