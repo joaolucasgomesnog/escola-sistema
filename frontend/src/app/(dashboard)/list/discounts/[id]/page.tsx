@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import Decimal from 'decimal.js';
+
 import {
   Box,
   Button,
@@ -63,7 +65,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
         },
         body: JSON.stringify({
           ...newDiscount,
-          percentage: Number(newDiscount?.percentage),
+          percentage: parseFloat(newDiscount?.percentage),
         }),
       });
 
@@ -118,18 +120,30 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
         />
 
         <TextField
-          label="Percentual"
+          label="Percentual (%)"
           size="small"
-          value={isEditing ? newDiscount?.percentage ?? "" : discount.percentage*100}
-          onChange={(e) => isEditing && setNewDiscount({ ...newDiscount!, percentage: e.target.value })}
-          InputProps={{ readOnly: !isEditing }}
-          inputProps={{ maxLength: 5 }}
+          type="text"
+          value={isEditing ? String(newDiscount?.percentage) ?? "" : String(discount.percentage)}
+          onChange={(e) => {
+            if (!isEditing) return;
 
+            let value = e.target.value;
+
+            // Remove tudo que não for número ou ponto
+            value = value.replace(/[^0-9.]/g, "");
+
+            // Garante que só o primeiro ponto seja mantido
+            const parts = value.split(".");
+            if (parts.length > 2) {
+              value = parts[0] + "." + parts.slice(1).join(""); // remove pontos extras
+            }
+
+            setNewDiscount({ ...newDiscount!, percentage: value });
+          }}
+          InputProps={{ readOnly: !isEditing }}
+          inputProps={{ maxLength: 6 }}
           sx={{ flex: 2 }}
         />
-
-
-
 
       </Box>
     </Box>

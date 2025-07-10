@@ -92,7 +92,7 @@ const DiscountListPage = () => {
       flex: 1,
       valueGetter: (value) => {
         if (!value) { return null }
-        return `${value * 100}%`
+        return `${value}%`
       }
     },
     {

@@ -56,7 +56,7 @@ const DiscountForm = ({
         body: JSON.stringify({
           code: formData.code,
           description: formData.description,
-          percentage: parseFloat(formData.percentage.replace(",", ".")) / 100, // Converte 15 → 0.15
+          percentage: parseFloat(formData.percentage.replace(",", ".")), // Converte 15 → 0.15
         }),
       });
 
