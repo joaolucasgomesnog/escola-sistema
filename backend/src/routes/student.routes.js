@@ -15,6 +15,7 @@ studentRoutes.get('/getall-by-course/:courseId', autenticateToken, authorizeRole
 studentRoutes.get('/getall-by-class/:classId', autenticateToken, authorizeRoles('admin', 'teacher'), student.getAllStudentsByClassId);
 studentRoutes.get('/search', autenticateToken, authorizeRoles('admin', 'teacher'), student.searchStudents);
 studentRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), student.updateStudent);
+studentRoutes.put('/add-discount/:id', autenticateToken, authorizeRoles('admin'), student.addDiscount);
 studentRoutes.put('/delete-discount/:id', autenticateToken, authorizeRoles('admin'), student.deleteDiscount);
 studentRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), student.deleteStudent);
 

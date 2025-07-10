@@ -416,6 +416,46 @@ const SingleStudentPage = ({ params }: Props) => {
     }
   }
 
+  const addDiscountToStudent = async () => {
+
+
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      // if (!selectedDiscountId) {
+      //   setOpenDiscountModal(false)
+      //   return
+      // }
+
+      const response = await fetch(`http://localhost:3030/student/add-discount/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'PUT',
+        body: JSON.stringify({discountId: Number(selectedDiscountId)})
+
+      });
+
+      if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
+      setOpenDiscountModal(false)
+
+      console.log(response)
+
+      window.alert("desconto deletada com sucesso")
+      fetchStudent()
+
+    } catch (error) {
+      setSelectedClasses([])
+      console.error("Erro ao deletar matricula", error);
+    }
+  }
+
 
   if (loading) return <Typography>Carregando...</Typography>;
   if (!student) return <Typography>Aluno não encontrado.</Typography>;
@@ -824,30 +864,6 @@ const SingleStudentPage = ({ params }: Props) => {
         );
       })}
 
-
-      {/* criar um componente separado */}
-      {/* <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description">
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Tem certeza?
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Esta ação não poderá ser desfeita
-          </Typography>
-          <Box sx={{ mt: 2 }} display='flex' gap={2}>
-            <Button variant="contained" color="primary" onClick={handleClose}>
-              Cancelar
-            </Button>
-            <Button variant="contained" color="error" onClick={() => { deleteClassStudent() }}>
-              Confirmar
-            </Button>
-          </Box>
-        </Box>
-      </Modal> */}
 
       <ModalComponent onConfirm={deleteClassStudent} open={openClassModal} handleClose={handleClose}/>
       <ModalComponent onConfirm={deleteDiscountFromStudent} open={openDiscountModal} handleClose={handleClose}/>
