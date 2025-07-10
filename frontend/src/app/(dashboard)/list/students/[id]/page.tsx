@@ -702,7 +702,7 @@ const SingleStudentPage = ({ params }: Props) => {
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />
-            <TextField label="Professor da turma" value={turma.teacher.name ?? ""} size="small"
+            <TextField label="Professor da turma" value={turma.teacher?.name ?? ""} size="small"
               InputProps={{ readOnly: true }}
               sx={{ flex: 1 }}
             />

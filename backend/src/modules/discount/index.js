@@ -46,7 +46,20 @@ export default {
     try {
       const { id } = req.params
 
-      const discount = await prisma.discount.findUnique({ where: { id: Number(id) } });
+      const discount = await prisma.discount.findUnique({ 
+        where: { id: Number(id) },
+        include: {
+          students: {
+            select: {
+              id: true,
+              name: true,
+              cpf: true ,
+              phone: true
+              
+            }
+          }
+        }
+       });
 
       if (!discount) {
         return res.status(404).json({ error: "Discount não encontrado" });
