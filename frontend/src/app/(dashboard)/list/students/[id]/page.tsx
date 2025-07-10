@@ -27,6 +27,7 @@ import { formatCpf, formatPhone } from "@/lib/formatValues";
 import StudentReport from "@/components/report/StudentReport";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
+import ModalComponent from "../../../../../components/ModalComponent";
 
 type Props = {
   params: { id: string };
@@ -56,17 +57,29 @@ const SingleStudentPage = ({ params }: Props) => {
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
 
   const [selectdClassId, setSelectedClassId] = useState<number>(null);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<number>(null);
 
   const [classe, setClasse] = useState('');
 
-  const [open, setOpen] = useState(false);
+  const [openClassModal, setOpenClassModal] = useState(false);
+  const [openDiscountModal, setOpenDiscountModal] = useState(false);
 
-  const handleOpen = async (classId) => {
-    setOpen(true)
+
+  
+  const handleOpenClassModal = async (classId) => {
+    setOpenClassModal(true)
     setSelectedClassId(classId)
   };
+  const handleOpenDiscountModal = async () => {
+    setOpenDiscountModal(true)
+    // setSelectedDiscountId(discountId)
+  };
+  
+  // const [open, setOpen] = useState(false);
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpenClassModal(false)
+  }
 
   const style = {
     position: 'absolute',
@@ -363,6 +376,46 @@ const SingleStudentPage = ({ params }: Props) => {
     }
   }
 
+  const deleteDiscountFromStudent = async () => {
+
+
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      // if (!selectedDiscountId) {
+      //   setOpenDiscountModal(false)
+      //   return
+      // }
+
+      const response = await fetch(`http://localhost:3030/student/delete-discount/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
+
+        },
+        method: 'PUT',
+
+
+      });
+
+      if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
+      setOpenDiscountModal(false)
+
+      console.log(response)
+
+      window.alert("desconto deletada com sucesso")
+      fetchStudent()
+
+    } catch (error) {
+      setSelectedClasses([])
+      console.error("Erro ao deletar matricula", error);
+    }
+  }
+
 
   if (loading) return <Typography>Carregando...</Typography>;
   if (!student) return <Typography>Aluno não encontrado.</Typography>;
@@ -565,6 +618,60 @@ const SingleStudentPage = ({ params }: Props) => {
 
       <Divider sx={{ mb: 3 }} />
 
+      <Box className="flex justify-between">
+        <Typography variant="body1" mb={3}>Descontos</Typography>
+
+        {/* {
+          selectVisible ? (
+            <Box display='flex' gap={2} >
+
+              <Button color="error" variant="outlined" className="h-fit" onClick={() => {
+                setSelectedClasses([])
+                setClasse('')
+                setSelectVisible(false)
+              }}>
+                Cancelar
+              </Button>
+              <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
+                Salvar
+              </Button>
+
+            </Box>
+
+          ) : (
+
+            <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
+              <Add fontSize="medium" />
+            </Button>
+          )
+        } */}
+      </Box>
+
+      {
+        student.discount && (
+          <Box key={student.discount.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+            <TextField label="Código" value={student.discount.code ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Descrição" value={student.discount.description ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <TextField label="Percentual" value={student.discount.percentage ?? ""} size="small"
+              InputProps={{ readOnly: true }}
+              sx={{ flex: 1 }}
+            />
+            <Button variant="outlined" color="error" onClick={() => { handleOpenDiscountModal() }}>
+              <DeleteForeverIcon fontSize="medium" />
+            </Button>
+          </Box>
+        )
+      }
+
+
+      <Divider sx={{ mb: 3 }} />
+
 
       {/* Turmas */}
       <Box className="flex justify-between">
@@ -653,7 +760,7 @@ const SingleStudentPage = ({ params }: Props) => {
                 InputProps={{ readOnly: true }}
                 sx={{ flex: 1 }}
               />
-              <TextField label="Professor da turma" value={classe.teacher.name ?? ""} size="small"
+              <TextField label="Professor da turma" value={classe.teacher?.name ?? ""} size="small"
                 InputProps={{ readOnly: true }}
                 sx={{ flex: 1 }}
               />
@@ -710,14 +817,16 @@ const SingleStudentPage = ({ params }: Props) => {
               InputProps={{ readOnly: true }}
               sx={{ flex: 2 }}
             />
-            <Button variant="outlined" color="error" onClick={() => { handleOpen(turma.id) }}>
+            <Button variant="outlined" color="error" onClick={() => { handleOpenClassModal(turma.id) }}>
               <DeleteForeverIcon fontSize="medium" />
             </Button>
           </Box>
         );
       })}
 
-      <Modal
+
+      {/* criar um componente separado */}
+      {/* <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
@@ -733,13 +842,15 @@ const SingleStudentPage = ({ params }: Props) => {
             <Button variant="contained" color="primary" onClick={handleClose}>
               Cancelar
             </Button>
-            {/* <Button variant="contained" color="error" > */}
             <Button variant="contained" color="error" onClick={() => { deleteClassStudent() }}>
               Confirmar
             </Button>
           </Box>
         </Box>
-      </Modal>
+      </Modal> */}
+
+      <ModalComponent onConfirm={deleteClassStudent} open={openClassModal} handleClose={handleClose}/>
+      <ModalComponent onConfirm={deleteDiscountFromStudent} open={openDiscountModal} handleClose={handleClose}/>
 
 
       <Divider sx={{ my: 3 }} />
