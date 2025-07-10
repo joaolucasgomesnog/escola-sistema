@@ -156,9 +156,9 @@ const CourseListPage = () => {
       headerName: "Nome",
       flex: 2,
       renderCell: (params: GridRenderCellParams) => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display="flex" alignItems="center" gap={1} height={"100%"}>
           <Avatar src={params.row.photo} sx={{ width: 32, height: 32 }} />
-          <Box>
+          <Box flexDirection={"column"} display="flex">
             <Typography variant="body2" fontWeight="bold">
               {params.value}
             </Typography>
@@ -179,7 +179,10 @@ const CourseListPage = () => {
       headerName: "Professor",
       flex: 1,
       renderCell: (params: GridRenderCellParams) => (
-        <Typography variant="body2">{params.value || "Não definido"}</Typography>
+        <Box display="flex" alignItems="center" height={"100%"}>
+          <Typography variant="body2">{params.value || "Não definido"}</Typography>
+
+        </Box>
       ),
     },
     {
