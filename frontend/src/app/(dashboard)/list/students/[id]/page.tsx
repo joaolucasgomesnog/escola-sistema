@@ -91,7 +91,7 @@ const SingleStudentPage = ({ params }: Props) => {
   const fetchStudent = async () => {
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -148,7 +148,7 @@ const SingleStudentPage = ({ params }: Props) => {
   const fetchStudentFees = async (studentId: number) => {
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -265,7 +265,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -300,7 +300,7 @@ const SingleStudentPage = ({ params }: Props) => {
     setSelectVisible(true)
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -325,7 +325,7 @@ const SingleStudentPage = ({ params }: Props) => {
     setSelectDiscountVisible(true)
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -349,7 +349,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -384,7 +384,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -413,7 +413,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 

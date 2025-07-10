@@ -36,7 +36,7 @@ const PaymentListPage = () => {
         const token = Cookies.get("auth_token");
 
         if (!token) {
-          router.push("/login");
+          router.push("/sign-in");
           return;
         }
 
@@ -51,7 +51,7 @@ const PaymentListPage = () => {
         if (!response.ok) {
           if (response.status === 401) {
             Cookies.remove("auth_token");
-            router.push("/login");
+            router.push("/sign-in");
             return;
           }
 

@@ -98,7 +98,7 @@ const SingleTeacherPage = ({ params }: Props) => {
   const fetchTeacher = async () => {
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -157,7 +157,7 @@ const SingleTeacherPage = ({ params }: Props) => {
   // const fetchTeacherFees = async (teacherId: number) => {
   //   const token = Cookies.get("auth_token");
   //   if (!token) {
-  //     router.push("/login");
+  //     router.push("/sign-in");
   //     return;
   //   }
 
@@ -261,7 +261,7 @@ const SingleTeacherPage = ({ params }: Props) => {
 
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -296,7 +296,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     setSelectVisible(true)
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
@@ -322,7 +322,7 @@ const SingleTeacherPage = ({ params }: Props) => {
 
     const token = Cookies.get("auth_token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");
       return;
     }
 
