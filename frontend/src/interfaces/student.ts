@@ -15,8 +15,8 @@ interface Student {
   attendances: any[]
   classLinks: any[]
   course: Course
-  discountId: number
-  discount: Discount
+  discountId?: number
+  discount?: Discount
 }
 
 export type {Student}

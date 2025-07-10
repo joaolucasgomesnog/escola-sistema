@@ -243,6 +243,7 @@ for (let i = 1; i <= 5; i++) {
         include: {
           address: true,
           attendances: true,
+          discount: true,
           classLinks: {
             select: {
               class: {
@@ -440,7 +441,47 @@ for (let i = 1; i <= 5; i++) {
       res.status(500).json({ error: "Erro interno ao buscar estudantes" });
     }
   },
-};
+
+  async addDiscount(req, res){
+    try {
+      const {id} = req.params
+      const {discountId} = req.body
+
+      console.log(id, discountId)
+
+      const updatedStudent = await prisma.student.update({
+        where: { id: Number(id)},
+        data: {
+          discountId,
+        }
+      })
+
+      return res.status(200).send();
+    } catch (error) {
+      console.error("Erro ao atualizar student:", error);
+      return res.status(500).json({ error: "Erro interno ao atualizar student" });
+    }
+  },
+  
+  async deleteDiscount(req, res){
+    try {
+      const {id} = req.params
+
+      console.log(id)
+      const updatedStudent = await prisma.student.update({
+        where: { id: Number(id)},
+        data: {
+          discountId: null
+        }
+      })
+
+      return res.status(200).send();
+    } catch (error) {
+      console.error("Erro ao atualizar student:", error);
+      return res.status(500).json({ error: "Erro interno ao atualizar student" });
+    }
+  }
+}
 
 async function hashPassword(password) {
   const saltRounds = 10;
