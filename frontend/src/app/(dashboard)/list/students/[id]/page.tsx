@@ -28,6 +28,7 @@ import StudentReport from "@/components/report/StudentReport";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import ModalComponent from "../../../../../components/ModalComponent";
+import { Discount } from "../../../../../interfaces/discount";
 
 type Props = {
   params: { id: string };
@@ -51,10 +52,13 @@ const SingleStudentPage = ({ params }: Props) => {
   const [classes, setClasses] = useState<Classe[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<Classe[]>([]);
 
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+
   const [newStudent, setNewStudent] = useState<Student | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
+  const [selectDiscountVisible, setSelectDiscountVisible] = useState<boolean>(false);
 
   const [selectdClassId, setSelectedClassId] = useState<number>(null);
   const [selectedDiscountId, setSelectedDiscountId] = useState<number>(null);
@@ -65,7 +69,7 @@ const SingleStudentPage = ({ params }: Props) => {
   const [openDiscountModal, setOpenDiscountModal] = useState(false);
 
 
-  
+
   const handleOpenClassModal = async (classId) => {
     setOpenClassModal(true)
     setSelectedClassId(classId)
@@ -74,7 +78,7 @@ const SingleStudentPage = ({ params }: Props) => {
     setOpenDiscountModal(true)
     // setSelectedDiscountId(discountId)
   };
-  
+
   // const [open, setOpen] = useState(false);
 
   const handleClose = () => {
@@ -338,6 +342,31 @@ const SingleStudentPage = ({ params }: Props) => {
     }
   }
 
+  const fetchDiscounts = async () => {
+    setSelectDiscountVisible(true)
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3030/discount/getall`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar descontos do aluno.");
+
+      const data = await response.json();
+      setDiscounts(data)
+      console.log("descontos:", data);
+    } catch (error) {
+      console.error("Erro ao carregar descontos:", error);
+    }
+  }
+
   const deleteClassStudent = async () => {
 
 
@@ -438,21 +467,22 @@ const SingleStudentPage = ({ params }: Props) => {
 
         },
         method: 'PUT',
-        body: JSON.stringify({discountId: Number(selectedDiscountId)})
+        body: JSON.stringify({ discountId: Number(selectedDiscountId) })
 
       });
 
-      if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
+      if (!response.ok) throw new Error("Erro ao dadicionar desconto ao aluno.");
       setOpenDiscountModal(false)
 
       console.log(response)
 
-      window.alert("desconto deletada com sucesso")
+      window.alert("desconto adicionado com sucesso")
+      setSelectDiscountVisible(false)
       fetchStudent()
 
     } catch (error) {
       setSelectedClasses([])
-      console.error("Erro ao deletar matricula", error);
+      console.error("Erro ao adicionar swaconto", error);
     }
   }
 
@@ -661,18 +691,16 @@ const SingleStudentPage = ({ params }: Props) => {
       <Box className="flex justify-between">
         <Typography variant="body1" mb={3}>Descontos</Typography>
 
-        {/* {
-          selectVisible ? (
+        {
+          selectDiscountVisible ? (
             <Box display='flex' gap={2} >
 
               <Button color="error" variant="outlined" className="h-fit" onClick={() => {
-                setSelectedClasses([])
-                setClasse('')
-                setSelectVisible(false)
+                setSelectDiscountVisible(false)
               }}>
                 Cancelar
               </Button>
-              <Button color="primary" variant="contained" className="h-fit" onClick={confirmClasses}>
+              <Button color="primary" variant="contained" className="h-fit" onClick={addDiscountToStudent}>
                 Salvar
               </Button>
 
@@ -680,11 +708,41 @@ const SingleStudentPage = ({ params }: Props) => {
 
           ) : (
 
-            <Button color="primary" variant="contained" className="h-fit" onClick={fetchAvailableClasses}>
+            <Button color="primary" variant="contained" className="h-fit" onClick={() => {
+              if (student.discountId) {
+                window.alert("Já existe desconto aplicado a esse estudante")
+                return
+              } else {
+                fetchDiscounts()
+              }
+            }}>
               <Add fontSize="medium" />
             </Button>
           )
-        } */}
+        }
+      </Box>
+
+      <Box className={`${selectDiscountVisible ? 'visible' : 'hidden'} mb-4`}>
+        <FormControl className="w-32 " size="small">
+
+          <InputLabel id="demo-simple-select-label">Desconto</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            // value={discount}
+            onChange={(e) => {
+              const selectedId = e.target.value as string;
+              setSelectedDiscountId(selectedId)
+            }}
+          >
+            {
+              discounts?.map((discount) => (
+                <MenuItem key={discount.id} value={discount.id}>{discount.code}</MenuItem>
+              ))
+            }
+          </Select>
+        </FormControl>
+
       </Box>
 
       {
@@ -865,8 +923,8 @@ const SingleStudentPage = ({ params }: Props) => {
       })}
 
 
-      <ModalComponent onConfirm={deleteClassStudent} open={openClassModal} handleClose={handleClose}/>
-      <ModalComponent onConfirm={deleteDiscountFromStudent} open={openDiscountModal} handleClose={handleClose}/>
+      <ModalComponent onConfirm={deleteClassStudent} open={openClassModal} handleClose={handleClose} />
+      <ModalComponent onConfirm={deleteDiscountFromStudent} open={openDiscountModal} handleClose={handleClose} />
 
 
       <Divider sx={{ my: 3 }} />
