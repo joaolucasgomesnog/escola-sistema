@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRenderCellParams, GridSearchIcon } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
 import FormModal from "@/components/FormModal";
 import { role } from "@/lib/data";
-import { Avatar, Box, Button, IconButton, Typography } from "@mui/material";
+import { Avatar, Box, Button, IconButton, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
@@ -35,63 +35,89 @@ const StudentListPage = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+    const [searchFields, setSearchFields] = useState({
+      nome: '',
+      endereco: '',
+      bairro: '',
+      cidade: '',
+      turma: '',
+      curso: '',
+      cpf: ''
+    });
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const token = Cookies.get("auth_token");
-
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        const response = await fetch("http://localhost:3030/student/getall", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            Cookies.remove("auth_token");
-            router.push("/login");
+      const handleInputChange = (e: any) => {
+        const { name, value } = e.target;
+        setSearchFields((prev) => ({ ...prev, [name]: value }));
+      };
+    
+      const handleSearch = async () => {
+        try {
+          const token = Cookies.get("auth_token");
+    
+          if (!token) {
+            router.push("/sign-in");
             return;
           }
-
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao buscar estudantes");
+    
+          // Montar query string com os campos preenchidos
+          const queryParams = new URLSearchParams();
+          Object.entries(searchFields).forEach(([key, value]) => {
+            if (value.trim() !== "") {
+              queryParams.append(key, value.trim());
+            }
+          });
+    
+          // ✅ Impede busca se todos os campos estiverem vazios
+          if ([...queryParams].length === 0) {
+            console.warn("Nenhum campo de busca preenchido.");
+            setStudents([]); // limpa resultados anteriores se quiser
+            return;
+          }
+    
+          const response = await fetch(`http://localhost:3030/student/search?${queryParams.toString()}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+    
+          if (!response.ok) {
+            if (response.status === 401) {
+              Cookies.remove("auth_token");
+              router.push("/sign-in");
+              return;
+            }
+    
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Erro ao buscar estudantes");
+          }
+    
+          const data = await response.json();
+    
+          const formattedStudents: Student[] = data.map((s: any) => ({
+            id: s.id,
+            studentId: String(s.id),
+            cpf: s.cpf || "",
+            name: s.name,
+            email: s.email || "",
+            photo: s.picture || "/default-avatar.png",
+            phone: s.phone || "",
+            grade: s.grade || 0,
+            class: s.class || "",
+            address: s.address
+              ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
+              : "Endereço não informado",
+          }));
+    
+          setStudents(formattedStudents);
+        } catch (error) {
+          console.error("Erro na busca de estudantes:", error);
+          setError(error instanceof Error ? error.message : "Erro desconhecido");
         }
+      };
+    
 
-        const data = await response.json();
-
-        const formattedStudents: Student[] = data.map((s: any) => ({
-          id: s.id,
-          studentId: String(s.id),
-          name: s.name,
-          email: s.email || "",
-          photo: s.picture || "/default-avatar.png",
-          phone: s.phone || "",
-          grade: s.grade || 0,
-          class: s.class || "",
-          address: s.address
-            ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
-            : "Endereço não informado",
-        }));
-
-        setStudents(formattedStudents);
-      } catch (error) {
-        console.error("Erro ao buscar dados dos estudantes:", error);
-        setError(error instanceof Error ? error.message : "Erro desconhecido");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStudents();
-  }, [router]);
 
   const columns: GridColDef[] = [
     {
@@ -168,6 +194,20 @@ const StudentListPage = () => {
         {role === "admin" && (
           <FormModal table="student" type="create" />
         )}
+      </Box>
+
+     {/* Formulário de busca */}
+      <Box display="flex" gap={1} flexWrap="wrap" alignItems="center" maxWidth="100%">
+        <TextField label="CPF" sx={{ flex: 1 }} name="cpf" value={searchFields.cpf} onChange={handleInputChange} size="small" />
+        <TextField label="Nome" sx={{ flex: 2 }} name="nome" value={searchFields.nome} onChange={handleInputChange} size="small" />
+        <TextField label="Endereço" sx={{ flex: 1 }} name="endereco" value={searchFields.endereco} onChange={handleInputChange} size="small" />
+        <TextField label="Bairro" sx={{ flex: 1 }} name="bairro" value={searchFields.bairro} onChange={handleInputChange} size="small" />
+        <TextField label="Cidade" sx={{ flex: 1 }} name="cidade" value={searchFields.cidade} onChange={handleInputChange} size="small" />
+        <TextField label="Turma" sx={{ flex: 0.5 }} name="turma" value={searchFields.turma} onChange={handleInputChange} size="small" />
+        <TextField label="Curso" sx={{ flex: 1 }} name="curso" value={searchFields.curso} onChange={handleInputChange} size="small" />
+        <Button variant="contained" color="primary" onClick={handleSearch} startIcon={<GridSearchIcon />}>
+          Buscar
+        </Button>
       </Box>
 
       <Table rows={students} columns={columns} />
