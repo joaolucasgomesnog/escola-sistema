@@ -74,9 +74,9 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
 
                         return (
                             <Box key={turma.code} mb={1}>
-                                <Typography variant="body2" style={{ fontSize: 10 }}>Curso: {turma.course.name}</Typography>
-                                <Typography variant="body2" style={{ fontSize: 10 }}>Turma: {turma.name}</Typography>
-                                <Typography variant="body2" style={{ fontSize: 10 }}>Professor: {turma.teacher.name}</Typography>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Curso: {turma?.course?.name}</Typography>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Turma: {turma?.name}</Typography>
+                                <Typography variant="body2" style={{ fontSize: 10 }}>Professor: {turma?.teacher?.name}</Typography>
                                 <Typography variant="body2" style={{ fontSize: 10 }}>Horários: {horario}</Typography>
                             </Box>
                         );

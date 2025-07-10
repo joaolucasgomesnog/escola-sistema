@@ -194,6 +194,64 @@ export default {
     }
   },
 
+async searchTeachers(req, res) {
+  try {
+    const { nome, endereco, bairro, cidade, turma, curso, cpf } = req.query;
+
+    const teachers = await prisma.teacher.findMany({
+      where: {
+        name: nome ? { contains: nome, mode: "insensitive" } : undefined,
+        cpf: cpf ? { contains: cpf } : undefined,
+        address: {
+          AND: [
+            endereco
+              ? { street: { contains: endereco, mode: "insensitive" } }
+              : {},
+            bairro
+              ? { neighborhood: { contains: bairro, mode: "insensitive" } }
+              : {},
+            cidade ? { city: { contains: cidade, mode: "insensitive" } } : {},
+          ],
+        },
+        Class:
+          turma || curso
+            ? {
+                some: {
+                  AND: [
+                    turma
+                      ? { name: { contains: turma, mode: "insensitive" } }
+                      : {},
+                    curso
+                      ? {
+                          course: {
+                            name: { contains: curso, mode: "insensitive" },
+                          },
+                        }
+                      : {},
+                  ],
+                },
+              }
+            : undefined,
+      },
+      include: {
+        address: true,
+        Class: {
+          include: {
+            course: true,
+          },
+        },
+      },
+    });
+
+    const teachersWithoutPassword = teachers.map(({ password, ...rest }) => rest);
+
+    res.status(200).json(teachersWithoutPassword);
+  } catch (error) {
+    console.error("Erro ao buscar professores com filtros:", error);
+    res.status(500).json({ error: "Erro interno ao buscar professores" });
+  }
+},
+
   // Deletar teacher
   async deleteTeacher(req, res) {
     try {

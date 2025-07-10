@@ -6,13 +6,14 @@ import Image from "next/image";
 import Link from "next/link";
 import FormModal from "@/components/FormModal";
 import { role } from "@/lib/data";
-import { Avatar, Box, Button, Typography } from "@mui/material";
+import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { formatPhone } from "@/lib/formatValues";
+import { GridSearchIcon } from "@mui/x-data-grid";
 
 type Teacher = {
   id: number;
@@ -33,63 +34,89 @@ const TeacherListPage = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+    const [searchFields, setSearchFields] = useState({
+    nome: '',
+    endereco: '',
+    bairro: '',
+    cidade: '',
+    turma: '',
+    curso: '',
+    cpf: ''
+  });
 
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const token = Cookies.get("auth_token");
+    const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setSearchFields((prev) => ({ ...prev, [name]: value }));
+  };
 
-        if (!token) {
-          router.push("/login");
+  const handleSearch = async () => {
+    try {
+      const token = Cookies.get("auth_token");
+
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      // Montar query string com os campos preenchidos
+      const queryParams = new URLSearchParams();
+      Object.entries(searchFields).forEach(([key, value]) => {
+        if (value.trim() !== "") {
+          queryParams.append(key, value.trim());
+        }
+      });
+
+      // ✅ Impede busca se todos os campos estiverem vazios
+      if ([...queryParams].length === 0) {
+        console.warn("Nenhum campo de busca preenchido.");
+        setTeachers([]); // limpa resultados anteriores se quiser
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3030/teacher/search?${queryParams.toString()}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          Cookies.remove("auth_token");
+          router.push("/sign-in");
           return;
         }
 
-        const response = await fetch("http://localhost:3030/teacher/getall", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            Cookies.remove("auth_token");
-            router.push("/login");
-            return;
-          }
-
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao buscar professores");
-        }
-
-        const data = await response.json();
-
-        const formattedTeachers: Teacher[] = data.map((s: any) => ({
-          id: s.id,
-          teacherId: String(s.id),
-          name: s.name,
-          email: s.email || "",
-          photo: s.picture || "/default-avatar.png",
-          phone: s.phone || "",
-          grade: s.grade || 0,
-          class: s.class || "",
-          address: s.address
-            ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
-            : "Endereço não informado",
-        }));
-
-        setTeachers(formattedTeachers);
-      } catch (error) {
-        console.error("Erro ao buscar dados dos professores:", error);
-        setError(error instanceof Error ? error.message : "Erro desconhecido");
-      } finally {
-        setLoading(false);
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao buscar estudantes");
       }
-    };
 
-    fetchTeachers();
-  }, [router]);
+      const data = await response.json();
+
+      const formattedTeachers: Teacher[] = data.map((s: any) => ({
+        id: s.id,
+        teacherId: String(s.id),
+        cpf: s.cpf || "",
+        name: s.name,
+        email: s.email || "",
+        photo: s.picture || "/default-avatar.png",
+        phone: s.phone || "",
+        grade: s.grade || 0,
+        class: s.class || "",
+        address: s.address
+          ? `${s.address.street}, ${s.address.number} - ${s.address.neighborhood}, ${s.address.city} - ${s.address.state}`
+          : "Endereço não informado",
+      }));
+
+      setTeachers(formattedTeachers);
+    } catch (error) {
+      console.error("Erro na busca de estudantes:", error);
+      setError(error instanceof Error ? error.message : "Erro desconhecido");
+    }
+  };
+
+
 
   const columns: GridColDef[] = [
     {
@@ -167,7 +194,19 @@ const TeacherListPage = () => {
           <FormModal table="teacher" type="create" />
         )}
       </Box>
-
+      {/* Formulário de busca */}
+      <Box display="flex" gap={1} flexWrap="wrap" alignItems="center" maxWidth="100%">
+        <TextField label="CPF" sx={{ flex: 1 }} name="cpf" value={searchFields.cpf} onChange={handleInputChange} size="small" />
+        <TextField label="Nome" sx={{ flex: 2 }} name="nome" value={searchFields.nome} onChange={handleInputChange} size="small" />
+        <TextField label="Endereço" sx={{ flex: 1 }} name="endereco" value={searchFields.endereco} onChange={handleInputChange} size="small" />
+        <TextField label="Bairro" sx={{ flex: 1 }} name="bairro" value={searchFields.bairro} onChange={handleInputChange} size="small" />
+        <TextField label="Cidade" sx={{ flex: 1 }} name="cidade" value={searchFields.cidade} onChange={handleInputChange} size="small" />
+        <TextField label="Turma" sx={{ flex: 0.5 }} name="turma" value={searchFields.turma} onChange={handleInputChange} size="small" />
+        <TextField label="Curso" sx={{ flex: 1 }} name="curso" value={searchFields.curso} onChange={handleInputChange} size="small" />
+        <Button variant="contained" color="primary" onClick={handleSearch} startIcon={<GridSearchIcon />}>
+          Buscar
+        </Button>
+      </Box>
       <Table rows={teachers} columns={columns} />
     </Box>
   );
