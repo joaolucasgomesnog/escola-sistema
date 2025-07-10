@@ -8,9 +8,11 @@ import Decimal from 'decimal.js';
 import {
   Box,
   Button,
+  Divider,
   TextField,
   Typography
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 
 interface Discount {
   id: number;
@@ -32,6 +34,13 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newDiscount, setNewDiscount] = useState<Discount | undefined>(undefined);
 
+  const studentColumns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 0.3 },
+    { field: "name", headerName: "Nome", flex: 2 },
+    { field: "cpf", headerName: "CPF", flex: 2 },
+    { field: "phone", headerName: "Telefone", flex: 2 },
+    
+  ];
   useEffect(() => {
     const fetchDiscount = async () => {
       const token = Cookies.get("auth_token");
@@ -43,6 +52,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
         });
         if (!res.ok) throw new Error("Erro ao buscar desconto");
         const data = await res.json();
+        console.log(data)
         setDiscount(data);
       } catch (err) {
         console.error(err);
@@ -145,6 +155,15 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
           sx={{ flex: 2 }}
         />
 
+      </Box>
+      <Divider sx={{mb:4}} />
+      <Typography sx={{mb:2}} >Estudantes com esse desconto</Typography>
+      <Box sx={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={discount?.students}
+          columns={studentColumns}
+          getRowId={(row) => row.id}
+        />
       </Box>
     </Box>
   );
