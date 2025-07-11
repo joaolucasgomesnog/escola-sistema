@@ -53,7 +53,7 @@ const SingleClassPage = ({ params }) => {
   useEffect(() => {
     const fetchClass = async () => {
       const token = Cookies.get("auth_token");
-      if (!token) return router.push("/login");
+      if (!token) return router.push("/sign-in");
 
       try {
         const res = await fetch(`http://localhost:3030/class/get-by-id/${id}`, {
@@ -71,7 +71,7 @@ const SingleClassPage = ({ params }) => {
 
     const fetchStudents = async () => {
       const token = Cookies.get("auth_token");
-      if (!token) return router.push("/login");
+      if (!token) return router.push("/sign-in");
 
       try {
         const res = await fetch(`http://localhost:3030/student/getall-by-class/${id}`, {

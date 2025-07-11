@@ -52,7 +52,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
 
     const fetchCourse = async () => {
       const token = Cookies.get("auth_token");
-      if (!token) return router.push("/login");
+      if (!token) return router.push("/sign-in");
 
       try {
         const res = await fetch(`http://localhost:3030/course/get-by-id/${id}`, {
@@ -70,7 +70,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
 
     const fetchTeachers = async () => {
       const token = Cookies.get("auth_token");
-      if (!token) return router.push("/login");
+      if (!token) return router.push("/sign-in");
       try {
         const res = await fetch(`http://localhost:3030/teacher/getall-by-course/${id}`, {
           headers: { Authorization: `Bearer ${token}` },

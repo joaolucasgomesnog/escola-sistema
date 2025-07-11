@@ -45,7 +45,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
   useEffect(() => {
     const fetchDiscount = async () => {
       const token = Cookies.get("auth_token");
-      if (!token) return router.push("/login");
+      if (!token) return router.push("/sign-in");
 
       try {
         const res = await fetch(`http://localhost:3030/discount/get/${id}`, {
