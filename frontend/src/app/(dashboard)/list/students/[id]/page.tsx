@@ -7,6 +7,7 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   FormControl,
   IconButton,
@@ -457,7 +458,15 @@ const SingleStudentPage = ({ params }: Props) => {
   }
 
 
-  if (loading) return <Typography>Carregando...</Typography>;
+    if (loading) return (
+      <Box
+      flex={1}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <CircularProgress />
+    </Box>)
   if (!student) return <Typography>Aluno não encontrado.</Typography>;
 
   return (

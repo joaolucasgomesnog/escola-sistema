@@ -7,6 +7,7 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   FormControl,
   IconButton,
@@ -124,7 +125,15 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
     }
   };
 
-  if (loading) return <Typography>Carregando...</Typography>;
+    if (loading) return (
+      <Box
+      flex={1}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <CircularProgress />
+    </Box>)
   if (!course) return <Typography>Curso não encontrado.</Typography>;
 
   return (

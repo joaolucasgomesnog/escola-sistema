@@ -6,12 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import FormModal from "@/components/FormModal";
 import { role } from "@/lib/data";
-import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
+import { Avatar, Box, Button, IconButton, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../../../theme";
 import Table from "@/components/Table";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 type ClassType = {
   id: number;
@@ -194,13 +197,13 @@ const CourseListPage = () => {
       renderCell: (params: GridRenderCellParams) => (
         <div className="flex items-center gap-2 h-12">
           <Link href={`/list/classes/${params.row.id}`}>
-            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
-              <Image src="/view.png" alt="" width={16} height={16} />
-            </button>
+            <IconButton>
+              <VisibilityIcon />
+            </IconButton>
           </Link>
-          {role === "admin" && (
-            <FormModal table="class" type="delete" id={params.row.id} />
-          )}
+          <IconButton>
+            <DeleteIcon />
+          </IconButton>
         </div>
       ),
     },

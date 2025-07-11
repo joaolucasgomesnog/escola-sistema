@@ -1,13 +1,14 @@
 
 'use client';
 
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   FormControl,
   IconButton,
@@ -64,7 +65,7 @@ const SingleTeacherPage = ({ params }: Props) => {
 
   const [classe, setClasse] = useState('');
 
-  const [selectdClassId, setSelectedClassId] = useState<number>(null);
+  const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
 
   const [open, setOpen] = useState(false);
 
@@ -80,7 +81,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     p: 4,
   };
 
-  const handleOpen = async (classId) => {
+  const handleOpen = async (classId: number) => {
     setOpen(true)
     setSelectedClassId(classId)
   };
@@ -357,7 +358,15 @@ const SingleTeacherPage = ({ params }: Props) => {
 
 
 
-  if (loading) return <Typography>Carregando...</Typography>;
+  if (loading) return (
+      <Box
+      flex={1}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <CircularProgress />
+    </Box>)
   if (!teacher) return <Typography>Professor não encontrado.</Typography>;
 
   return (

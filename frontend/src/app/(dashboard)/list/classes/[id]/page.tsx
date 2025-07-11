@@ -7,6 +7,7 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   TextField,
   Typography
@@ -121,7 +122,15 @@ const SingleClassPage = ({ params }) => {
 
   ];
 
-  if (loading) return <Typography>Carregando...</Typography>;
+    if (loading) return (
+      <Box
+      flex={1}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <CircularProgress />
+    </Box>)
   if (!turma) return <Typography>Turma não encontrada.</Typography>;
 
   return (
