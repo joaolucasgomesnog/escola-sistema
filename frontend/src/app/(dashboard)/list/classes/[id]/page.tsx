@@ -16,7 +16,7 @@ import { useReactToPrint } from "react-to-print";
 import PrintIcon from '@mui/icons-material/Print';
 import { Class } from "@/interfaces/class";
 import { Student } from "../../../../../interfaces/student";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
@@ -34,7 +34,11 @@ const weekdays = [
   { key: 'saturday', label: 'Sábado' },
 ];
 
-const SingleClassPage = ({ params }) => {
+interface SingleClassPageProps {
+  params: { id: string };
+}
+
+const SingleClassPage = ({ params }: SingleClassPageProps) => {
   const { id } = params;
   const router = useRouter();
 

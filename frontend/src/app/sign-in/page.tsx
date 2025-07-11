@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Button, FormControlLabel, Radio, RadioGroup } from "@mui/material";
@@ -29,7 +29,10 @@ const LoginPage = () => {
     console.log('Selecionado:', event.target.value); // opcional: exibe no console
   };
 
-
+useEffect(() => {
+  Cookies.remove('auth_token');
+},[router])
+  
 const handleLogin = async () => {
   try {
     setSubmitting(true);
@@ -45,6 +48,7 @@ const handleLogin = async () => {
 
     if (!response.ok) {
       alert(data.error || 'Erro ao fazer login');
+      setSubmitting(false);
       return;
     }
 
