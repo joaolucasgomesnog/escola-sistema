@@ -1,4 +1,11 @@
+import { Course } from "./course";
+import { Student } from "./student";
+import { Teacher } from "./teacher";
+// Make sure attendance.ts exists in the same directory, or update the path if it's elsewhere.
+import { Attendance } from "./attendance";
+
 export interface Class {
+  image: string | undefined;
   id: number;
   code: string;
   name: string;

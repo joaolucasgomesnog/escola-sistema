@@ -42,11 +42,11 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
   const { id } = params;
   const router = useRouter();
 
-  const [turma, setTurma] = useState<Class>(null);
+  const [turma, setTurma] = useState<Class | null>(null);
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [newTurma, setNewTurma] = useState<Class>(null);
+  const [newTurma, setNewTurma] = useState<Class | null>(null);
 
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -94,6 +94,10 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
   }, [id]);
 
   const updateClass = async () => {
+    if (!newTurma) {
+      console.error("newTurma is null");
+      return;
+    }
     try {
       const token = Cookies.get('auth_token');
       const res = await fetch(`http://localhost:3030/class/update/${id}`, {
