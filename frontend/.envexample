@@ -1,2 +1,0 @@
-EXPO_PUBLIC_AXIOS_BASE_URL=http://10.0.0.100:3030
-JWT_SECRET=sua_chave_secreta_usada_no_backend
