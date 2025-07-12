@@ -54,20 +54,20 @@ const SingleStudentPage = ({ params }: Props) => {
 
   const [classes, setClasses] = useState<Classe[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<Classe[]>([]);
-  const [selectdClassId, setSelectedClassId] = useState<number>(null);
+  const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
   const [classe, setClasse] = useState('');
   
-  const [selectedDiscountId, setSelectedDiscountId] = useState<number>(null);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
   const [selectDiscountVisible, setSelectDiscountVisible] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const [openClassModal, setOpenClassModal] = useState(false);
-  const [openDiscountModal, setOpenDiscountModal] = useState(false);
+  const [openClassModal, setOpenClassModal] = useState<boolean>(false);
+  const [openDiscountModal, setOpenDiscountModal] = useState<boolean>(false);
 
-  const handleOpenClassModal = async (classId) => {
+  const handleOpenClassModal = async (classId: number) => {
     setOpenClassModal(true)
     setSelectedClassId(classId)
   };
@@ -284,16 +284,15 @@ const SingleStudentPage = ({ params }: Props) => {
         })
       });
 
-      if (!response.ok) throw new Error("Erro ao buscar mensalidades do aluno.");
+      if (!response.ok) throw new Error("Erro ao confirmar turmas do aluno.");
 
       const data = await response.json();
       // setClasses(data)
-      window.alert("matrícula efetuada com sucesso")
+      window.alert("Matrícula efetuada com sucesso")
       fetchStudentFees(Number(id))
-      console.log("retorno:", data);
     } catch (error) {
       setSelectedClasses([])
-      console.error("Erro ao carregar classes:", error);
+      console.error("Erro ao confirmar turmas:", error);
     }
   }
 
@@ -355,10 +354,6 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      if (!selectdClassId) {
-        setOpen(false)
-        return
-      }
 
       const response = await fetch(`http://localhost:3030/class-student/delete/${selectdClassId}/${id}`, {
         headers: {
@@ -370,8 +365,7 @@ const SingleStudentPage = ({ params }: Props) => {
       });
 
       if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
-      setOpen(false)
-      window.alert("matrícula deletada com sucesso")
+      window.alert("Matrícula deletada com sucesso")
       fetchStudent()
 
     } catch (error) {
@@ -399,14 +393,14 @@ const SingleStudentPage = ({ params }: Props) => {
         method: 'PUT',
       });
 
-      if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
+      if (!response.ok) throw new Error("Erro ao deletar desconto do aluno.");
       setOpenDiscountModal(false)
-      window.alert("desconto deletada com sucesso")
+      window.alert("Desconto deletado com sucesso")
       fetchStudent()
 
     } catch (error) {
       setSelectedClasses([])
-      console.error("Erro ao deletar matricula", error);
+      console.error("Erro ao deletar desconto", error);
     }
   }
 
@@ -431,18 +425,18 @@ const SingleStudentPage = ({ params }: Props) => {
 
       });
 
-      if (!response.ok) throw new Error("Erro ao dadicionar desconto ao aluno.");
+      if (!response.ok) throw new Error("Erro ao adicionar desconto ao aluno.");
       setOpenDiscountModal(false)
 
       console.log(response)
 
-      window.alert("desconto adicionado com sucesso")
+      window.alert("Desconto adicionado com sucesso")
       setSelectDiscountVisible(false)
       fetchStudent()
 
     } catch (error) {
       setSelectedClasses([])
-      console.error("Erro ao adicionar swaconto", error);
+      console.error("Erro ao adicionar desconto", error);
     }
   }
 
@@ -699,7 +693,7 @@ const SingleStudentPage = ({ params }: Props) => {
             // value={discount}
             onChange={(e) => {
               const selectedId = e.target.value as string;
-              setSelectedDiscountId(selectedId)
+              setSelectedDiscountId(Number(selectedId))
             }}
           >
             {

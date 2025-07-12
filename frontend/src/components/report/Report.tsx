@@ -58,6 +58,7 @@ const Report = React.forwardRef<HTMLDivElement, ReportProps>(({ children, title 
     </div>
   );
 });
+Report.displayName = "Report";
 
 
 export default Report;

@@ -59,10 +59,10 @@ const CourseForm = ({
   });
 
   const [registrationFeeValue, setRegistrationFeeValue] = useState(
-    data?.registrationFeeValue ? formatValor(data.registrationFeeValue.toString()) : ""
+    data?.registrationFeeValue ? formatValue(data.registrationFeeValue.toString()) : ""
   );
   const [monthlyFeeValue, setMonthlyFeeValue] = useState(
-    data?.monthlyFeeValue ? formatValor(data.monthlyFeeValue.toString()) : ""
+    data?.monthlyFeeValue ? formatValue(data.monthlyFeeValue.toString()) : ""
   );
 
   const onSubmit = handleSubmit(async (formData) => {
@@ -129,14 +129,14 @@ const CourseForm = ({
 
       <div className="flex flex-wrap gap-4">
 
-        <TextField label="Taxa de matrícula" type="text" {...register("registrationFeeValue")} value={watch("registrationFeeValue") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.registrationFeeValue}
+        <TextField label="Taxa de matrícula" type="text" {...register("registrationFeeValue")} value={watch("registrationFeeValue") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.registrationFeeValue?.message}
           onChange={(e) => {
             const formatted = formatValue(e.target.value);
             setValue("registrationFeeValue", formatted);
           }}
         />
 
-        <TextField label="Valor mensalidade" type="text" {...register("monthlyFeeValue")} value={watch("monthlyFeeValue") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.monthlyFeeValue}
+        <TextField label="Valor mensalidade" type="text" {...register("monthlyFeeValue")} value={watch("monthlyFeeValue") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.monthlyFeeValue?.message}
           onChange={(e) => {
             const formatted = formatValue(e.target.value);
             setValue("monthlyFeeValue", formatted);

@@ -46,7 +46,9 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [newTurma, setNewTurma] = useState<Class | null>(null);
+  const [newTurma, setNewTurma] = useState<Partial<Class>>({});
+  const [schedule, setSchedule] = useState<Record<string, string>>({});
+
 
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -98,6 +100,12 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
       console.error("newTurma is null");
       return;
     }
+
+    if (!newTurma.startDate || !newTurma.endDate) {
+      alert("Preencha as datas");
+      return;
+    }
+
     try {
       const token = Cookies.get('auth_token');
       const res = await fetch(`http://localhost:3030/class/update/${id}`, {
@@ -130,8 +138,8 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
 
   ];
 
-    if (loading) return (
-      <Box
+  if (loading) return (
+    <Box
       flex={1}
       display="flex"
       justifyContent="center"
@@ -198,7 +206,11 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
           label="Data de início"
           size="small"
           type="date"
-          value={isEditing ? newTurma?.startDate.split("T")[0] ?? "" : turma.startDate.split("T")[0] ?? ""}
+          value={
+            isEditing
+              ? newTurma?.startDate?.split("T")[0] ?? ""
+              : turma.startDate.split("T")[0] ?? ""
+          }
           onChange={(e) => isEditing && setNewTurma({ ...newTurma, startDate: e.target.value })}
           InputProps={{ readOnly: !isEditing }}
           InputLabelProps={{ shrink: true }} // Força o label a subir
@@ -209,7 +221,7 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
           label="Data de término"
           size="small"
           type="date"
-          value={isEditing ? newTurma?.endDate.split("T")[0] ?? "" : turma.endDate.split("T")[0] ?? ""}
+          value={isEditing ? newTurma?.endDate?.split("T")[0] ?? "" : turma.endDate.split("T")[0] ?? ""}
           onChange={(e) => isEditing && setNewTurma({ ...newTurma, endDate: e.target.value })}
           InputProps={{ readOnly: !isEditing }}
           InputLabelProps={{ shrink: true }} // Força o label a subir
@@ -217,7 +229,7 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
           sx={{ flex: 2 }}
         />
       </Box>
-        <Typography variant="body1">Horarios</Typography>
+      <Typography variant="body1">Horarios</Typography>
 
 
       <Box display="flex" flexWrap="wrap" flexDirection='column' gap={2} my={4}>
@@ -235,12 +247,12 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
                   size="small"
                   InputProps={{ readOnly: true }}
                   sx={{ width: 200 }}
-                  
+
                 />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <TimePicker
                     label="Hora"
-                    value={dayjs(timeValue)}
+                    value={dayjs(timeValue as string)}
                     onChange={(newValue) => {
                       if (newValue) {
                         const utcIso = dayjs(newValue).utc().toISOString();

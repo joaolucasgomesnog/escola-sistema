@@ -64,7 +64,7 @@ const ClassForm = ({
   });
 
   const [courses, setCourses] = useState<Course[]>([])
-  const [selectedCourseId, setSelectedCourseId] = useState<Course>(null)
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null)
 
   const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [schedule, setSchedule] = useState<Record<string, string | null>>({
@@ -202,7 +202,7 @@ const ClassForm = ({
           const label = weekdays.find((d) => d.key === day)?.label;
 
           return (
-            <Box display='flex' gap={2}>
+            <Box display='flex' gap={2} key={day}>
               <TextField
                 label="Dia"
                 value={label ?? ""}
@@ -249,9 +249,10 @@ const ClassForm = ({
           onChange={(e) => {
             const selectedCode = e.target.value as string;
             const selectedCourse = courses.find((course) => course.code === selectedCode);
-            if (selectedCourse) {
+            if (selectedCourse?.id !== undefined) {
               setSelectedCourseId(selectedCourse.id);
             }
+
           }}
         >
           {

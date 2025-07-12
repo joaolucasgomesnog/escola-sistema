@@ -1,11 +1,11 @@
 interface Course{
-  image: string | undefined
-  id: number
+  image?: string | undefined
+  id?: number
   name: string
   code: string
   picture: string
-  registrationFeeValue: float
-  MonthlyFeeValue: float
+  registrationFeeValue: number | string
+  MonthlyFeeValue: number | string
 }
 
 export type {Course}

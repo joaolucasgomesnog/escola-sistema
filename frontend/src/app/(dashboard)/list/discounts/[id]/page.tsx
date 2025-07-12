@@ -13,14 +13,8 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-
-interface Discount {
-  id: number;
-  code: string;
-  description: string;
-  percentage: number;
-}
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { Discount } from "../../../../../interfaces/discount";
 
 interface SingleDiscountPageProps {
   params: { id: string };
@@ -76,7 +70,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
         },
         body: JSON.stringify({
           ...newDiscount,
-          percentage: parseFloat(newDiscount?.percentage),
+          percentage: parseFloat(String(newDiscount?.percentage ?? 0)),
         }),
       });
 
@@ -157,7 +151,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
               value = parts[0] + "." + parts.slice(1).join(""); // remove pontos extras
             }
 
-            setNewDiscount({ ...newDiscount!, percentage: value });
+            setNewDiscount({ ...newDiscount!, percentage: parseFloat(value) });
           }}
           InputProps={{ readOnly: !isEditing }}
           inputProps={{ maxLength: 6 }}

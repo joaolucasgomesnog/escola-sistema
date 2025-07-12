@@ -8,4 +8,4 @@ interface Address {
   postalCode: string
 }
 
-export {Address}
+export type { Address }

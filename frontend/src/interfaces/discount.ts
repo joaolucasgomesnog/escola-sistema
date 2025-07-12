@@ -1,6 +1,6 @@
 import { Student } from "./student";
 
-export interface Discount {
+ interface Discount {
   id: number;
   code: string;
   description: string;
@@ -8,3 +8,4 @@ export interface Discount {
   students?: Student[];
 }
 
+export type {Discount}

@@ -40,7 +40,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
   const [classes, setClasses] = useState([]);
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [newCourse, setNewCourse] = useState<Course | undefined>(undefined);
+  const [newCourse, setNewCourse] = useState<Partial<Course>>({});
 
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -103,6 +103,12 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
   };
   const updateCourse = async () => {
     try {
+
+      if (!newCourse || !newCourse.registrationFeeValue || !newCourse.MonthlyFeeValue) {
+        // Exibir erro ou retornar cedo
+        alert("Campos obrigatórios não preenchidos");
+        return;
+      }
       const token = Cookies.get('auth_token');
       const res = await fetch(`http://localhost:3030/course/update/${id}`, {
         method: 'PUT',
@@ -112,8 +118,9 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
         },
         body: JSON.stringify({
           ...newCourse,
-          registrationFeeValue: Number(newCourse.registrationFeeValue.replace(/[^0-9,]/g, '').replace(',', '.')),
-          MonthlyFeeValue: Number(newCourse.MonthlyFeeValue.replace(/[^0-9,]/g, '').replace(',', '.'))
+          registrationFeeValue: Number(String(newCourse!.registrationFeeValue).replace(/[^0-9,]/g, '').replace(',', '.')),
+          MonthlyFeeValue: Number(String(newCourse!.MonthlyFeeValue).replace(/[^0-9,]/g, '').replace(',', '.')),
+
         }),
       });
       const data = await res.json();
@@ -125,8 +132,8 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
     }
   };
 
-    if (loading) return (
-      <Box
+  if (loading) return (
+    <Box
       flex={1}
       display="flex"
       justifyContent="center"
@@ -144,7 +151,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
       </Box>
 
       <Box display="flex" alignItems="center" gap={2} flexDirection="column" m={6}>
-        <Avatar src={course.image} sx={{ width: 150, height: 150 }} />
+        <Avatar src={course?.image} sx={{ width: 150, height: 150 }} />
         <Typography variant="h6" fontWeight="bold" color="primary">{course.name.toUpperCase()}</Typography>
       </Box>
 
@@ -231,7 +238,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
       <Divider sx={{ mb: 3 }} />
       <Typography variant="body1" mb={2}>Professores inscritos</Typography>
 
-      {teachers.length !=0 ? teachers?.map((teacher) => (
+      {teachers.length != 0 ? teachers?.map((teacher) => (
         <Box key={teacher.id} display="flex" gap={2} mb={2}>
           <TextField label="Nome" value={teacher.name ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 2 }} />
           <TextField label="CPF" value={teacher.cpf ?? ""} size="small" InputProps={{ readOnly: true }} sx={{ flex: 1 }} />

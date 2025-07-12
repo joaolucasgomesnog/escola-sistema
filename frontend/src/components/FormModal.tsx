@@ -50,6 +50,7 @@ const FormModal = ({
     | "parent"
     | "course"
     | "class"
+    | "discount"
     | "lesson"
     | "exam"
     | "assignment"

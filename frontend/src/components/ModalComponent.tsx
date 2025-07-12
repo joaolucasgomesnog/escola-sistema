@@ -3,11 +3,14 @@
 import { Box, Button, Modal, Typography } from "@mui/material";
 import { useState } from "react";
 
-export default function ModalComponent({onConfirm, open, handleClose}) {
+interface ModalComponentProps {
+  open: boolean
+  onConfirm: () => void
+  handleClose: () => void
+}
 
-  // const [open, setOpen] = useState(!!openModal);
+export default function ModalComponent({onConfirm, open, handleClose}: ModalComponentProps) {
 
-  // const handleClose = () => setOpen(false);
 
   const style = {
     position: 'absolute',
