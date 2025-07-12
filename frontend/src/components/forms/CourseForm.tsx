@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import NumberFormat from "react-number-format";
 import { useState } from "react";
 import { TextField } from "@mui/material";
+import { BASE_URL } from "../../app/constants/baseUrl";
 
 const formatValue = (value: string) => {
   const numeric = value.replace(/\D/g, '').padStart(3, '0'); // Garante pelo menos 3 dígitos
@@ -72,7 +73,7 @@ const CourseForm = ({
 
       const token = Cookies.get("auth_token");
 
-      const response = await fetch(`http://localhost:3030/course/${type}`, {
+      const response = await fetch(`${BASE_URL}/course/${type}`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

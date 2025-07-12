@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Discount } from "../../../../../interfaces/discount";
+import { BASE_URL } from "../../../../constants/baseUrl";
 
 interface SingleDiscountPageProps {
   params: { id: string };
@@ -42,7 +43,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
       if (!token) return router.push("/sign-in");
 
       try {
-        const res = await fetch(`http://localhost:3030/discount/get/${id}`, {
+        const res = await fetch(`${BASE_URL}/discount/get/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Erro ao buscar desconto");
@@ -62,7 +63,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
   const updateDiscount = async () => {
     try {
       const token = Cookies.get("auth_token");
-      const res = await fetch(`http://localhost:3030/discount/update/${id}`, {
+      const res = await fetch(`${BASE_URL}/discount/update/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

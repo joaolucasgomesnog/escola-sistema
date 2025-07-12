@@ -12,6 +12,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
+import { BASE_URL } from "../../app/constants/baseUrl";
 
 dayjs.extend(utc);
 
@@ -84,7 +85,7 @@ const ClassForm = ({
     try {
       const token = Cookies.get("auth_token");
 
-      const response = await fetch(`http://localhost:3030/course/getall`, {
+      const response = await fetch(`${BASE_URL}/course/getall`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,7 +120,7 @@ const ClassForm = ({
     try {
       const token = Cookies.get("auth_token");
 
-      const response = await fetch(`http://localhost:3030/class/${type}`, {
+      const response = await fetch(`${BASE_URL}/class/${type}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

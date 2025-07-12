@@ -13,6 +13,7 @@ import { role } from "@/lib/data";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Link from "next/link";
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Discount = {
   id: number;
@@ -39,7 +40,7 @@ const DiscountListPage = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3030/discount/getall", {
+        const response = await fetch(`${BASE_URL}/discount/getall`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

@@ -7,6 +7,7 @@ import InputField from "../InputField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { BASE_URL } from "../../app/constants/baseUrl";
 
 const formatCpf = (value: string) => {
   return value
@@ -100,7 +101,7 @@ const TeacherForm = ({
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
-      const response = await fetch("http://localhost:3030/teacher/create", {
+      const response = await fetch(`${BASE_URL}/teacher/create`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

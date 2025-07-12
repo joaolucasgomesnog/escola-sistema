@@ -30,6 +30,7 @@ import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import ModalComponent from "../../../../../components/ModalComponent";
 import { Discount } from "../../../../../interfaces/discount";
+import { BASE_URL } from "../../../../constants/baseUrl";
 
 type Props = {
   params: { id: string };
@@ -97,7 +98,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3030/student/get/${id}`, {
+      const res = await fetch(`${BASE_URL}/student/get/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
 
@@ -123,7 +124,7 @@ const SingleStudentPage = ({ params }: Props) => {
   const updateStudent = async () => {
     try {
       const token = Cookies.get('auth_token')
-      const res = await fetch(`http://localhost:3030/student/update/${id}`, {
+      const res = await fetch(`${BASE_URL}/student/update/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
@@ -154,7 +155,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/fee/student/${studentId}`, {
+      const response = await fetch(`${BASE_URL}/fee/student/${studentId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -271,7 +272,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/student/create-class-student`, {
+      const response = await fetch(`${BASE_URL}/student/create-class-student`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
@@ -305,7 +306,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/class/getallavailable/${id}`, {
+      const response = await fetch(`${BASE_URL}/class/getallavailable/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -330,7 +331,7 @@ const SingleStudentPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/discount/getall`, {
+      const response = await fetch(`${BASE_URL}/discount/getall`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -355,7 +356,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     try {
 
-      const response = await fetch(`http://localhost:3030/class-student/delete/${selectdClassId}/${id}`, {
+      const response = await fetch(`${BASE_URL}/class-student/delete/${selectdClassId}/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
@@ -385,7 +386,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     try {
 
-      const response = await fetch(`http://localhost:3030/student/delete-discount/${id}`, {
+      const response = await fetch(`${BASE_URL}/student/delete-discount/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
@@ -414,7 +415,7 @@ const SingleStudentPage = ({ params }: Props) => {
 
     try {
 
-      const response = await fetch(`http://localhost:3030/student/add-discount/${id}`, {
+      const response = await fetch(`${BASE_URL}/student/add-discount/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL

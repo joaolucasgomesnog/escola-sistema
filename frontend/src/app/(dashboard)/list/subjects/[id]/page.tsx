@@ -24,6 +24,7 @@ import Add from '@mui/icons-material/Add';
 import { useReactToPrint } from "react-to-print";
 import { Course } from "../../../../../interfaces/course";
 import { Teacher } from "../../../../../interfaces/teacher";
+import { BASE_URL } from "../../../../constants/baseUrl";
 // import CourseReport from "@/components/report/CourseReport";
 
 interface SingleCoursePageProps {
@@ -55,7 +56,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
       if (!token) return router.push("/sign-in");
 
       try {
-        const res = await fetch(`http://localhost:3030/course/get-by-id/${id}`, {
+        const res = await fetch(`${BASE_URL}/course/get-by-id/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Erro ao buscar curso");
@@ -72,7 +73,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
       const token = Cookies.get("auth_token");
       if (!token) return router.push("/sign-in");
       try {
-        const res = await fetch(`http://localhost:3030/teacher/getall-by-course/${id}`, {
+        const res = await fetch(`${BASE_URL}/teacher/getall-by-course/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Erro ao buscar alunos");
@@ -110,7 +111,7 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
         return;
       }
       const token = Cookies.get('auth_token');
-      const res = await fetch(`http://localhost:3030/course/update/${id}`, {
+      const res = await fetch(`${BASE_URL}/course/update/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

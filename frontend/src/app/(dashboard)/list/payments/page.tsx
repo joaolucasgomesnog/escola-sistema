@@ -12,6 +12,7 @@ import { tokens } from "../../../../../theme"; // ou ajuste o caminho
 import Table from "@/components/Table";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Payment = {
   id: number;
@@ -40,7 +41,7 @@ const PaymentListPage = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3030/course/getall", {
+        const response = await fetch(`${BASE_URL}/course/getall`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

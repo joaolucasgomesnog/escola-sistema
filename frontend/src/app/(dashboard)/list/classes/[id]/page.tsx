@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { BASE_URL } from "../../../../constants/baseUrl";
 
 dayjs.extend(utc);
 
@@ -62,7 +63,7 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
       if (!token) return router.push("/sign-in");
 
       try {
-        const res = await fetch(`http://localhost:3030/class/get-by-id/${id}`, {
+        const res = await fetch(`${BASE_URL}/class/get-by-id/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Erro ao buscar turma");
@@ -80,7 +81,7 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
       if (!token) return router.push("/sign-in");
 
       try {
-        const res = await fetch(`http://localhost:3030/student/getall-by-class/${id}`, {
+        const res = await fetch(`${BASE_URL}/student/getall-by-class/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Erro ao buscar alunos");
@@ -108,7 +109,7 @@ const SingleClassPage = ({ params }: SingleClassPageProps) => {
 
     try {
       const token = Cookies.get('auth_token');
-      const res = await fetch(`http://localhost:3030/class/update/${id}`, {
+      const res = await fetch(`${BASE_URL}/class/update/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

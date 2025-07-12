@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Button, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { set } from "react-hook-form";
+import { BASE_URL } from "../constants/baseUrl";
 
 const formatCpf = (value: string) => {
   return value
@@ -38,7 +39,7 @@ const handleLogin = async () => {
     setSubmitting(true);
     const rawCpf = cpf.replace(/\D/g, '');
 
-    const response = await fetch('http://localhost:3030/login', {
+    const response = await fetch(`${BASE_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cpf: rawCpf, password, role: selectedValue }),

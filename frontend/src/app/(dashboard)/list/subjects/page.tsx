@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Cookies from "js-cookie";
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Course = {
   id: number;
@@ -42,7 +43,7 @@ const CourseListPage = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3030/course/getall", {
+        const response = await fetch(`${BASE_URL}/course/getall`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

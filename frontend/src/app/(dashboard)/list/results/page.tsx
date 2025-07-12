@@ -8,6 +8,7 @@ import FormModal from "@/components/FormModal";
 import Table from "@/components/Table";
 import { role } from "@/lib/data";
 import { tokens } from "../../../../../theme";
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Result = {
   id: number;
@@ -29,7 +30,7 @@ const ResultListPage = () => {
     const fetchResults = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3030/result/getall", {
+        const response = await fetch(`${BASE_URL}/result/getall`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

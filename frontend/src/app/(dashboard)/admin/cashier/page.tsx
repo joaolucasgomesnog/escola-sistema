@@ -24,6 +24,7 @@ import Report from "@/components/report/Report";
 import { useReactToPrint } from 'react-to-print'
 import Recipe from "@/components/recipe/Recipe";
 import { cp } from "fs";
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Fee = {
   id: number;
@@ -290,7 +291,7 @@ const CashierPage = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:3030/admin/allnames", {
+      const response = await fetch(`${BASE_URL}/admin/allnames`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -338,7 +339,7 @@ const CashierPage = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3030/student/search?${queryParams.toString()}`, {
+      const response = await fetch(`${BASE_URL}/student/search?${queryParams.toString()}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -392,7 +393,7 @@ const CashierPage = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3030/fee/student/${studentId}`, {
+      const response = await fetch(`${BASE_URL}/fee/student/${studentId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -438,7 +439,7 @@ const CashierPage = () => {
     try {
       setSubmitting(true);
 
-      const response = await fetch("http://localhost:3030/payment/create", {
+      const response = await fetch(`${BASE_URL}/payment/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -602,7 +603,7 @@ const CashierPage = () => {
       if (filters.adminId) queryParams.append("adminId", filters.adminId);
       if (filters.paymentType) queryParams.append("paymentType", filters.paymentType);
 
-      const url = `http://localhost:3030/payment/report?${queryParams.toString()}`;
+      const url = `${BASE_URL}/payment/report?${queryParams.toString()}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -637,7 +638,7 @@ const CashierPage = () => {
       }
 
       if (filters.paymentId) {
-        const response = await fetch(`http://localhost:3030/payment/chargeback/${filters.paymentId}`, {
+        const response = await fetch(`${BASE_URL}/payment/chargeback/${filters.paymentId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,

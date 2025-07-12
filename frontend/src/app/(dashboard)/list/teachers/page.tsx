@@ -16,6 +16,7 @@ import { formatPhone } from "@/lib/formatValues";
 import { GridSearchIcon } from "@mui/x-data-grid";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Teacher = {
   id: number;
@@ -75,7 +76,7 @@ const TeacherListPage = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3030/teacher/search?${queryParams.toString()}`, {
+      const response = await fetch(`${BASE_URL}/teacher/search?${queryParams.toString()}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

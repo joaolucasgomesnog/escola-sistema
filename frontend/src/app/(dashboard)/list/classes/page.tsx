@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { BASE_URL } from "../../../constants/baseUrl";
 
 
 type ClassType = {
@@ -64,7 +65,7 @@ const CourseListPage = () => {
         }
       });
 
-      const response = await fetch(`http://localhost:3030/class/search?${queryParams.toString()}`, {
+      const response = await fetch(`${BASE_URL}/class/search?${queryParams.toString()}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -111,7 +112,7 @@ const CourseListPage = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3030/class/getall", {
+        const response = await fetch(`${BASE_URL}/class/getall`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

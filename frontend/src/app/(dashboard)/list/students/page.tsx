@@ -15,6 +15,7 @@ import Cookies from "js-cookie";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { formatPhone } from "@/lib/formatValues";
+import { BASE_URL } from "../../../constants/baseUrl";
 
 type Student = {
   id: number;
@@ -74,7 +75,7 @@ const StudentListPage = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3030/student/search?${queryParams.toString()}`, {
+      const response = await fetch(`${BASE_URL}/student/search?${queryParams.toString()}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

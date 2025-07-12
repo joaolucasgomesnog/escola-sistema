@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { TextField } from "@mui/material";
+import { BASE_URL } from "../../app/constants/baseUrl";
 
 
 const formatCpf = (value: string) => {
@@ -104,7 +105,7 @@ const StudentForm = ({
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
-      const response = await fetch("http://localhost:3030/student/create", {
+      const response = await fetch(`${BASE_URL}/student/create`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

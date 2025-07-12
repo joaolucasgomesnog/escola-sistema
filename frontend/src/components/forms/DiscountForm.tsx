@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Cookies from "js-cookie";
 import { TextField } from "@mui/material";
+import { BASE_URL } from "../../app/constants/baseUrl";
 
 const schema = z.object({
   code: z.string().min(1, { message: "Código é obrigatório!" }),
@@ -47,7 +48,7 @@ const DiscountForm = ({
     try {
       const token = Cookies.get("auth_token");
 
-      const response = await fetch(`http://localhost:3030/discount/${type}`, {
+      const response = await fetch(`${BASE_URL}/discount/${type}`, {
         method: type === "create" ? "POST" : "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

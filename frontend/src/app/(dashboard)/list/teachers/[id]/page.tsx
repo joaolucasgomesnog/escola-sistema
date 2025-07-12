@@ -29,6 +29,7 @@ import TeacherReport from "@/components/report/TeacherReport";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { GridDeleteForeverIcon } from "@mui/x-data-grid";
+import { BASE_URL } from "../../../../constants/baseUrl";
 
 type Props = {
   params: { id: string };
@@ -104,7 +105,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3030/teacher/get/${id}`, {
+      const res = await fetch(`${BASE_URL}/teacher/get/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
 
@@ -132,7 +133,7 @@ const SingleTeacherPage = ({ params }: Props) => {
   const updateTeacher = async () => {
     try {
       const token = Cookies.get('auth_token')
-      const res = await fetch(`http://localhost:3030/teacher/update/${id}`, {
+      const res = await fetch(`${BASE_URL}/teacher/update/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
@@ -163,7 +164,7 @@ const SingleTeacherPage = ({ params }: Props) => {
   //   }
 
   //   try {
-  //     const response = await fetch(`http://localhost:3030/fee/teacher/${teacherId}`, {
+  //     const response = await fetch(`${BASE_URL}/fee/teacher/${teacherId}`, {
   //       headers: {
   //         Authorization: `Bearer ${token}`,
   //       },
@@ -267,7 +268,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/class/add-teacher`, {
+      const response = await fetch(`${BASE_URL}/class/add-teacher`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
@@ -302,7 +303,7 @@ const SingleTeacherPage = ({ params }: Props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3030/class/getallavailable/${id}`, {
+      const response = await fetch(`${BASE_URL}/class/getallavailable/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -333,7 +334,7 @@ const SingleTeacherPage = ({ params }: Props) => {
         return
       }
 
-      const response = await fetch(`http://localhost:3030/class/delete-teacher/${selectdClassId}`, {
+      const response = await fetch(`${BASE_URL}/class/delete-teacher/${selectdClassId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // <- ESSA LINHA É ESSENCIAL
