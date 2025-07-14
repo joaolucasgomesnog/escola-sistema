@@ -20,6 +20,7 @@ import CampaignOutlined from "@mui/icons-material/CampaignOutlined";
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
 import DiscountIcon from '@mui/icons-material/Discount';
+import PermContactCalendarOutlinedIcon from '@mui/icons-material/PermContactCalendarOutlined';
 
 const menuItems = [
   {
@@ -32,7 +33,7 @@ const menuItems = [
         visible: ["admin"],
       },
       {
-        icon: <PeopleOutlineOutlined fontSize="small" color="action" />,
+        icon: <PermContactCalendarOutlinedIcon fontSize="small" color="action" />,
         label: "Administradores",
         href: "/list/admins",
         visible: ["admin"],
