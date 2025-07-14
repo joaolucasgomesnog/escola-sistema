@@ -32,6 +32,12 @@ const menuItems = [
         visible: ["admin"],
       },
       {
+        icon: <PeopleOutlineOutlined fontSize="small" color="action" />,
+        label: "Administradores",
+        href: "/list/admins",
+        visible: ["admin"],
+      },
+      {
         icon: <SchoolOutlined fontSize="small" color="action" />,
         label: "Professores",
         href: "/list/teachers",

@@ -157,6 +157,42 @@ export default {
     }
   },
 
+
+  async searchAdmin(req, res) {
+    try {
+      const { nome, endereco, bairro, cidade, cpf } = req.query;
+
+      const admins = await prisma.admin.findMany({
+        where: {
+          name: nome ? { contains: nome, mode: "insensitive" } : undefined,
+          cpf: cpf ? { contains: cpf } : undefined,
+          address: {
+            AND: [
+              endereco
+                ? { street: { contains: endereco, mode: "insensitive" } }
+                : {},
+              bairro
+                ? { neighborhood: { contains: bairro, mode: "insensitive" } }
+                : {},
+              cidade ? { city: { contains: cidade, mode: "insensitive" } } : {},
+            ],
+          }
+        },
+        include: {
+          address: true
+        },
+      });
+
+      const adminsWithoutPassword = admins.map(
+        ({ password, ...rest }) => rest
+      );
+
+      res.status(200).json(adminsWithoutPassword);
+    } catch (error) {
+      console.error("Erro ao buscar administradores com filtros:", error);
+      res.status(500).json({ error: "Erro interno ao buscar administradores" });
+    }
+  },
   // Deletar admin
   async deleteAdmin(req, res) {
     try {

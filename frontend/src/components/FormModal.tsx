@@ -15,7 +15,9 @@ const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
 const StudentForm = dynamic(() => import("./forms/StudentForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-
+const AdminForm = dynamic(() => import("./forms/AdminForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
 const CourseForm = dynamic(() => import("./forms/CourseForm"), {
   loading: () => <h1>Loading...</h1>,
 })
@@ -34,7 +36,8 @@ const forms: {
   student: (type, data) => <StudentForm type={type} data={data} />,
   course: (type, data) => <CourseForm type={type} data={data} />,
   class: (type, data) => <ClassForm type={type} data={data} />,
-  discount: (type, data) => <DiscountForm type={type} data={data} />
+  discount: (type, data) => <DiscountForm type={type} data={data} />,
+  admin: (type, data) => <AdminForm type={type} data={data} />
 
 };
 
@@ -46,6 +49,7 @@ const FormModal = ({
 }: {
   table:
     | "teacher"
+    | "admin"
     | "student"
     | "parent"
     | "course"

@@ -13,5 +13,7 @@ adminRoutes.get('/getall', autenticateToken, authorizeRoles('admin'), admin.getA
 adminRoutes.get('/allnames', autenticateToken, authorizeRoles('admin'), admin.getAllNames);
 adminRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), admin.updateAdmin);
 adminRoutes.delete('/delete/:id', autenticateToken, authorizeRoles('admin'), admin.deleteAdmin);
+adminRoutes.get('/search', autenticateToken, authorizeRoles('admin', 'teacher'), admin.searchAdmin);
+
 
 export {adminRoutes}
