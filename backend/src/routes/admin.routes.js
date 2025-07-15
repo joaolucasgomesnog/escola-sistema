@@ -1,7 +1,7 @@
 //ROTAS DE ADMIN
 import autenticateToken from "../middleware/authenticateToken.js";
 import authorizeRoles from "../middleware/authorizeRoles.js";
-import admin from "../modules/admin/index.js";
+import admin from "../modules/Admin/index.js";
 import { Router } from "express";
 
 const adminRoutes = Router();
