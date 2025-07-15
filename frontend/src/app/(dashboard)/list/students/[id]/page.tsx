@@ -31,6 +31,7 @@ import { useReactToPrint } from "react-to-print";
 import ModalComponent from "../../../../../components/ModalComponent";
 import { Discount } from "../../../../../interfaces/discount";
 import { BASE_URL } from "../../../../constants/baseUrl";
+import Carne from "@/components/report/carne";
 
 type Props = {
   params: { id: string };
@@ -57,10 +58,10 @@ const SingleStudentPage = ({ params }: Props) => {
   const [selectedClasses, setSelectedClasses] = useState<Classe[]>([]);
   const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
   const [classe, setClasse] = useState('');
-  
+
   const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-  
+
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
   const [selectDiscountVisible, setSelectDiscountVisible] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -81,10 +82,19 @@ const SingleStudentPage = ({ params }: Props) => {
   }
 
   const printRef = useRef<HTMLDivElement>(null);
+  const printCarneRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
+    onAfterPrint: () => {
+      console.log("Printing completed");
+    },
+  });
+
+  const handlePrintCarne = useReactToPrint({
+    contentRef: printCarneRef,
+    documentTitle: `Carnê do aluno - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
       console.log("Printing completed");
     },
@@ -442,8 +452,8 @@ const SingleStudentPage = ({ params }: Props) => {
   }
 
 
-    if (loading) return (
-      <Box
+  if (loading) return (
+    <Box
       flex={1}
       display="flex"
       justifyContent="center"
@@ -882,8 +892,15 @@ const SingleStudentPage = ({ params }: Props) => {
       <ModalComponent onConfirm={deleteDiscountFromStudent} open={openDiscountModal} handleClose={handleClose} />
 
       <Divider sx={{ my: 3 }} />
-      <Typography variant="body1" mb={2}>Mensalidades e Pagamentos</Typography>
+      <Box className="flex justify-between" alignItems="center" display="flex" mb={2}>
 
+        <Typography variant="body1">Mensalidades e Pagamentos</Typography>
+        <Button variant="outlined" onClick={handlePrintCarne} sx={{ alignSelf: "center", gap: 1, display: "flex", alignItems: "center" }}>
+
+          <Typography variant="body1">Imprimir carnê</Typography>
+          <PrintIcon />
+        </Button>
+      </Box>
       <Box sx={{ height: 400, width: '100%' }}>
         <DataGrid
           rows={fees}
@@ -893,6 +910,9 @@ const SingleStudentPage = ({ params }: Props) => {
       </Box>
       <Box sx={{ display: "none" }}>
         <StudentReport ref={printRef} student={student} fees={fees} />
+      </Box>
+      <Box sx={{ display: "none" }}>
+        <Carne ref={printCarneRef} fees={fees} student={student} />
       </Box>
     </Box>
   );
