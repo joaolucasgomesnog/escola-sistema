@@ -1,0 +1,52 @@
+services:
+
+  postgres:
+      image: bitnami/postgresql:latest
+      ports:
+        - '5432:5432'
+      environment:
+        - POSTGRES_USER=joao
+        - POSTGRES_PASSWORD=password
+        - POSTGRES_DB=escoladb
+      volumes:
+        - pdv-pg-data:/bitnami/postgresql
+      restart: unless-stopped
+
+
+  backend:
+    build:
+      context: ./backend   # caminho da pasta onde está o Dockerfile do backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "4040:4040"
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: chave_secreta
+      PORT: 4040
+      DATABASE_URL: postgresql://joao:password@postgres:5432/escoladb
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/api
+      - /api/node_modules
+      # 🔽 Volume somente leitura com o compartilhamento CIFS montado no host
+      - /mnt/ms_sistema:/mnt/ms_sistema:ro
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend  # caminho da pasta onde está o Dockerfile do frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "4000:3000"
+    env_file:
+      - ./frontend/.env.production
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_AXIOS_BASE_URL=http://backend/
+      - JWT_SECRET=chave_secreta
+    depends_on:
+      - backend
+    restart: unless-stopped
