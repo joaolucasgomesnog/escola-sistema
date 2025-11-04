@@ -12,7 +12,6 @@ services:
         - pdv-pg-data:/bitnami/postgresql
       restart: unless-stopped
 
-
   backend:
     build:
       context: ./backend   # caminho da pasta onde está o Dockerfile do backend
@@ -48,3 +47,7 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  pdv-pg-data:
+    driver: local
