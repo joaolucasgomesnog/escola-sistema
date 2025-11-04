@@ -1,20 +1,19 @@
 services:
-
   postgres:
-      image: bitnami/postgresql:latest
-      ports:
-        - '5432:5432'
-      environment:
-        - POSTGRES_USER=joao
-        - POSTGRES_PASSWORD=password
-        - POSTGRES_DB=escoladb
-      volumes:
-        - pdv-pg-data:/bitnami/postgresql
-      restart: unless-stopped
+    image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: joao
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: escoladb
+    volumes:
+      - pdv-pg-data:/bitnami/postgresql
+    restart: unless-stopped
 
   backend:
     build:
-      context: ./backend   # caminho da pasta onde está o Dockerfile do backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: backend
     ports:
@@ -33,7 +32,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend  # caminho da pasta onde está o Dockerfile do frontend
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
     ports:
