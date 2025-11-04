@@ -39,9 +39,9 @@ services:
     ports:
       - "4000:3000"
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_AXIOS_BASE_URL=http://backend/
-      - JWT_SECRET=chave_secreta
+      NODE_ENV: production
+      NEXT_PUBLIC_AXIOS_BASE_URL: http://backend/
+      JWT_SECRET: chave_secreta
     depends_on:
       - backend
     restart: unless-stopped
