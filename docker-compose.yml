@@ -30,8 +30,6 @@ services:
     volumes:
       - ./backend:/api
       - /api/node_modules
-      # 🔽 Volume somente leitura com o compartilhamento CIFS montado no host
-      - /mnt/ms_sistema:/mnt/ms_sistema:ro
     restart: unless-stopped
 
   frontend:
