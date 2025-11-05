@@ -68,12 +68,6 @@ const StudentListPage = () => {
         }
       });
 
-      // ✅ Impede busca se todos os campos estiverem vazios
-      if ([...queryParams].length === 0) {
-        console.warn("Nenhum campo de busca preenchido.");
-        setStudents([]); // limpa resultados anteriores se quiser
-        return;
-      }
 
       const response = await fetch(`${BASE_URL}/student/search?${queryParams.toString()}`, {
         method: "GET",
