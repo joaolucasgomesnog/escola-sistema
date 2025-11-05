@@ -1,23 +1,22 @@
 services:
-
   nginx-proxy-manager:
-    image: 'docker.io/jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
+    image: 'jc21/nginx-proxy-manager:latest'
     container_name: nginx-proxy-manager
-    network_mode: host
-    environment: # Uncomment this if IPv6 is not enabled on your host
-      - DISABLE_IPV6=true # Uncomment this if IPv6 is not enabled on your host
+    restart: unless-stopped
+    environment:
+      - DISABLE_IPV6=true
     ports:
-      - "3001:3000"
-
+      - "80:80"
+      - "81:81"
+      - "443:443"
     volumes:
       - ./npm/data:/data
       - ./npm/letsencrypt:/etc/letsencrypt
+    networks:
+      - app-network
 
   postgres:
     image: bitnami/postgresql:latest
-    ports:
-      - '5432:5432'
     environment:
       POSTGRES_USER: joao
       POSTGRES_PASSWORD: password
@@ -25,14 +24,13 @@ services:
     volumes:
       - pdv-pg-data:/bitnami/postgresql
     restart: unless-stopped
+    networks:
+      - app-network
 
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
     container_name: backend
-    ports:
-      - "4040:4040"
     environment:
       NODE_ENV: production
       JWT_SECRET: chave_secreta
@@ -40,27 +38,27 @@ services:
       DATABASE_URL: postgresql://joao:password@postgres:5432/escoladb
     depends_on:
       - postgres
-    volumes:
-      - ./backend:/api
-      - /api/node_modules
     restart: unless-stopped
+    networks:
+      - app-network
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     container_name: frontend
-    ports:
-      - "4000:3000"
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_AXIOS_BASE_URL: http://backend/
+      NEXT_PUBLIC_AXIOS_BASE_URL: http://backend:4040
       JWT_SECRET: chave_secreta
     depends_on:
       - backend
     restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   pdv-pg-data:
-    driver: local
-  
+
+networks:
+  app-network:
+    driver: bridge
