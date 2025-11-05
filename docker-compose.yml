@@ -12,8 +12,7 @@ services:
     volumes:
       - ./npm/data:/data
       - ./npm/letsencrypt:/etc/letsencrypt
-    networks:
-      - app-network
+
 
   postgres:
     image: bitnami/postgresql:latest
@@ -24,8 +23,7 @@ services:
     volumes:
       - pdv-pg-data:/bitnami/postgresql
     restart: unless-stopped
-    networks:
-      - app-network
+
 
   backend:
     build:
@@ -39,8 +37,7 @@ services:
     depends_on:
       - postgres
     restart: unless-stopped
-    networks:
-      - app-network
+
 
   frontend:
     build:
@@ -53,12 +50,9 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-    networks:
-      - app-network
+
 
 volumes:
   pdv-pg-data:
 
-networks:
-  app-network:
-    driver: bridge
+
