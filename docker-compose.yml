@@ -16,6 +16,9 @@ services:
 
   postgres:
     image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    container_name: postgres
     environment:
       POSTGRES_USER: joao
       POSTGRES_PASSWORD: password
@@ -29,6 +32,8 @@ services:
     build:
       context: ./backend
     container_name: backend
+    ports:
+      - "4040:4040"
     environment:
       NODE_ENV: production
       JWT_SECRET: chave_secreta
@@ -43,6 +48,8 @@ services:
     build:
       context: ./frontend
     container_name: frontend
+    ports:
+      - "4000:3000"
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_AXIOS_BASE_URL: http://backend:4040
