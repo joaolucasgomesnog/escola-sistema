@@ -1,1 +1,1 @@
- export const BASE_URL = 'http://backend:4040'
+ export const BASE_URL = 'https://api.sistema.cursosconecta.com'
