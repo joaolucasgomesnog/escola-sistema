@@ -63,8 +63,4 @@ services:
 volumes:
   pdv-pg-data:
     driver: local
-  ./npm/data:
-    driver: local
-  ./npm/letsencrypt:
-    driver: local
   
