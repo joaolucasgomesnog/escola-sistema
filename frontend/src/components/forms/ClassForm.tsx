@@ -13,6 +13,7 @@ import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import { BASE_URL } from "../../app/constants/baseUrl";
+import { Teacher } from "@/interfaces/teacher";
 
 dayjs.extend(utc);
 
@@ -67,6 +68,9 @@ const ClassForm = ({
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null)
 
+  const [teachers, setTeachers] = useState<Teacher[]>([])
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null)
+
   const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [schedule, setSchedule] = useState<Record<string, string | null>>({
     sunday: null,
@@ -107,8 +111,35 @@ const ClassForm = ({
     }
   }
 
+  const fetchTeachers = async () => {
+    try {
+      const token = Cookies.get("auth_token");
+
+      const response = await fetch(`${BASE_URL}/teacher/getall`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Erro:", result.error);
+        window.alert(result.error || "Erro ao buscar professores");
+        return;
+      }
+      setTeachers(result)
+
+    } catch (error) {
+      console.error("Erro ao enviar dados:", error);
+      window.alert("Erro interno ao enviar dados");
+    }
+  }
+
   useEffect(() => {
     fetchCourses()
+    fetchTeachers()
   }, [])
 
   useEffect(() => {
@@ -131,6 +162,7 @@ const ClassForm = ({
           startDate: new Date(formData.startDate),
           endDate: new Date(formData.endDate),
           courseId: selectedCourseId,
+          teacherId: selectedTeacherId,
           horario: schedule
         }),
       });
@@ -155,7 +187,7 @@ const ClassForm = ({
   });
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-4" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
         {type === "create" ? "Cadastrar Turma" : "Atualizar Turma"}
       </h1>
@@ -176,7 +208,7 @@ const ClassForm = ({
         <InputField label="Data de Término" name="endDate" type="date" register={register} error={errors?.endDate} />
       </div>
 
-      <Typography variant="body1" my={-2}>Horario</Typography>
+      <Typography variant="body1">Horario</Typography>
 
       <FormControl className="w-56 " size="small">
 
@@ -259,6 +291,29 @@ const ClassForm = ({
           {
             courses?.map((course) => (
               <MenuItem key={course.code} value={course.code}>{course.name}</MenuItem>
+            ))
+          }
+        </Select>
+      </FormControl>
+
+            <FormControl className="w-32 " size="small" fullWidth>
+
+        <InputLabel id="demo-simple-select-label">Professor</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          onChange={(e) => {
+            const selectedCode = e.target.value as string;
+            const selectedTeacher = teachers.find((teacher) => teacher.id === Number(selectedCode));
+            if (selectedTeacher?.id !== undefined) {
+              setSelectedTeacherId(selectedTeacher.id);
+            }
+
+          }}
+        >
+          {
+            teachers?.map((teacher) => (
+              <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
             ))
           }
         </Select>

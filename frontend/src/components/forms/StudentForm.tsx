@@ -7,8 +7,11 @@ import InputField from "../InputField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { TextField } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { BASE_URL } from "../../app/constants/baseUrl";
+import { Class } from "@/interfaces/class";
+import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 
 
 const formatCpf = (value: string) => {
@@ -28,7 +31,7 @@ const schema = z.object({
 
   phone: z.string().optional(),
   email: z.string()
-    .email({ message: "E-mail inválido" }),
+    .email({ message: "E-mail inválido" }).optional(),
   picture: z
     .any()
     .refine(
@@ -68,6 +71,7 @@ const StudentForm = ({
   });
 
   const cepValue = watch("address.postalCode");
+  const router = useRouter();
 
   useEffect(() => {
     if (cepValue) {
@@ -102,6 +106,11 @@ const StudentForm = ({
 
   const [cpf, setCpf] = useState(data?.cpf ? formatCpf(data.cpf) : "");
 
+    const [classes, setClasses] = useState<Class[]>([]);
+    const [selectedClasses, setSelectedClasses] = useState<Class[]>([]);
+    const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
+    const [classe, setClasse] = useState('');
+
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
@@ -134,9 +143,36 @@ const StudentForm = ({
     }
   });
 
+    const fetchAvailableClasses = async () => {
+      const token = Cookies.get("auth_token");
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+  
+      try {
+        const response = await fetch(`${BASE_URL}/class/getallavailable/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) throw new Error("Erro ao buscar classes do aluno.");
+  
+        const data = await response.json();
+        setClasses(data)
+        console.log("Classes:", data);
+      } catch (error) {
+        console.error("Erro ao carregar classes:", error);
+      }
+    }
+    useEffect(() => {
+      fetchAvailableClasses();
+    }, []);
+
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-4" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Cadastrar estudante</h1>
       <div className="flex flex-wrap gap-4">
 
@@ -184,6 +220,76 @@ const StudentForm = ({
           </p>
         )}
       </div> */}
+
+            <Box className={`mb-4`}>
+              <FormControl className="w-32 " size="small">
+                <InputLabel id="demo-simple-select-label">Turma</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={classe}
+                  onChange={(e) => {
+                    const selectedCode = e.target.value as string;
+                    const selectedClasse = classes.find((classe) => classe.code === selectedCode);
+                    if (selectedClasse && !selectedClasses.some((c) => c.code === selectedClasse.code)) {
+                      setSelectedClasses([...selectedClasses, selectedClasse]);
+                    }
+                  }}
+                >
+                  {
+                    classes?.map((classe) => (
+                      <MenuItem key={classe.code} value={classe.code}>{classe.name}</MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+      
+            </Box>
+            {
+              selectedClasses?.map((classe) => {
+                const horario = classe.horario
+                  ? Object.entries(classe.horario)
+                    .filter(([_, value]) => value !== null)
+                    .map(([day, value]) => {
+                      const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
+                      const dayMap: Record<string, string> = {
+                        sunday: "Domingo",
+                        monday: "Segunda",
+                        tuesday: "Terça",
+                        wednesday: "Quarta",
+                        thursday: "Quinta",
+                        friday: "Sexta",
+                        saturday: "Sábado"
+                      };
+                      return `${dayMap[day] ?? day}: ${hora}`;
+                    })
+                    .join(" | ")
+                  : "Sem horário definido";
+      
+                return (
+                  <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
+                    <TextField label="Curso" value={classe?.name ?? ""} size="small"
+                      InputProps={{ readOnly: true }}
+                      sx={{ flex: 1 }}
+                    />
+                    <TextField label="Turma" value={classe?.course?.name ?? ""} size="small"
+                      InputProps={{ readOnly: true }}
+                      sx={{ flex: 1 }}
+                    />
+                    <TextField label="Professor da turma" value={classe.teacher?.name ?? ""} size="small"
+                      InputProps={{ readOnly: true }}
+                      sx={{ flex: 1 }}
+                    />
+                    <TextField label="Horários" value={horario} size="small"
+                      InputProps={{ readOnly: true }}
+                      sx={{ flex: 2 }}
+                    />
+      
+                  </Box>
+                );
+              })
+      
+            }
 
       <button className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "Cadastrar" : "Atualizar"}

@@ -2,7 +2,7 @@ import { Address } from "./adress"
 
 
 interface Teacher {
-  id: number
+  id?: number
   name: string
   cpf: string
   phone: string

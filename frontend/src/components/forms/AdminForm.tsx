@@ -28,7 +28,7 @@ const schema = z.object({
 
   phone: z.string().optional(),
   email: z.string()
-    .email({ message: "E-mail inválido" }),
+    .email({ message: "E-mail inválido" }).optional(),
   picture: z
     .any()
     .refine(
