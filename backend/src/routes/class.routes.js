@@ -10,7 +10,7 @@ classeRoutes.post('/create', autenticateToken, authorizeRoles('admin'), classe.c
 classeRoutes.get('/get/:code', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getClassByCode);
 classeRoutes.get('/get-by-id/:id', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getClassById);
 classeRoutes.get('/getall', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getAllClasses);
-classeRoutes.get('/getallavailable/:student_id', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getAllAvailableClasses);
+classeRoutes.get('/getallavailable/:student_id?', autenticateToken, authorizeRoles('admin', 'teacher', 'student'), classe.getAllAvailableClasses);
 classeRoutes.get('/getall/teacher/:teacher_id', autenticateToken, authorizeRoles('admin', 'teacher'), classe.getAllClassesByTeacherId);
 classeRoutes.put('/update/:id', autenticateToken, authorizeRoles('admin'), classe.updateClass);
 classeRoutes.put('/add-teacher', autenticateToken, authorizeRoles('admin'), classe.addTeacher);
