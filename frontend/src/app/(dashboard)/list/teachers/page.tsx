@@ -69,12 +69,7 @@ const TeacherListPage = () => {
         }
       });
 
-      // ✅ Impede busca se todos os campos estiverem vazios
-      if ([...queryParams].length === 0) {
-        console.warn("Nenhum campo de busca preenchido.");
-        setTeachers([]); // limpa resultados anteriores se quiser
-        return;
-      }
+
 
       const response = await fetch(`${BASE_URL}/teacher/search?${queryParams.toString()}`, {
         method: "GET",
