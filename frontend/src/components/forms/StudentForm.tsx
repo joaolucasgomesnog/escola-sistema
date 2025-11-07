@@ -1,17 +1,19 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import InputField from "../InputField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { BASE_URL } from "../../app/constants/baseUrl";
 import { Class } from "@/interfaces/class";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+
 
 
 const formatCpf = (value: string) => {
@@ -26,8 +28,8 @@ const schema = z.object({
   cpf: z.string()
     .min(11, { message: "CPF deve ter ao menos 11 dígitos" })
     .regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, { message: "CPF inválido" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters long!" }),
-  name: z.string().min(1, { message: "Name is required!" }),
+  password: z.string().min(8, { message: "Senha deve conter ao menos 8 caracteres" }),
+  name: z.string().min(1, { message: "Nome é obrigatório!" }),
 
   phone: z.string().optional(),
   email: z.string()
@@ -106,69 +108,169 @@ const StudentForm = ({
 
   const [cpf, setCpf] = useState(data?.cpf ? formatCpf(data.cpf) : "");
 
-    const [classes, setClasses] = useState<Class[]>([]);
-    const [selectedClasses, setSelectedClasses] = useState<Class[]>([]);
-    const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
-    const [classe, setClasse] = useState('');
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [selectedClasses, setSelectedClasses] = useState<Class[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
+  const [studentId, setStudentId] = useState<number | null>(null);
+  const [classe, setClasse] = useState('');
 
-  const onSubmit = handleSubmit(async (formData) => {
+  const [selectDiscountVisible, setSelectDiscountVisible] = useState(false);
+  const [discounts, setDiscounts] = useState<any[]>([]);
+    const [selectedDiscount, setSelectedDiscount] = useState<any | null>(null);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
+
+const onSubmit = handleSubmit(async (formData) => {
+  try {
+    const token = Cookies.get("auth_token");
+
+    const studentReponse = await fetch(`${BASE_URL}/student/create`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...formData,
+        cpf: formData.cpf.replace(/\D/g, ""),
+        address: formData.address || undefined,
+      }),
+    });
+
+    const studentResult = await studentReponse.json();
+
+    if (!studentReponse.ok) {
+      window.alert(studentResult.error || "Erro ao cadastrar estudante");
+      return;
+    }
+
+    console.log("retorno:", studentResult);
+    const studentId = studentResult.id;
+    setStudentId(studentId);
+
+    // ✅ PASSA O ID DIRETAMENTE
+    if (selectedDiscountId) {
+      await addDiscountToStudent(studentId);
+    }
+
+    if (selectedClasses.length > 0) {
+      await confirmClasses(studentId);
+    }
+
+    window.alert("Estudante cadastrado com sucesso!");
+
+  } catch (error) {
+    console.error("Erro ao enviar dados:", error);
+    window.alert("Erro interno ao enviar dados");
+  }
+});
+
+
+const confirmClasses = async (studentId: number) => {
+  const token = Cookies.get("auth_token");
+  if (!token) return router.push("/sign-in");
+
+  try {
+    const response = await fetch(`${BASE_URL}/student/create-class-student`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        selectedClasses,
+        studentId
+      })
+    });
+
+    if (!response.ok) throw new Error("Erro ao confirmar turmas");
+
+    window.alert("Matrícula efetuada com sucesso");
+
+  } catch (error) {
+    console.error(error);
+        window.alert("Erro ao confirmar turmas");
+  }
+};
+
+  const fetchDiscounts = async () => {
+    setSelectDiscountVisible(true)
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/sign-in");
+      return;
+    }
+
     try {
-      const token = Cookies.get("auth_token");
-      const response = await fetch(`${BASE_URL}/student/create`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/discount/getall`, {
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...formData,
-          cpf: formData.cpf.replace(/\D/g, ""), // Remove formatação
-          address: formData.address || undefined,
-        }),
       });
 
-      const result = await response.json();
+      if (!response.ok) throw new Error("Erro ao buscar descontos do aluno.");
 
-      if (!response.ok) {
-        console.error("Erro:", result.error);
-        window.alert(result.error || "Erro ao cadastrar estudante");
-        return;
-      }
-
-      window.alert("Estudante cadastrado com sucesso!");
-      console.log("Estudante criado:", result);
+      const data = await response.json();
+      setDiscounts(data)
     } catch (error) {
-      console.error("Erro ao enviar dados:", error);
-      window.alert("Erro interno ao enviar dados");
+      console.error("Erro ao carregar descontos:", error);
     }
-  });
+  }
 
-    const fetchAvailableClasses = async () => {
-      const token = Cookies.get("auth_token");
-      if (!token) {
-        router.push("/sign-in");
-        return;
-      }
-  
-      try {
-        const response = await fetch(`${BASE_URL}/class/getallavailable/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        if (!response.ok) throw new Error("Erro ao buscar classes do aluno.");
-  
-        const data = await response.json();
-        setClasses(data)
-        console.log("Classes:", data);
-      } catch (error) {
-        console.error("Erro ao carregar classes:", error);
-      }
+
+const addDiscountToStudent = async (studentId: number) => {
+  const token = Cookies.get("auth_token");
+  if (!token) return router.push("/sign-in");
+
+  try {
+    const response = await fetch(`${BASE_URL}/student/add-discount/${studentId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ discountId: Number(selectedDiscountId) })
+    });
+
+    if (!response.ok) throw new Error("Erro ao adicionar desconto");
+
+    window.alert("Desconto adicionado com sucesso");
+
+  } catch (error) {
+    console.error(error);
+        window.alert("Erro ao adicionar desconto");
+
+  }
+};
+
+
+
+  const fetchAvailableClasses = async () => {
+    const token = Cookies.get("auth_token");
+    if (!token) {
+      router.push("/sign-in");
+      return;
     }
-    useEffect(() => {
-      fetchAvailableClasses();
-    }, []);
+
+    try {
+      const response = await fetch(`${BASE_URL}/class/getallavailable/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar classes do aluno.");
+
+      const data = await response.json();
+      setClasses(data)
+      console.log("Classes:", data);
+    } catch (error) {
+      console.error("Erro ao carregar classes:", error);
+    }
+  }
+  useEffect(() => {
+    fetchAvailableClasses();
+    fetchDiscounts();
+  }, []);
 
 
   return (
@@ -221,75 +323,126 @@ const StudentForm = ({
         )}
       </div> */}
 
-            <Box className={`mb-4`}>
+            <Box>
               <FormControl className="w-32 " size="small">
-                <InputLabel id="demo-simple-select-label">Turma</InputLabel>
+      
+                <InputLabel id="demo-simple-select-label">Desconto</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={classe}
+                  value={selectedDiscountId}
                   onChange={(e) => {
-                    const selectedCode = e.target.value as string;
-                    const selectedClasse = classes.find((classe) => classe.code === selectedCode);
-                    if (selectedClasse && !selectedClasses.some((c) => c.code === selectedClasse.code)) {
-                      setSelectedClasses([...selectedClasses, selectedClasse]);
-                    }
+                    const selectedId = e.target.value as string;
+                    setSelectedDiscountId(Number(selectedId))
+                    setSelectedDiscount(discounts.find((discount) => discount.id === Number(selectedId)) || null);
                   }}
                 >
                   {
-                    classes?.map((classe) => (
-                      <MenuItem key={classe.code} value={classe.code}>{classe.name}</MenuItem>
+                    discounts?.map((discount) => (
+                      <MenuItem key={discount.id} value={discount.id}>{discount.code}</MenuItem>
                     ))
                   }
                 </Select>
               </FormControl>
       
             </Box>
+      
             {
-              selectedClasses?.map((classe) => {
-                const horario = classe.horario
-                  ? Object.entries(classe.horario)
-                    .filter(([_, value]) => value !== null)
-                    .map(([day, value]) => {
-                      const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
-                      const dayMap: Record<string, string> = {
-                        sunday: "Domingo",
-                        monday: "Segunda",
-                        tuesday: "Terça",
-                        wednesday: "Quarta",
-                        thursday: "Quinta",
-                        friday: "Sexta",
-                        saturday: "Sábado"
-                      };
-                      return `${dayMap[day] ?? day}: ${hora}`;
-                    })
-                    .join(" | ")
-                  : "Sem horário definido";
-      
-                return (
-                  <Box key={classe.code} display="flex" flexWrap="wrap" gap={2} my={2}>
-                    <TextField label="Curso" value={classe?.name ?? ""} size="small"
-                      InputProps={{ readOnly: true }}
-                      sx={{ flex: 1 }}
-                    />
-                    <TextField label="Turma" value={classe?.course?.name ?? ""} size="small"
-                      InputProps={{ readOnly: true }}
-                      sx={{ flex: 1 }}
-                    />
-                    <TextField label="Professor da turma" value={classe.teacher?.name ?? ""} size="small"
-                      InputProps={{ readOnly: true }}
-                      sx={{ flex: 1 }}
-                    />
-                    <TextField label="Horários" value={horario} size="small"
-                      InputProps={{ readOnly: true }}
-                      sx={{ flex: 2 }}
-                    />
-      
-                  </Box>
-                );
-              })
-      
+              selectedDiscount && (
+                <Box key={selectedDiscount.code} display="flex" flexWrap="wrap" gap={2} mb={2}>
+                  <TextField label="Código" value={selectedDiscount.code ?? ""} size="small"
+                    InputProps={{ readOnly: true }}
+                    sx={{ flex: 1 }}
+                  />
+                  <TextField label="Descrição" value={selectedDiscount.description ?? ""} size="small"
+                    InputProps={{ readOnly: true }}
+                    sx={{ flex: 1 }}
+                  />
+                  <TextField label="Percentual" value={selectedDiscount.percentage ?? ""} size="small"
+                    InputProps={{ readOnly: true }}
+                    sx={{ flex: 1 }}
+                  />
+                  <Button variant="outlined" color="error" onClick={() => { setSelectedDiscountId(null); setSelectedDiscount(null); }}>
+                    <DeleteForeverIcon fontSize="medium" />
+                  </Button>
+                </Box>
+              )
             }
+      
+
+      <span className="text-xs text-gray-400 font-medium">Matrícula</span>
+
+      <Box className={`mb-4`}>
+        <FormControl className="w-32 " size="small">
+          <InputLabel id="demo-simple-select-label">Turma</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={classe}
+            onChange={(e) => {
+              const selectedCode = e.target.value as string;
+              const selectedClasse = classes.find((classe) => classe.code === selectedCode);
+              if (selectedClasse && !selectedClasses.some((c) => c.code === selectedClasse.code)) {
+                setSelectedClasses([...selectedClasses, selectedClasse]);
+              }
+            }}
+          >
+            {
+              classes?.map((classe) => (
+                <MenuItem key={classe.code} value={classe.code}>{classe.name}</MenuItem>
+              ))
+            }
+          </Select>
+        </FormControl>
+
+      </Box>
+      {
+        selectedClasses?.map((classe) => {
+          const horario = classe.horario
+            ? Object.entries(classe.horario)
+              .filter(([_, value]) => value !== null)
+              .map(([day, value]) => {
+                const hora = dayjs(value as string | number | Date | null | undefined).format("HH:mm");
+                const dayMap: Record<string, string> = {
+                  sunday: "Domingo",
+                  monday: "Segunda",
+                  tuesday: "Terça",
+                  wednesday: "Quarta",
+                  thursday: "Quinta",
+                  friday: "Sexta",
+                  saturday: "Sábado"
+                };
+                return `${dayMap[day] ?? day}: ${hora}`;
+              })
+              .join(" | ")
+            : "Sem horário definido";
+
+          return (
+            <Box key={classe.code} display="flex" flexWrap="wrap" gap={2}>
+              <TextField label="Curso" value={classe?.name ?? ""} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 1 }}
+              />
+              <TextField label="Turma" value={classe?.course?.name ?? ""} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 1 }}
+              />
+              <TextField label="Professor da turma" value={classe.teacher?.name ?? ""} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 1 }}
+              />
+              <TextField label="Horários" value={horario} size="small"
+                InputProps={{ readOnly: true }}
+                sx={{ flex: 2 }}
+              />
+              <Button variant="outlined" color="error" onClick={() => { setSelectedClasses((prev) => prev.filter((c) => c.code !== classe.code)) }}>
+                <DeleteForeverIcon fontSize="medium" />
+              </Button>
+            </Box>
+          );
+        })
+
+      }
 
       <button className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "Cadastrar" : "Atualizar"}
