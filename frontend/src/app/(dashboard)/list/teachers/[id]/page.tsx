@@ -30,6 +30,7 @@ import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { GridDeleteForeverIcon } from "@mui/x-data-grid";
 import { BASE_URL } from "../../../../constants/baseUrl";
+import { uploadImage } from "@/lib/imageFuncions";
 
 type Props = {
   params: { id: string };
@@ -69,6 +70,18 @@ const SingleTeacherPage = ({ params }: Props) => {
   const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
 
   const [open, setOpen] = useState(false);
+
+    // --- ESTADOS PARA IMAGEM ---
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [newPictureFile, setNewPictureFile] = useState<File | null>(null);
+  
+    // quando carregar o professor, já deixa a imagem de preview
+    useEffect(() => {
+      if (teacher?.picture) {
+        setImagePreview(teacher.picture);
+      }
+    }, [teacher]);
+
 
   const style = {
     position: 'absolute',
@@ -132,7 +145,21 @@ const SingleTeacherPage = ({ params }: Props) => {
 
   const updateTeacher = async () => {
     try {
-      const token = Cookies.get('auth_token')
+       const token = Cookies.get('auth_token');
+      if (!token) return;
+
+      let newPictureUrl = teacher?.picture ?? null;
+
+      // ✅ Se mudou a foto, subir para o servidor
+            if (newPictureFile) {
+              newPictureUrl = await uploadImage(newPictureFile);
+            }
+      
+            const updatedData = {
+              ...newTeacher,
+              picture: newPictureUrl, // <- atualiza a foto
+            };
+            
       const res = await fetch(`${BASE_URL}/teacher/update/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -391,12 +418,33 @@ const SingleTeacherPage = ({ params }: Props) => {
         </Box>
       </Box>
 
-      <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" gap={2} m={6}>
-        <Box display="flex" alignItems="center" gap={2} flexDirection="column">
-          <Avatar src={teacher.picture} sx={{ width: 150, height: 150 }} />
-          <Typography variant="h6" fontWeight="bold" color="primary">{teacher.name.toUpperCase()}</Typography>
-        </Box>
-      </Box>
+           <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center mx-auto">
+
+        <label
+          htmlFor="picture"
+          className="cursor-pointer flex items-center justify-center"
+          style={{ width: 150, height: 150 }}
+        >
+          <Avatar
+            src={imagePreview ?? undefined}
+            sx={{ width: 150, height: 150 }}
+          />
+        </label>
+
+        <input
+          id="picture"
+          type="file"
+          accept="image/*"
+          className="hidden disabled:cursor-none"
+          disabled={!isEditing}
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            setNewPictureFile(file);
+            if (file) setImagePreview(URL.createObjectURL(file));
+          }}
+        />
+
+      </div>
 
       {/* Dados Pessoais */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
