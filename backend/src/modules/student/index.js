@@ -308,11 +308,15 @@ async createClassStudent(req, res) {
         });
       }
 
-      // const hashedPassword = await hashPassword(password);
+      let hashedPassword = studentExists.password;
+
+      if (password && password.trim() !== "") {
+        hashedPassword = await hashPassword(password);
+      }
 
       const updatedStudent = await prisma.student.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, email, picture },
+        data: { name, cpf, phone, email, picture, password: hashedPassword },
         include: {
           address: true,
           attendances: true,

@@ -159,7 +159,7 @@ export default {
   async updateTeacher(req, res) {
     try {
       const { id } = req.params;
-      const { name, cpf, phone, email, picture, address } = req.body;
+      const { name, cpf, phone, email, picture, address, password } = req.body;
 
       const teacherExists = await prisma.teacher.findUnique({
         where: { id: Number(id) },
@@ -177,11 +177,16 @@ export default {
         });
       }
 
-      // const hashedPassword = await hashPassword(password);
+      
+      let hashedPassword = teacherExists.password;
+
+      if (password && password.trim() !== "") {
+        hashedPassword = await hashPassword(password);
+      }
 
       const updatedTeacher = await prisma.teacher.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, picture, email },
+        data: { name, cpf, phone, picture, email, password: hashedPassword },
         include: { address: true },
       });
 
