@@ -31,6 +31,7 @@ import { useReactToPrint } from "react-to-print";
 import ModalComponent from "../../../../../components/ModalComponent";
 import { Discount } from "../../../../../interfaces/discount";
 import { BASE_URL } from "../../../../constants/baseUrl";
+import { uploadImage } from "@/lib/imageFuncions";
 
 type Props = {
   params: { id: string };
@@ -57,16 +58,27 @@ const SingleAdminPage = ({ params }: Props) => {
   const [selectedClasses, setSelectedClasses] = useState<Classe[]>([]);
   const [selectdClassId, setSelectedClassId] = useState<number | null>(null);
   const [classe, setClasse] = useState('');
-  
+
   const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-  
+
   const [selectVisible, setSelectVisible] = useState<boolean>(false);
   const [selectDiscountVisible, setSelectDiscountVisible] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [openClassModal, setOpenClassModal] = useState<boolean>(false);
   const [openDiscountModal, setOpenDiscountModal] = useState<boolean>(false);
+
+  // --- ESTADOS PARA IMAGEM ---
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [newPictureFile, setNewPictureFile] = useState<File | null>(null);
+
+  // quando carregar o aluno, já deixa a imagem de preview
+  useEffect(() => {
+    if (admin?.picture) {
+      setImagePreview(admin.picture);
+    }
+  }, [admin]);
 
   const handleOpenClassModal = async (classId: number) => {
     setOpenClassModal(true)
@@ -124,6 +136,22 @@ const SingleAdminPage = ({ params }: Props) => {
   const updateAdmin = async () => {
     try {
       const token = Cookies.get('auth_token')
+      if (!token) {
+        router.push('/sign-in')
+        return
+      }
+
+      let newPictureUrl = admin?.picture ?? null;
+
+      // ✅ Se mudou a foto, subir para o servidor
+      if (newPictureFile) {
+        newPictureUrl = await uploadImage(newPictureFile);
+      }
+      const updatedData = {
+        ...newAdmin,
+        picture: newPictureUrl, // <- atualiza a foto
+      };
+
       const res = await fetch(`${BASE_URL}/admin/update/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -131,7 +159,7 @@ const SingleAdminPage = ({ params }: Props) => {
 
         },
         method: 'PUT',
-        body: JSON.stringify(newAdmin)
+        body: JSON.stringify(updatedData)
       })
 
       const data = await res.json()
@@ -442,8 +470,8 @@ const SingleAdminPage = ({ params }: Props) => {
   }
 
 
-    if (loading) return (
-      <Box
+  if (loading) return (
+    <Box
       flex={1}
       display="flex"
       justifyContent="center"
@@ -474,12 +502,34 @@ const SingleAdminPage = ({ params }: Props) => {
         </Box>
       </Box>
 
-      <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" gap={2} m={6}>
-        <Box display="flex" alignItems="center" gap={2} flexDirection="column">
-          <Avatar src={admin.picture} sx={{ width: 150, height: 150 }} />
-          <Typography variant="h6" fontWeight="bold" color="primary">{admin.name.toUpperCase()}</Typography>
-        </Box>
-      </Box>
+      <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center mx-auto">
+
+        <label
+          htmlFor="picture"
+          className="cursor-pointer flex items-center justify-center"
+          style={{ width: 150, height: 150 }}
+        >
+          <Avatar
+            src={imagePreview ?? undefined}
+            sx={{ width: 150, height: 150 }}
+          />
+        </label>
+
+        <input
+          id="picture"
+          type="file"
+          accept="image/*"
+          className="hidden disabled:cursor-none"
+          disabled={!isEditing}
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            setNewPictureFile(file);
+            if (file) setImagePreview(URL.createObjectURL(file));
+          }}
+        />
+
+      </div>
+      =
 
       {/* Dados Pessoais */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>

@@ -8,6 +8,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { BASE_URL } from "../../app/constants/baseUrl";
+import { Avatar } from "@mui/material";
+import { uploadImage } from "@/lib/imageFuncions";
 
 const formatCpf = (value: string) => {
   return value
@@ -26,13 +28,10 @@ const schema = z.object({
 
   phone: z.string().optional(),
   picture: z
-    .any()
-    .refine(
-      (file) => file instanceof File || file === undefined || file === null || file === "",
-      { message: "A imagem deve ser um arquivo válido." }
-    )
-    .transform((file) => (file === "" ? undefined : file))
-    .optional(),
+    .instanceof(File)
+    .optional()
+    .or(z.literal(null))
+    .or(z.undefined()),
 
   address: z.object({
     street: z.string().optional(),
@@ -64,6 +63,8 @@ const TeacherForm = ({
   });
 
   const cepValue = watch("address.postalCode");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (cepValue) {
@@ -89,7 +90,7 @@ const TeacherForm = ({
       setValue("address.neighborhood", data.bairro);
       setValue("address.city", data.localidade);
       setValue("address.state", data.estado);
-      setValue("address.postalCode",cep)
+      setValue("address.postalCode", cep)
     } catch (error) {
       console.error("Erro ao buscar CEP:", error);
       window.alert("Erro ao buscar CEP");
@@ -101,6 +102,13 @@ const TeacherForm = ({
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
+
+      // ✅ Upload da imagem
+      const pictureFile = formData.picture as File | undefined;
+      let pictureUrl = null;
+      if (pictureFile) {
+        pictureUrl = await uploadImage(pictureFile);
+      }
       const response = await fetch(`${BASE_URL}/teacher/create`, {
         method: "POST",
         headers: {
@@ -111,6 +119,7 @@ const TeacherForm = ({
           ...formData,
           cpf: formData.cpf.replace(/\D/g, ""), // Remove formatação
           address: formData.address || undefined,
+          picture: pictureUrl,
         }),
       });
 
@@ -134,6 +143,38 @@ const TeacherForm = ({
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Cadastrar professor</h1>
+
+      <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center mx-auto">
+
+        <label
+          htmlFor="picture"
+          className="cursor-pointer flex items-center justify-center"
+          style={{ width: 120, height: 120 }}
+        >
+          <Avatar
+            src={imagePreview ?? undefined}
+            sx={{ width: 120, height: 120 }}
+          />
+        </label>
+
+        <input
+          type="file"
+          id="picture"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+
+            setValue("picture", file, { shouldValidate: true });
+            if (file) setImagePreview(URL.createObjectURL(file));
+          }}
+          className="hidden"
+        />
+
+        {errors.picture?.message && (
+          <p className="text-xs text-red-400">{errors.picture.message.toString()}</p>
+        )}
+      </div>
+
       <div className="flex flex-wrap gap-4">
 
         <div className="flex flex-col gap-2 w-full ">

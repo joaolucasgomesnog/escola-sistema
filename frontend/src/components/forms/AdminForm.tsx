@@ -7,8 +7,9 @@ import InputField from "../InputField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { TextField } from "@mui/material";
+import { Avatar, TextField } from "@mui/material";
 import { BASE_URL } from "../../app/constants/baseUrl";
+import { uploadImage } from "@/lib/imageFuncions";
 
 
 const formatCpf = (value: string) => {
@@ -30,13 +31,10 @@ const schema = z.object({
   email: z.string()
     .email({ message: "E-mail inválido" }).optional(),
   picture: z
-    .any()
-    .refine(
-      (file) => file instanceof File || file === undefined || file === null || file === "",
-      { message: "A imagem deve ser um arquivo válido." }
-    )
-    .transform((file) => (file === "" ? undefined : file))
-    .optional(),
+    .instanceof(File)
+    .optional()
+    .or(z.literal(null))
+    .or(z.undefined()),
 
   address: z.object({
     street: z.string().optional(),
@@ -68,6 +66,7 @@ const AdminForm = ({
   });
 
   const cepValue = watch("address.postalCode");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (cepValue) {
@@ -105,6 +104,13 @@ const AdminForm = ({
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
+      // ✅ Upload da imagem
+      const pictureFile = formData.picture as File | undefined;
+      let pictureUrl = null;
+      if (pictureFile) {
+        pictureUrl = await uploadImage(pictureFile);
+      }
+
       const response = await fetch(`${BASE_URL}/admin/create`, {
         method: "POST",
         headers: {
@@ -115,6 +121,7 @@ const AdminForm = ({
           ...formData,
           cpf: formData.cpf.replace(/\D/g, ""), // Remove formatação
           address: formData.address || undefined,
+          picture: pictureUrl,
         }),
       });
 
@@ -138,6 +145,38 @@ const AdminForm = ({
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Cadastrar administrador</h1>
+
+      <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center mx-auto">
+
+        <label
+          htmlFor="picture"
+          className="cursor-pointer flex items-center justify-center"
+          style={{ width: 120, height: 120 }}
+        >
+          <Avatar
+            src={imagePreview ?? undefined}
+            sx={{ width: 120, height: 120 }}
+          />
+        </label>
+
+        <input
+          type="file"
+          id="picture"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+
+            setValue("picture", file, { shouldValidate: true });
+            if (file) setImagePreview(URL.createObjectURL(file));
+          }}
+          className="hidden"
+        />
+
+        {errors.picture?.message && (
+          <p className="text-xs text-red-400">{errors.picture.message.toString()}</p>
+        )}
+      </div>
+
       <div className="flex flex-wrap gap-4">
 
         <TextField label="CPF" type="text" {...register("cpf")} value={watch("cpf") || ""} inputProps={{ maxLength: 14 }} size="small" fullWidth helperText={errors?.cpf?.message}
