@@ -163,8 +163,16 @@ const StudentListPage = () => {
               <VisibilityIcon />
             </IconButton>
           </Link>
-          <IconButton>
-            <DeleteIcon />
+          <IconButton
+            onClick={() => {
+              if (confirm("Deseja excluir esta autorização?"))
+                fetch(`https://api-gestao.intranet.planobm.com.br/student/delete/${params.row.id}`, {
+                  method: "DELETE",
+                  headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },
+                }).then(handleSearch);
+            }}
+          >
+            <DeleteIcon color="error" />
           </IconButton>
         </div>
       ),

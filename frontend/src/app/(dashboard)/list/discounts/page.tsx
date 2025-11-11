@@ -30,48 +30,48 @@ const DiscountListPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchDiscounts = async () => {
-      try {
-        const token = Cookies.get("auth_token");
+  const fetchDiscounts = async () => {
+    try {
+      const token = Cookies.get("auth_token");
 
-        if (!token) {
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/discount/getall`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          Cookies.remove("auth_token");
           router.push("/sign-in");
           return;
         }
 
-        const response = await fetch(`${BASE_URL}/discount/getall`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            Cookies.remove("auth_token");
-            router.push("/sign-in");
-            return;
-          }
-
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao buscar descontos");
-        }
-
-        const data = await response.json();
-        console.log(data);
-
-
-
-        setDiscounts(data);
-      } catch (error) {
-        console.error("Erro ao buscar dados dos descontos:", error);
-        setError(error instanceof Error ? error.message : "Erro desconhecido");
-      } finally {
-        setLoading(false);
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao buscar descontos");
       }
-    };
+
+      const data = await response.json();
+      console.log(data);
+
+
+
+      setDiscounts(data);
+    } catch (error) {
+      console.error("Erro ao buscar dados dos descontos:", error);
+      setError(error instanceof Error ? error.message : "Erro desconhecido");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
 
     fetchDiscounts();
   }, [router]);
@@ -109,8 +109,16 @@ const DiscountListPage = () => {
               <VisibilityIcon />
             </IconButton>
           </Link>
-          <IconButton>
-            <DeleteIcon />
+          <IconButton
+            onClick={() => {
+              if (confirm("Deseja excluir esta autorização?"))
+                fetch(`https://api-gestao.intranet.planobm.com.br/discount/delete/${params.row.id}`, {
+                  method: "DELETE",
+                  headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },
+                }).then(() => fetchDiscounts());
+            }}
+          >
+            <DeleteIcon color="error" />
           </IconButton>
         </div>
       ),
