@@ -126,7 +126,7 @@ const CourseListPage = () => {
           <IconButton
             onClick={() => {
               if (confirm("Deseja excluir esta autorização?"))
-                fetch(`https://api-gestao.intranet.planobm.com.br/course/delete/${params.row.id}`, {
+                fetch(`${BASE_URL}/course/delete/${params.row.id}`, {
                   method: "DELETE",
                   headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },
                 }).then(() => fetchCourses());

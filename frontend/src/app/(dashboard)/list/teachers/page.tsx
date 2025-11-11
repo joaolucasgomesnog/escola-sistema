@@ -168,7 +168,7 @@ const TeacherListPage = () => {
           <IconButton
             onClick={() => {
               if (confirm("Deseja excluir esta autorização?"))
-                fetch(`https://api-gestao.intranet.planobm.com.br/teacher/delete/${params.row.id}`, {
+                fetch(`${BASE_URL}/teacher/delete/${params.row.id}`, {
                   method: "DELETE",
                   headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },
                 }).then(handleSearch);
