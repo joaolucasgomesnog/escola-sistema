@@ -529,7 +529,6 @@ const SingleAdminPage = ({ params }: Props) => {
         />
 
       </div>
-      =
 
       {/* Dados Pessoais */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>

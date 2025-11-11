@@ -22,20 +22,21 @@ model Address {
 }
 
 model Student {
-  id          Int             @id @default(autoincrement())
-  name        String
-  cpf         String          @unique
-  phone       String?
-  picture     String?
-  password    String
-  addressId   Int
-  email       String?
-  discountId  Int?
-  classLinks  Class_Student[]
-  attendances Attendence[]
-  fees        Fee[]
-  discount    Discount?       @relation(fields: [discountId], references: [id])
-  address     Address         @relation(fields: [addressId], references: [id])
+  id              Int             @id @default(autoincrement())
+  name            String
+  cpf             String          @unique
+  phone           String?
+  picture         String?
+  password        String
+  addressId       Int
+  email           String?
+  themePreference ThemePreference @default(SYSTEM)
+  discountId      Int?
+  classLinks      Class_Student[]
+  attendances     Attendence[]
+  fees            Fee[]
+  discount        Discount?       @relation(fields: [discountId], references: [id])
+  address         Address         @relation(fields: [addressId], references: [id])
 }
 
 model Discount {
@@ -47,16 +48,17 @@ model Discount {
 }
 
 model Teacher {
-  id        Int     @id @default(autoincrement())
-  name      String
-  cpf       String  @unique
-  phone     String?
-  picture   String?
-  password  String
-  addressId Int
-  email     String?
-  Class     Class[]
-  address   Address @relation(fields: [addressId], references: [id])
+  id              Int             @id @default(autoincrement())
+  name            String
+  cpf             String          @unique
+  phone           String?
+  picture         String?
+  password        String
+  addressId       Int
+  email           String?
+  themePreference ThemePreference @default(SYSTEM)
+  Class           Class[]
+  address         Address         @relation(fields: [addressId], references: [id])
 }
 
 model BlackListToken {
@@ -64,16 +66,17 @@ model BlackListToken {
 }
 
 model Admin {
-  id        Int       @id @default(autoincrement())
-  name      String
-  cpf       String    @unique
-  phone     String?
-  picture   String?
-  password  String
-  addressId Int
-  email     String?
-  address   Address   @relation(fields: [addressId], references: [id])
-  payments  Payment[]
+  id              Int             @id @default(autoincrement())
+  name            String
+  cpf             String          @unique
+  phone           String?
+  picture         String?
+  password        String
+  addressId       Int
+  email           String?
+  themePreference ThemePreference @default(SYSTEM)
+  address         Address         @relation(fields: [addressId], references: [id])
+  payments        Payment[]
 }
 
 model Course {
@@ -161,4 +164,10 @@ enum PaymentType {
   DEBITO
   DEPOSITO
   PIX
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
 }
