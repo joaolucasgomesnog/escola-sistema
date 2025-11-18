@@ -186,6 +186,7 @@ const TeacherListPage = () => {
         <Box
       p={3}
       bgcolor="white"
+      className="dark:bg-dark"
       borderRadius={2}
       m={2}
       sx={{

@@ -141,7 +141,7 @@ const TeacherForm = ({
 
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-4 dark:bg-dark" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Cadastrar professor</h1>
 
       <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center mx-auto">
@@ -188,7 +188,7 @@ const TeacherForm = ({
               setValue("cpf", formatted);
             }}
             maxLength={14}
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            className="ring-[1.5px] dark:bg-dark ring-gray-300 p-2 rounded-md text-sm w-full"
           />
 
           {errors?.cpf && (

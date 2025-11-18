@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "../contexts/ThemeContext";
+import { MUIWrapper } from "../components/MUIWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,14 +11,27 @@ export const metadata: Metadata = {
   description: "Escola Sistema",
 };
 
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+
+  const theme = "light";
+
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+
+        <ThemeProvider defaultTheme={theme}>
+          <MUIWrapper>
+            {children}
+          </MUIWrapper>
+        </ThemeProvider>
+
+      </body>
     </html>
   );
 }

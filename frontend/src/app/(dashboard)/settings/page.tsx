@@ -11,6 +11,7 @@ import InputField from "@/components/InputField";
 import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { BASE_URL } from "@/app/constants/baseUrl";
+import { ThemeToggle } from "../../../components/ThemeToggle";
 
 
 
@@ -80,7 +81,7 @@ const SettingsPage = () => {
 
 
   return (
-    <Box p={3} bgcolor="white" borderRadius={2} m={2} sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
+    <Box className="dark:bg-dark" p={3}  borderRadius={2} m={2} sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
           Configurações
@@ -89,7 +90,7 @@ const SettingsPage = () => {
       <form className="flex flex-col gap-4 mt-8" onSubmit={onSubmit}>
 
         <Typography variant="body1">Senha</Typography>
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row gap-4 dark:bg-dark">
 
           <InputField
             label="Senha"
@@ -106,7 +107,7 @@ const SettingsPage = () => {
 
         <Typography variant="body1">Tema</Typography>
 
-        <FormControl>
+        {/* <FormControl>
           <RadioGroup
             aria-labelledby="demo-theme-toggle"
             name="theme-toggle"
@@ -120,7 +121,9 @@ const SettingsPage = () => {
             <FormControlLabel value="light" control={<Radio />} label="Claro" />
             <FormControlLabel value="dark" control={<Radio />} label="Escuro" />
           </RadioGroup>
-        </FormControl>
+        </FormControl> */}
+        <ThemeToggle />
+
 
         <Button variant="contained" type="submit" className="self-end mt-4">
           Atualizar

@@ -660,7 +660,7 @@ const CashierPage = () => {
 
 
   return (
-    <Box p={3} bgcolor="white" borderRadius={2} m={2}>
+    <Box p={3} bgcolor="white" className="dark:bg-dark" borderRadius={2} m={2}>
 
       <Box className="hidden">
         <Report ref={printRef} title="Relatório de Caixa">

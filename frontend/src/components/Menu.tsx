@@ -168,7 +168,7 @@ const Menu = () => {
 
       {menuItems.map((section) => (
         <div className="flex flex-col gap-2" key={section.title}>
-          <span className="hidden lg:block text-gray-800 font-light my-4">
+          <span className="hidden lg:block text-gray-800 dark:text-white font-light my-4">
             {section.title}
           </span>
           {section.items
@@ -177,10 +177,10 @@ const Menu = () => {
               <Link
                 href={item.href}
                 key={item.label}
-                className="flex items-center justify-center lg:justify-start gap-4 text-gray-800 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
+                className="flex items-center justify-center lg:justify-start gap-4 text-gray-800 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight dark:hover:bg-gray-700"
               >
                 {item.icon}
-                <span className="hidden lg:block">{item.label}</span>
+                <span className="hidden lg:block dark:text-white">{item.label}</span>
               </Link>
             ))}
         </div>

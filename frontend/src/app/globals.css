@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-dark {
+    background-color: #121212;
+    color: #ffffff;
+  }
+}
+
 .react-calendar {
   width: 100% !important;
   border: none !important;

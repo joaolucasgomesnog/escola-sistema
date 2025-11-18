@@ -98,7 +98,7 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
   if (!discount) return <Typography>Desconto não encontrado.</Typography>;
 
   return (
-    <Box p={3} bgcolor="white" borderRadius={2} m={2} sx={{ height: 'calc(100vh - 64px)', overflowY: 'auto' }}>
+    <Box p={3} className="dark:bg-dark" borderRadius={2} m={2} sx={{ height: 'calc(100vh - 64px)', overflowY: 'auto' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h6" fontWeight="bold">Perfil do desconto</Typography>
         {isEditing

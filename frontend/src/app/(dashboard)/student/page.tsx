@@ -4,7 +4,7 @@ import EventCalendar from "@/components/EventCalendar";
 
 const StudentPage = () => {
   return (
-    <div className="p-4 flex gap-4 flex-col xl:flex-row hidden">
+    <div className="p-4 flex gap-4 flex-col xl:flex-row hidden dark:bg-dark">
       {/* LEFT */}
       <div className="w-full xl:w-2/3">
         <div className="h-full bg-white p-4 rounded-md">

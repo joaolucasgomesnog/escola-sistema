@@ -59,7 +59,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className='flex items-center justify-between p-4 bg-white shadow-sm'>
+    <div className='flex items-center justify-between p-4 bg-white shadow-sm dark:bg-dark'>
 
       
       {/* ICONS AND USER */}

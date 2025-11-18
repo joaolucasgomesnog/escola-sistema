@@ -143,7 +143,7 @@ const AdminForm = ({
 
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-8 dark:bg-dark" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Cadastrar administrador</h1>
 
       <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center mx-auto">

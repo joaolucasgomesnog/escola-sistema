@@ -89,7 +89,7 @@ const handleLogin = async () => {
 };
 
   return (
-    <div className="flex items-center justify-center min-h-screen w-full">
+    <div className="flex items-center justify-center min-h-screen w-full dark:bg-dark">
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm -mt-10">
           <img src="/logo.png" className="mx-auto h-12 w-auto" alt="Logo" />
@@ -98,7 +98,7 @@ const handleLogin = async () => {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
             <div>
-              <label htmlFor="cpf" className="block text-sm font-medium text-gray-900">CPF</label>
+              <label htmlFor="cpf" className="block text-sm font-medium ">CPF</label>
               <input
                 id="cpf"
                 type="text"
@@ -106,19 +106,19 @@ const handleLogin = async () => {
                 onChange={handleCpfChange}
                 required
                 maxLength={14}
-                className="mt-2 block w-full rounded-md px-3 py-1.5 text-base outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
+                className="mt-2 dark:bg-dark block w-full rounded-md px-3 py-1.5 text-base outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-900">Senha</label>
+              <label htmlFor="password" className="block text-sm font-medium ">Senha</label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-2 block w-full rounded-md px-3 py-1.5 text-base outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
+                className="mt-2 dark:bg-dark block w-full rounded-md px-3 py-1.5 text-base outline outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
               />
             </div>
 
