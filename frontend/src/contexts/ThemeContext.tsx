@@ -20,35 +20,31 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
-export const ThemeProvider = ({
-  children,
-  defaultTheme = "light",
-}: {
-  children: ReactNode;
-  defaultTheme?: Theme;
-}) => {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [theme, setTheme] = useState<Theme>("light");
 
-  // 🔹 1) Carregar tema salvo no localStorage
   useEffect(() => {
     const saved = localStorage.getItem("theme") as Theme | null;
 
     if (saved === "light" || saved === "dark") {
       setTheme(saved);
-    } else {
-      // salva o defaultTheme no localStorage se nenhum existir
-      localStorage.setItem("theme", defaultTheme);
-      setTheme(defaultTheme);
+      return;
     }
-  }, [defaultTheme]);
 
-  // 🔹 2) Aplicar a classe `dark` ou `light` no HTML
+    const systemPrefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    setTheme(systemPrefersDark ? "dark" : "light");
+  }, []);
+
   useEffect(() => {
+    if (!theme) return;
+
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(theme);
   }, [theme]);
 
-  // 🔹 3) Alternar o tema e salvar no localStorage
   const toggleTheme = () => {
     const newTheme: Theme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
