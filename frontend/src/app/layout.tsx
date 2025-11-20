@@ -22,10 +22,10 @@ export default async function RootLayout({
   const theme = "light";
 
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body className={inter.className}>
 
-        <ThemeProvider defaultTheme={theme}>
+        <ThemeProvider >
           <MUIWrapper>
             {children}
           </MUIWrapper>

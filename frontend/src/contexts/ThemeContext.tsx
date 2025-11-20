@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 
-type Theme = "light" | "dark";
+type Theme = ("light" | "dark");
 
 interface ThemeContextType {
   theme: Theme;
