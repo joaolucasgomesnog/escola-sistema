@@ -163,17 +163,43 @@ const StudentListPage = () => {
               <VisibilityIcon />
             </IconButton>
           </Link>
-          <IconButton
-            onClick={() => {
-              if (confirm("Deseja excluir esta autorização?"))
-                fetch(`${BASE_URL}/student/delete/${params.row.id}`, {
-                  method: "DELETE",
-                  headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },
-                }).then(handleSearch);
-            }}
-          >
-            <DeleteIcon color="error" />
-          </IconButton>
+<IconButton
+  onClick={async () => {
+    if (!confirm("Deseja excluir esta autorização?")) return;
+
+    try {
+      const response = await fetch(`${BASE_URL}/student/delete/${params.row.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("auth_token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        // tenta pegar o erro da API
+        const errorData = await response.json().catch(() => null);
+
+        const message =
+          errorData?.message ||
+          errorData?.error ||
+          "Erro desconhecido ao excluir.";
+
+        alert("Erro: " + message);
+        return;
+      }
+
+      // sucesso
+      handleSearch();
+
+    } catch (err: any) {
+      // erro de rede ou algo inesperado
+      alert("Erro inesperado: " + err.message);
+    }
+  }}
+>
+  <DeleteIcon color="error" />
+</IconButton>
+
         </div>
       ),
     },

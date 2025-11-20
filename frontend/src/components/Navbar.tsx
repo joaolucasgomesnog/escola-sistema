@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { Avatar, Skeleton } from "@mui/material";
+import { ThemeToggle } from "./ThemeToggle";
 
 type UserData = {
   name: string;
@@ -64,7 +65,7 @@ const Navbar = () => {
       
       {/* ICONS AND USER */}
       <div className='flex items-center gap-6 justify-end w-full'>
-
+<ThemeToggle />
         
         {loading ? (
           <div className="flex items-center gap-2">

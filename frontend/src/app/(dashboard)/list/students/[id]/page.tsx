@@ -143,6 +143,7 @@ const SingleStudentPage = ({ params }: Props) => {
     fetchStudentFees(Number(id));
   }, [id]);
 
+
   const updateStudent = async () => {
     try {
       const token = Cookies.get('auth_token');
@@ -325,6 +326,7 @@ const SingleStudentPage = ({ params }: Props) => {
       // setClasses(data)
       window.alert("Matrícula efetuada com sucesso")
       fetchStudentFees(Number(id))
+      fetchStudent()
     } catch (error) {
       setSelectedClasses([])
       console.error("Erro ao confirmar turmas:", error);
@@ -401,11 +403,14 @@ const SingleStudentPage = ({ params }: Props) => {
 
       if (!response.ok) throw new Error("Erro ao deletar matricula do aluno.");
       window.alert("Matrícula deletada com sucesso")
+      handleClose()
       fetchStudent()
+      fetchStudentFees(Number(id));
 
     } catch (error) {
       setSelectedClasses([])
       console.error("Erro ao deletar matricula", error);
+      handleClose()
     }
   }
 
@@ -431,11 +436,13 @@ const SingleStudentPage = ({ params }: Props) => {
       if (!response.ok) throw new Error("Erro ao deletar desconto do aluno.");
       setOpenDiscountModal(false)
       window.alert("Desconto deletado com sucesso")
+      handleClose()
       fetchStudent()
 
     } catch (error) {
       setSelectedClasses([])
       console.error("Erro ao deletar desconto", error);
+      handleClose()
     }
   }
 

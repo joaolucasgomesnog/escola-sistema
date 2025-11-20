@@ -81,7 +81,7 @@ const SettingsPage = () => {
 
 
   return (
-    <Box className="dark:bg-dark" p={3}  borderRadius={2} m={2} sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
+    <Box bgcolor="white" className="dark:bg-dark" p={3}  borderRadius={2} m={2} sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
           Configurações
@@ -104,25 +104,6 @@ const SettingsPage = () => {
           {/* Nome e CNH */}
 
         </div>
-
-        <Typography variant="body1">Tema</Typography>
-
-        {/* <FormControl>
-          <RadioGroup
-            aria-labelledby="demo-theme-toggle"
-            name="theme-toggle"
-            row
-            value={mode}
-            onChange={(event) =>
-              setMode(event.target.value as 'system' | 'light' | 'dark')
-            }
-          >
-            <FormControlLabel value="system" control={<Radio />} label="Sistema" />
-            <FormControlLabel value="light" control={<Radio />} label="Claro" />
-            <FormControlLabel value="dark" control={<Radio />} label="Escuro" />
-          </RadioGroup>
-        </FormControl> */}
-        <ThemeToggle />
 
 
         <Button variant="contained" type="submit" className="self-end mt-4">
