@@ -89,49 +89,59 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
     fetchTeachers();
   }, [id]);
 
-  const formatValue = (value: string) => {
-    const numeric = value.replace(/\D/g, '').padStart(3, '0'); // Garante pelo menos 3 dígitos
-    const integerPart = numeric.slice(0, -2);
-    const decimalPart = numeric.slice(-2);
+  function formatCurrencyBR(value: number | string | null | undefined) {
+    if (value === null || value === undefined) return "";
 
-    // Remove zeros à esquerda do inteiro para evitar "000.123"
-    const cleanedInteger = integerPart.replace(/^0+/, '') || '0';
+    const number = typeof value === "string"
+      ? Number(value.replace(/\./g, "").replace(",", "."))
+      : value;
 
-    // Aplica ponto como separador de milhar
-    const formattedInteger = cleanedInteger.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    if (isNaN(number)) return "";
 
-    return `R$${formattedInteger},${decimalPart}`;
-  };
-  const updateCourse = async () => {
-    try {
+    return number.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
 
-      if (!newCourse || !newCourse.registrationFeeValue || !newCourse.MonthlyFeeValue) {
-        // Exibir erro ou retornar cedo
-        alert("Campos obrigatórios não preenchidos");
-        return;
-      }
-      const token = Cookies.get('auth_token');
-      const res = await fetch(`${BASE_URL}/course/update/${id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...newCourse,
-          registrationFeeValue: Number(String(newCourse!.registrationFeeValue).replace(/[^0-9,]/g, '').replace(',', '.')),
-          MonthlyFeeValue: Number(String(newCourse!.MonthlyFeeValue).replace(/[^0-9,]/g, '').replace(',', '.')),
+  function parseCurrencyBR(value: string) {
+    if (!value) return 0;
+    return Number(value.replace(/\./g, "").replace(",", "."));
+  }
 
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error("Erro ao atualizar curso");
-      setCourse(data);
-      setIsEditing(false);
-    } catch (err) {
-      console.error(err);
+const updateCourse = async () => {
+  try {
+    if (!newCourse || !newCourse.registrationFeeValue || !newCourse.MonthlyFeeValue) {
+      alert("Campos obrigatórios não preenchidos");
+      return;
     }
-  };
+
+    const token = Cookies.get('auth_token');
+
+    const res = await fetch(`${BASE_URL}/course/update/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...newCourse,
+        registrationFeeValue: parseCurrencyBR(String(newCourse.registrationFeeValue)),
+        MonthlyFeeValue: parseCurrencyBR(String(newCourse.MonthlyFeeValue)),
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error("Erro ao atualizar curso");
+
+    setCourse(data);
+    setIsEditing(false);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   if (loading) return (
     <Box
@@ -166,12 +176,8 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
               setIsEditing(true);
               setNewCourse({
                 ...course,
-                registrationFeeValue: formatValue(
-                  (course.registrationFeeValue ?? 0).toString()
-                ),
-                MonthlyFeeValue: formatValue(
-                  (course.MonthlyFeeValue ?? 0).toString()
-                ),
+                registrationFeeValue: formatCurrencyBR(course.registrationFeeValue ?? 0),
+                MonthlyFeeValue: formatCurrencyBR(course.MonthlyFeeValue ?? 0),
               });
             }}
           >
@@ -204,12 +210,17 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
           value={
             isEditing
               ? newCourse?.registrationFeeValue ?? ""
-              : formatValue((course.registrationFeeValue ?? 0).toString())
+              : formatCurrencyBR((course.registrationFeeValue ?? 0).toString())
           }
           InputProps={{ readOnly: !isEditing }}
           inputProps={{ maxLength: 14 }}
+
           onChange={(e) =>
-            isEditing && setNewCourse({ ...newCourse, registrationFeeValue: formatValue(e.target.value) })
+            isEditing &&
+            setNewCourse({
+              ...newCourse,
+              registrationFeeValue: e.target.value // mantém como o usuário digitou
+            })
           }
           sx={{ flex: 2 }}
 
@@ -221,12 +232,17 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
           value={
             isEditing
               ? newCourse?.MonthlyFeeValue ?? ""
-              : formatValue((course.MonthlyFeeValue ?? 0).toString())
+              : formatCurrencyBR((course.MonthlyFeeValue ?? 0).toString())
           }
           InputProps={{ readOnly: !isEditing }}
           inputProps={{ maxLength: 14 }}
+
           onChange={(e) =>
-            isEditing && setNewCourse({ ...newCourse, MonthlyFeeValue: formatValue(e.target.value) })
+            isEditing &&
+            setNewCourse({
+              ...newCourse,
+              MonthlyFeeValue: e.target.value // mantém como o usuário digitou
+            })
           }
           sx={{ flex: 2 }}
 

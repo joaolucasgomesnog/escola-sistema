@@ -344,11 +344,7 @@ async getAllAvailableClasses(req, res) {
       include: {
         course: true,
         teacher: true,
-        students: {
-          include: {
-            student: true,
-          },
-        },
+       _count:{select:{students:true}}
       },
     });
 
