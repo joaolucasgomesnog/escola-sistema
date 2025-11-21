@@ -68,6 +68,10 @@ const AdminForm = ({
   });
 
   const cepValue = watch("address.postalCode");
+  const stateValue = watch("address.state");
+  const cityValue = watch("address.city")
+  const streetValue = watch("address.street")
+  const neighborhoodValue = watch("address.neighborhood")
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -211,11 +215,47 @@ const AdminForm = ({
       <span className="text-xs text-gray-400 font-medium">Endereço</span>
       <div className="flex flex-wrap gap-4">
         <InputField label="CEP" name="address.postalCode" register={register} error={errors?.address?.postalCode} />
-        <InputField label="Rua" name="address.street" register={register} error={errors?.address?.street} />
+        <TextField
+          label="Rua"
+          {...register("address.street")}
+          defaultValue={data?.address || ""}
+          error={!!errors.address}
+          InputLabelProps={{ shrink: !!streetValue }}
+          helperText={errors.address?.message?.toString()}
+          size="small"
+          fullWidth
+        />
         <InputField label="Número" name="address.number" register={register} error={errors?.address?.number} />
-        <InputField label="Bairro" name="address.neighborhood" register={register} error={errors?.address?.neighborhood} />
-        <InputField label="Cidade" name="address.city" register={register} error={errors?.address?.city} />
-        <InputField label="Estado" name="address.state" register={register} error={errors?.address?.state} />
+        <TextField
+          label="Bairro"
+          {...register("address.neighborhood")}
+          defaultValue={data?.address || ""}
+          error={!!errors.address}
+          size="small"
+          InputLabelProps={{ shrink: !!neighborhoodValue }}
+          helperText={errors.address?.message?.toString()}
+          fullWidth
+        />
+        <TextField
+          label="Cidade"
+          {...register("address.city")}
+          defaultValue={data?.address || ""}
+          error={!!errors.address}
+          size="small"
+          InputLabelProps={{ shrink: !!cityValue }}
+          helperText={errors.address?.message?.toString()}
+          fullWidth
+        />
+        <TextField
+          label="Estado"
+          {...register("address.state")}
+          defaultValue={data?.address || ""}
+          error={!!errors.address}
+          size="small"
+          InputLabelProps={{ shrink: !!stateValue }}
+          helperText={errors.address?.message?.toString()}
+          fullWidth
+        />
       </div>
       <TextField
         label="Observação"
