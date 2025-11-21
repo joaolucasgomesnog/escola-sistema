@@ -165,7 +165,7 @@ const StudentListPage = () => {
           </Link>
 <IconButton
   onClick={async () => {
-    if (!confirm("Deseja excluir esta autorização?")) return;
+    if (!confirm("Deseja excluir este aluno?")) return;
 
     try {
       const response = await fetch(`${BASE_URL}/student/delete/${params.row.id}`, {

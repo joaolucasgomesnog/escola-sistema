@@ -204,7 +204,7 @@ const CourseListPage = () => {
           </Link>
           <IconButton
             onClick={() => {
-              if (confirm("Deseja excluir esta autorização?"))
+              if (confirm("Deseja excluir esta turma?"))
                 fetch(`${BASE_URL}/class/delete/${params.row.id}`, {
                   method: "DELETE",
                   headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },

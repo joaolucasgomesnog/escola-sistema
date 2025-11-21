@@ -30,6 +30,8 @@ const TeacherReport = forwardRef<HTMLDivElement, Props>(({ teacher }, ref) => {
                     <Typography variant="body2" style={{ fontSize: 10 }}>CPF: {formatCpf(teacher.cpf)}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Email: {teacher.email}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Telefone: {formatPhone(teacher.phone)}</Typography>
+                    <Typography variant="body2" style={{ fontSize: 10 }}>Data de nascimento: {teacher.birthDate ? dayjs(teacher.birthDate).format("DD/MM/YYYY") : "—"}</Typography>
+
 
                 </Box>
                 <Avatar src={teacher.picture} sx={{ width: 100, height: 100 }} style={{ borderRadius: 0 }} />
@@ -59,7 +61,15 @@ const TeacherReport = forwardRef<HTMLDivElement, Props>(({ teacher }, ref) => {
                     CEP: {teacher.address.postalCode}
                 </Typography>
             </Box>
+            <hr />
+            {/* Observacao */}
+            <Box mt={2}>
+                <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
+                    Observação
+                </Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>{teacher.observation ?? ""}</Typography>
 
+            </Box>
 
             {/* Turmas */}
             <Box mt={2}>

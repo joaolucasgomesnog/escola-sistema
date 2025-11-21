@@ -22,7 +22,7 @@ export default {
 
   async createStudent(req, res) {
     try {
-      const { name, cpf, phone, email, picture, password, address } = req.body;
+      const { name, cpf, phone, email, picture, password, address, birthDate, observation } = req.body;
 
       console.log(req.body);
 
@@ -57,6 +57,8 @@ export default {
           phone,
           email,
           picture,
+          birthDate: birthDate ? new Date(birthDate) : null,
+          observation,
           password: hashedPassword,
           addressId: newAddress.id,
         },
@@ -290,7 +292,7 @@ export default {
   async updateStudent(req, res) {
     try {
       const { id } = req.params;
-      const { name, cpf, phone, email, picture, address } = req.body;
+      const { name, cpf, phone, email, picture, address, birthDate, observation } = req.body;
 
       console.log("CHEGANDO: ", name, cpf, phone, email, picture, address);
 
@@ -318,7 +320,7 @@ export default {
 
       const updatedStudent = await prisma.student.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, email, picture, password: hashedPassword },
+        data: { name, cpf, phone, email, picture, password: hashedPassword, birthDate: birthDate ? new Date(birthDate) : null, observation },
         include: {
           address: true,
           attendances: true,

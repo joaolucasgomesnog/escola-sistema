@@ -28,6 +28,7 @@ const AdminReport = forwardRef<HTMLDivElement, Props>(({ admin, fees }, ref) => 
                     <Typography variant="body2" style={{ fontSize: 10 }}>CPF: {formatCpf(admin.cpf)}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Email: {admin.email}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Telefone: {formatPhone(admin.phone)}</Typography>
+                    <Typography variant="body2" style={{ fontSize: 10 }}>Data de nascimento: {admin.birthDate ? dayjs(admin.birthDate).format("DD/MM/YYYY") : "—"}</Typography>
                 </Box>
             </Box>
             <hr />
@@ -43,7 +44,15 @@ const AdminReport = forwardRef<HTMLDivElement, Props>(({ admin, fees }, ref) => 
                 <Typography variant="body2" style={{ fontSize: 10 }}>Estado: {admin.address.state}</Typography>
                 <Typography variant="body2" style={{ fontSize: 10 }}>CEP: {admin.address.postalCode}</Typography>
             </Box>
+            <hr />
+            {/* Observacao */}
+            <Box mt={2}>
+                <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
+                    Observação
+                </Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>{admin.observation ?? ""}</Typography>
 
+            </Box>
         </Report>
     );
 });

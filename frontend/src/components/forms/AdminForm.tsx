@@ -35,7 +35,8 @@ const schema = z.object({
     .optional()
     .or(z.literal(null))
     .or(z.undefined()),
-
+  birthDate: z.string().optional(),
+  observation: z.string().optional(),
   address: z.object({
     street: z.string().optional(),
     number: z.string().optional(),
@@ -60,6 +61,7 @@ const AdminForm = ({
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
     watch,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
@@ -122,6 +124,7 @@ const AdminForm = ({
           cpf: formData.cpf.replace(/\D/g, ""), // Remove formatação
           address: formData.address || undefined,
           picture: pictureUrl,
+          observation: formData.observation || null,
         }),
       });
 
@@ -134,6 +137,7 @@ const AdminForm = ({
       }
 
       window.alert("Administrador cadastrado com sucesso!");
+      reset()
       console.log("Administrador criado:", result);
     } catch (error) {
       console.error("Erro ao enviar dados:", error);
@@ -191,6 +195,9 @@ const AdminForm = ({
       <div className="flex flex-wrap gap-4">
         <InputField label="Nome" name="name" defaultValue={data?.name} register={register} error={errors?.name} />
       </div>
+      <div className="flex flex-wrap gap-4">
+        <InputField label="Data de Nascimento" name="birthDate" type="date" defaultValue={data?.birthDate ? data.birthDate.split("T")[0] : ""} register={register} error={errors?.birthDate} />
+      </div>
       <span className="text-xs text-gray-400 font-medium">Contato</span>
 
       <div className="flex flex-wrap gap-4">
@@ -210,7 +217,18 @@ const AdminForm = ({
         <InputField label="Cidade" name="address.city" register={register} error={errors?.address?.city} />
         <InputField label="Estado" name="address.state" register={register} error={errors?.address?.state} />
       </div>
-
+      <TextField
+        label="Observação"
+        {...register("observation")}
+        defaultValue={data?.observation || ""}
+        multiline
+        minRows={4}
+        maxRows={8}
+        placeholder="Escreva observações adicionais..."
+        error={!!errors.observation}
+        helperText={errors.observation?.message?.toString()}
+        fullWidth
+      />
       {/* <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center">
         <label className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer" htmlFor="picture">
           <Image src="/upload.png" alt="" width={28} height={28} />

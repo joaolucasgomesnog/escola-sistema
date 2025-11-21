@@ -12,6 +12,8 @@ interface Admin {
   email: string
   address: Address
   attendances: any[]
+  observation: string
+  birthDate: string | Date
 }
 
 export type {Admin}

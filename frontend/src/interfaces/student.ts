@@ -12,6 +12,8 @@ interface Student {
   addressId: number
   email: string
   address: Address
+  observation: string
+  birthDate: string | Date
   attendances: any[]
   classLinks: any[]
   course: Course
@@ -19,4 +21,4 @@ interface Student {
   discount?: Discount
 }
 
-export type {Student}
+export type { Student }

@@ -28,6 +28,8 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                     <Typography variant="body2" style={{ fontSize: 10 }}>CPF: {formatCpf(student.cpf)}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Email: {student.email}</Typography>
                     <Typography variant="body2" style={{ fontSize: 10 }}>Telefone: {formatPhone(student.phone)}</Typography>
+                    <Typography variant="body2" style={{ fontSize: 10 }}>Data de nascimento: {student.birthDate ? dayjs(student.birthDate).format("DD/MM/YYYY") : "—"}</Typography>
+
                 </Box>
             </Box>
             <hr />
@@ -42,6 +44,15 @@ const StudentReport = forwardRef<HTMLDivElement, Props>(({ student, fees }, ref)
                 <Typography variant="body2" style={{ fontSize: 10 }}>Cidade: {student.address.city}</Typography>
                 <Typography variant="body2" style={{ fontSize: 10 }}>Estado: {student.address.state}</Typography>
                 <Typography variant="body2" style={{ fontSize: 10 }}>CEP: {student.address.postalCode}</Typography>
+            </Box>
+            <hr />
+            {/* Observacao */}
+            <Box mt={2}>
+                <Typography variant="subtitle1" fontWeight="bold" gutterBottom style={{ fontSize: 10 }}>
+                    Observação
+                </Typography>
+                <Typography variant="body2" style={{ fontSize: 10 }}>{student.observation ?? ""}</Typography>
+
             </Box>
             <hr />
             {/* Matriculas */}

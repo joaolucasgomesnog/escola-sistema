@@ -24,7 +24,7 @@ export default {
 
   async createAdmin(req, res) {
     try {
-      const { name, cpf, phone, picture, password, address } = req.body;
+      const { name, cpf, phone, picture, password, address,birthDate, observation } = req.body;
 
       const adminExists = await prisma.admin.findUnique({ where: { cpf } })
 
@@ -47,6 +47,8 @@ export default {
           cpf,
           phone,
           picture,
+          birthDate: birthDate ? new Date(birthDate) : null,
+          observation,
           password: hashedPassword,
           addressId: newAddress.id,
         },
@@ -122,7 +124,7 @@ export default {
   async updateAdmin(req, res) {
     try {
       const { id } = req.params;
-      const { name, cpf, phone, picture, password, address } = req.body;
+      const { name, cpf, phone, picture, password, address, birthDate, observation } = req.body;
 
       const adminExists = await prisma.admin.findUnique({
         where: { id: Number(id) },
@@ -148,7 +150,7 @@ export default {
 
       const updatedAdmin = await prisma.admin.update({
         where: { id: Number(id) },
-        data: { name, cpf, phone, picture, password: hashedPassword },
+        data: { name, cpf, phone, picture, password: hashedPassword, birthDate: birthDate ? new Date(birthDate) : null, observation },
         include: { address: true },
       });
 

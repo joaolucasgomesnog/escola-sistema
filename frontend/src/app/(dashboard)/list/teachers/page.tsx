@@ -167,7 +167,7 @@ const TeacherListPage = () => {
           </Link>
           <IconButton
             onClick={() => {
-              if (confirm("Deseja excluir esta autorização?"))
+              if (confirm("Deseja excluir este professor?"))
                 fetch(`${BASE_URL}/teacher/delete/${params.row.id}`, {
                   method: "DELETE",
                   headers: { Authorization: `Bearer ${Cookies.get("auth_token")}` },

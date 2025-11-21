@@ -6,6 +6,7 @@ interface Address {
   city: string
   state: string
   postalCode: string
+  
 }
 
 export type { Address }

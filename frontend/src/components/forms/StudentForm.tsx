@@ -41,6 +41,9 @@ const schema = z.object({
     .or(z.literal(null))
     .or(z.undefined()),
 
+  birthDate: z.string().optional(),
+  observation: z.string().optional(),
+
   address: z.object({
     street: z.string().optional(),
     number: z.string().optional(),
@@ -66,6 +69,7 @@ const StudentForm = ({
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
     watch,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
@@ -143,6 +147,7 @@ const StudentForm = ({
           cpf: formData.cpf.replace(/\D/g, ""),
           address: formData.address || undefined,
           picture: pictureUrl,
+          observation: formData.observation || null,
         }),
       });
 
@@ -160,7 +165,7 @@ const StudentForm = ({
       if (selectedClasses.length > 0) await confirmClasses(studentId);
 
       window.alert("Estudante cadastrado com sucesso!");
-
+      reset()
     } catch (error) {
       console.error("Erro ao enviar dados:", error);
       window.alert("Erro interno ao enviar dados");
@@ -328,6 +333,9 @@ const StudentForm = ({
       <div className="flex flex-wrap gap-4">
         <InputField label="Nome" name="name" defaultValue={data?.name} register={register} error={errors?.name} />
       </div>
+            <div className="flex flex-wrap gap-4">
+              <InputField label="Data de Nascimento" name="birthDate" type="date" defaultValue={data?.birthDate ? data.birthDate.split("T")[0] : ""} register={register} error={errors?.birthDate} />
+            </div>
       <span className="text-xs text-gray-400 font-medium">Contato</span>
 
       <div className="flex flex-wrap gap-4">
@@ -482,7 +490,18 @@ const StudentForm = ({
 
       }
 
-
+      <TextField
+        label="Observação"
+        {...register("observation")}
+        defaultValue={data?.observation || ""}
+        multiline
+        minRows={4}
+        maxRows={8}
+        placeholder="Escreva observações adicionais..."
+        error={!!errors.observation}
+        helperText={errors.observation?.message?.toString()}
+        fullWidth
+      />
 
 
       <button className="bg-blue-400 text-white p-2 rounded-md">

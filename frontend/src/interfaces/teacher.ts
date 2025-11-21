@@ -10,8 +10,10 @@ interface Teacher {
   addressId: number
   email: string
   address: Address
+  observation: string
+  birthDate: string | Date
   Class: any[]
   classLinks: any[]
 }
 
-export type {Teacher}
+export type { Teacher }
