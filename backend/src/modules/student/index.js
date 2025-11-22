@@ -292,7 +292,7 @@ export default {
   async updateStudent(req, res) {
     try {
       const { id } = req.params;
-      const { name, cpf, phone, email, picture, address, birthDate, observation } = req.body;
+      const { name, cpf, password, phone, email, picture, address, birthDate, observation } = req.body;
 
       console.log("CHEGANDO: ", name, cpf, phone, email, picture, address);
 

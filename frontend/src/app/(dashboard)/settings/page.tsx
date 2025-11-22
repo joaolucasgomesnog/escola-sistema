@@ -30,8 +30,6 @@ const SettingsPage = () => {
     },
   });
 
-  const { mode, setMode } = useColorScheme();
-
 
 
   const onSubmit = handleSubmit(async (formData) => {
@@ -101,7 +99,6 @@ const SettingsPage = () => {
             error={errors?.password}
           />
 
-          {/* Nome e CNH */}
 
         </div>
 

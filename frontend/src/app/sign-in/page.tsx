@@ -93,7 +93,7 @@ const LoginPage = () => {
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         {/* Logo claro (aparece no modo light, some no dark) */}
         <div className="sm:mx-auto sm:w-full sm:max-w-sm -mt-10 dark:hidden">
-          <img src="/logo-light.png" className="mx-auto h-12 w-auto" alt="Logo Light" />
+          <img src="/logo.png" className="mx-auto h-12 w-auto" alt="Logo Light" />
         </div>
 
         {/* Logo escuro (aparece SOMENTE no modo dark) */}
