@@ -9,14 +9,14 @@ import { z } from "zod";
 import Cookies from "js-cookie";
 import InputField from "@/components/InputField";
 import { jwtDecode } from "jwt-decode";
-import { useState } from "react";
 import { BASE_URL } from "@/app/constants/baseUrl";
-import { ThemeToggle } from "../../../components/ThemeToggle";
+import { getUserFromToken } from "@/lib/getUserFromToken";
 
 
 
 const schema = z.object({
-  password: z.string().min(8, { message: "Senha deve ter no mínimo 8 caracteres" }),
+  oldPassword: z.string().min(8, { message: "Senha deve ter no mínimo 8 caracteres" }),
+  newPassword: z.string().min(8, { message: "Senha deve ter no mínimo 8 caracteres" }),
 });
 
 type Inputs = z.infer<typeof schema>;
@@ -25,7 +25,8 @@ const SettingsPage = () => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<Inputs>({
     resolver: zodResolver(schema),
     defaultValues: {
-      password: "",
+      oldPassword: "",
+      newPassword: ""
 
     },
   });
@@ -37,22 +38,21 @@ const SettingsPage = () => {
   const onSubmit = handleSubmit(async (formData) => {
     try {
       const token = Cookies.get("auth_token");
-
+      const user = getUserFromToken();
       const payload = {
-        password: formData.password,
+        oldPassword: formData.oldPassword,
+        newPassword: formData.newPassword,
       };
       if (!token) {
         throw new Error("Token não encontrado");
       }
-      const decoded: any = jwtDecode(token);
 
-      if (!decoded.personId) {
-        throw new Error("Token não contém personId");
+      if (!user) {
+        window.alert("Erro interno ao identificar usuário")
+        return
       }
 
-      const personId = String(decoded.personId); // <-- usa diretamente
-
-      const url = `${BASE_URL}/person/update/${personId}`;
+      const url = `${BASE_URL}/login/update-password/${user.role}/${user.id}`;
 
       const response = await fetch(url, {
         method: "PUT",
@@ -67,11 +67,11 @@ const SettingsPage = () => {
 
       if (!response.ok) {
         console.error("Erro:", result.error);
-        window.alert(result.error || "Erro ao salvar usuário");
+        window.alert(result.error || "Erro ao atualizar senha");
         return;
       }
 
-      window.alert(`Usuário atualizado com sucesso!`);
+      window.alert(`Senha atualizada com sucesso!`);
     } catch (error) {
       console.error("Erro ao enviar dados:", error);
       window.alert("Erro interno ao enviar dados");
@@ -89,19 +89,26 @@ const SettingsPage = () => {
       </Box>
       <form className="flex flex-col gap-4 mt-8" onSubmit={onSubmit}>
 
-        <Typography variant="body1">Senha</Typography>
-        <div className="flex flex-row gap-4 dark:bg-dark">
+        <Typography variant="body1">Atualizar senha</Typography>
+        <div className="flex flex-col gap-4 dark:bg-dark">
 
           <InputField
-            label="Senha"
-            name="password"
+            label="Antiga senha"
+            name="oldPassword"
             type="password"
             defaultValue={""}
             register={register}
-            error={errors?.password}
+            error={errors?.oldPassword}
           />
 
-          {/* Nome e CNH */}
+           <InputField
+            label="Nova senha"
+            name="newPassword"
+            type="password"
+            defaultValue={""}
+            register={register}
+            error={errors?.newPassword}
+          />
 
         </div>
 

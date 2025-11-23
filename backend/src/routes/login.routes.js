@@ -7,5 +7,6 @@ import { Router } from "express";
 const loginRoutes = Router();
 
 loginRoutes.post('/', login.login)
+loginRoutes.put('/update-password/:role/:id',autenticateToken, login.updatePassword)
 
 export {loginRoutes}
