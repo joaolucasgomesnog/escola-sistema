@@ -31,8 +31,6 @@ const SettingsPage = () => {
     },
   });
 
-  const { mode, setMode } = useColorScheme();
-
 
 
   const onSubmit = handleSubmit(async (formData) => {
