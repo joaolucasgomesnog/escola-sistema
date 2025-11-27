@@ -29,7 +29,9 @@ const schema = z.object({
 
   phone: z.string().optional(),
   email: z.string()
-    .email({ message: "E-mail inválido" }).optional(),
+  .email({ message: "E-mail inválido" })
+  .or(z.literal(""))
+  .optional(),
   picture: z
     .instanceof(File)
     .optional()

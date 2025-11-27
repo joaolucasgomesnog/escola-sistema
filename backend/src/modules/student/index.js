@@ -26,7 +26,7 @@ export default {
 
       console.log(req.body);
 
-      if (!name || !cpf || !phone || !password || !email || !address) {
+      if (!name || !cpf || !phone || !password || !address) {
         return res
           .status(400)
           .json({ error: "Campos obrigatórios não foram preenchidos" });
