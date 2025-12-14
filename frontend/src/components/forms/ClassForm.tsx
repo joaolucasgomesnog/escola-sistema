@@ -143,8 +143,6 @@ const ClassForm = ({
   }, [])
 
   useEffect(() => {
-    console.log(schedule)
-    // console.log(selectedDays)
   }, [selectedDays, schedule])
 
   const onSubmit = handleSubmit(async (formData) => {

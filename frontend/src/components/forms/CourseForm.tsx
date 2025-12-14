@@ -69,7 +69,6 @@ const CourseForm = ({
   const onSubmit = handleSubmit(async (formData) => {
 
     try {
-      console.log(formData)
 
       const token = Cookies.get("auth_token");
 
@@ -99,7 +98,6 @@ const CourseForm = ({
           ? "Curso cadastrado com sucesso!"
           : "Curso atualizado com sucesso!"
       );
-      console.log("Curso salvo:", result);
     } catch (error) {
       console.error("Erro ao enviar dados:", error);
       window.alert("Erro interno ao enviar dados");

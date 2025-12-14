@@ -61,7 +61,6 @@ const PaymentListPage = () => {
         }
 
         const data = await response.json();
-        console.log(data)
 
         const formattedPayments: Payment[] = data.map((s: any) => ({
           id: s.id,

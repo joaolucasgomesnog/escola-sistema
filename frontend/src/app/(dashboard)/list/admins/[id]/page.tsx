@@ -98,7 +98,6 @@ const SingleAdminPage = ({ params }: Props) => {
     contentRef: printRef,
     documentTitle: `Ficha do Adminstrador - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
-      console.log("Printing completed");
     },
   });
 
@@ -190,7 +189,6 @@ const SingleAdminPage = ({ params }: Props) => {
       if (!response.ok) throw new Error("Erro ao buscar mensalidades do Adminstrador.");
 
       const data = await response.json();
-      console.log("Mensalidades do Adminstrador:", data);
       setFees(data);
     } catch (error) {
       console.error("Erro ao carregar mensalidades:", error);
@@ -342,7 +340,6 @@ const SingleAdminPage = ({ params }: Props) => {
 
       const data = await response.json();
       setClasses(data)
-      console.log("Classes:", data);
     } catch (error) {
       console.error("Erro ao carregar classes:", error);
     }
@@ -455,7 +452,6 @@ const SingleAdminPage = ({ params }: Props) => {
       if (!response.ok) throw new Error("Erro ao adicionar desconto ao Adminstrador.");
       setOpenDiscountModal(false)
 
-      console.log(response)
 
       window.alert("Desconto adicionado com sucesso")
       setSelectDiscountVisible(false)

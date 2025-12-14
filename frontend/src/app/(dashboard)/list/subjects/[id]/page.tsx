@@ -79,7 +79,6 @@ const SingleCoursePage = ({ params }: SingleCoursePageProps) => {
         if (!res.ok) throw new Error("Erro ao buscar alunos");
         const data = await res.json();
         setTeachers(data);
-        console.log(data)
       } catch (err) {
         console.error(err);
       }

@@ -142,7 +142,6 @@ const TeacherForm = ({
 
       window.alert("Professor cadastrado com sucesso!");
       reset()
-      console.log("Professor criado:", result);
     } catch (error) {
       console.error("Erro ao enviar dados:", error);
       window.alert("Erro interno ao enviar dados");

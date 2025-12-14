@@ -62,7 +62,6 @@ const CourseListPage = () => {
       }
 
       const data = await response.json();
-      console.log(data)
 
       const formattedCourses: Course[] = data.map((s: any) => ({
         id: s.id,

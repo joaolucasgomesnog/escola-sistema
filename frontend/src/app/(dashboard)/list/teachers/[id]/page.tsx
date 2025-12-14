@@ -106,7 +106,6 @@ const SingleTeacherPage = ({ params }: Props) => {
     contentRef: printRef,
     documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
-      console.log("Printing completed");
     },
   });
 
@@ -128,8 +127,6 @@ const SingleTeacherPage = ({ params }: Props) => {
       if (!res.ok) throw new Error("Erro ao buscar professor");
 
       const data = await res.json();
-      console.log("Dados do professor:", data);
-      console.log(data.Class)
       setTeacher(data);
     } catch (err) {
       console.error("Erro:", err);
@@ -315,7 +312,6 @@ const SingleTeacherPage = ({ params }: Props) => {
 
       const data = await response.json();
       fetchTeacher()
-      console.log("retorno:", data);
       // setClasses(data)
       window.alert("matrícula efetuada com sucesso")
     } catch (error) {
@@ -343,7 +339,6 @@ const SingleTeacherPage = ({ params }: Props) => {
 
       const data = await response.json();
       setClasses(data)
-      console.log("Classes:", data);
     } catch (error) {
       console.error("Erro ao carregar classes:", error);
     }

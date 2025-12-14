@@ -267,7 +267,6 @@ const CashierPage = () => {
     contentRef: printRecipeRef,
     documentTitle: `Comprovante - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
-      console.log("Printing completed");
       setReportFilters(null);
       setFilterKey(prev => prev + 1); // Força recriação do modal
     },
@@ -302,7 +301,6 @@ const CashierPage = () => {
       if (!response.ok) throw new Error("Erro ao buscar lista de administradores");
 
       const data = await response.json();
-      console.log("Dados brutos da API:", data); // Adicione este log
       setAdminList(data);
     } catch (error) {
       console.error("Erro ao buscar lista de administradores:", error);
@@ -404,11 +402,9 @@ const CashierPage = () => {
       if (!response.ok) throw new Error("Erro ao buscar mensalidades.");
 
       const data = await response.json();
-      console.log("Dados brutos da API:", data); // Adicione este log
 
       // Verifique se os dados estão no formato esperado
       const unpaid = data.filter((f: any) => f.payments.length === 0);
-      console.log("Mensalidades não pagas:", unpaid); // Adicione este log
 
       setStudentFees(unpaid);
     } catch (error) {
@@ -580,7 +576,6 @@ const CashierPage = () => {
     contentRef: printRef,
     documentTitle: `Relatório de Caixa - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
-      console.log("Printing completed");
       setReportFilters(null);
       setFilterKey(prev => prev + 1); // Força recriação do modal
     },

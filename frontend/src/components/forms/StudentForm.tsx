@@ -279,7 +279,6 @@ const StudentForm = ({
 
       const data = await response.json();
       setClasses(data)
-      console.log("Classes:", data);
     } catch (error) {
       console.error("Erro ao carregar classes:", error);
     }

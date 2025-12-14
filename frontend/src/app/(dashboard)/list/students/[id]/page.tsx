@@ -134,7 +134,6 @@ const SingleStudentPage = ({ params }: Props) => {
     contentRef: printRef,
     documentTitle: `Ficha do aluno - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
-      console.log("Printing completed");
     },
   });
 
@@ -142,7 +141,6 @@ const SingleStudentPage = ({ params }: Props) => {
     contentRef: printCarneRef,
     documentTitle: `Carnê do aluno - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
-      console.log("Printing completed");
     },
   });
 
@@ -233,7 +231,6 @@ const SingleStudentPage = ({ params }: Props) => {
       if (!response.ok) throw new Error("Erro ao buscar mensalidades do aluno.");
 
       const data = await response.json();
-      console.log("Mensalidades do aluno:", data);
       setFees(data);
     } catch (error) {
       console.error("Erro ao carregar mensalidades:", error);
@@ -386,7 +383,6 @@ const SingleStudentPage = ({ params }: Props) => {
 
       const data = await response.json();
       setClasses(data)
-      console.log("Classes:", data);
     } catch (error) {
       console.error("Erro ao carregar classes:", error);
     }
@@ -504,7 +500,6 @@ const SingleStudentPage = ({ params }: Props) => {
       if (!response.ok) throw new Error("Erro ao adicionar desconto ao aluno.");
       setOpenDiscountModal(false)
 
-      console.log(response)
 
       window.alert("Desconto adicionado com sucesso")
       setSelectDiscountVisible(false)

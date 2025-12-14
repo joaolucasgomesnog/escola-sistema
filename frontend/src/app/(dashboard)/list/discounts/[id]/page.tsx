@@ -48,7 +48,6 @@ const SingleDiscountPage = ({ params }: SingleDiscountPageProps) => {
         });
         if (!res.ok) throw new Error("Erro ao buscar desconto");
         const data = await res.json();
-        console.log(data)
         setDiscount(data);
       } catch (err) {
         console.error(err);
